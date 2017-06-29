@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="dist">
+    <CLASSES>
+      <root url="file://E:/mallet-2.0.8RC3/dist" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="http://mallet.cs.umass.edu/api/" />
+    </JAVADOC>
+    <SOURCES />
+    <jarDirectory url="file://E:/mallet-2.0.8RC3/dist" recursive="false" />
+  </library>
+</component>
