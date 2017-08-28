@@ -1,8 +1,10 @@
 package org.cc.diva;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.cc.misc.DivaIDtoNames;
+import org.cc.wos.DiVAtoWoS;
+
+import java.text.Normalizer;
+import java.util.*;
 
 /**
  * Created by crco0001 on 5/12/2016.
@@ -25,8 +27,58 @@ public class Author implements Comparable<Author>{
 
     private List<String> umuDivaAddresses; // can be null
     private List<Integer> lowestDivaAddressNumber; //can be null
+    private List<DivaIDtoNames> affilMappingsObjects; // can be null
     private int PID;
     private Post post; // reference to the post in which the specific author object is located
+
+    String disambiguateID = "XA0";
+
+    String automaticAddedCas;
+
+    public void addAutomaticAddedCas(String cas2) {
+
+        automaticAddedCas = cas2;
+    }
+
+
+    public String getAutomaticAddedCass() {
+
+        if(automaticAddedCas == null) return cas;
+
+        return(automaticAddedCas);
+    }
+
+    public void setDisambiguateID(String i) {
+        this.disambiguateID = i;
+    }
+
+    public String getDisambiguateID() {
+
+        return disambiguateID;
+    }
+    public void mappAffiliations(Map<Integer,DivaIDtoNames> mappings) {
+
+        if(this.nrUmUaddresses == 0) { affilMappingsObjects = Collections.emptyList(); return; }
+
+        affilMappingsObjects = new ArrayList<>(nrUmUaddresses);
+
+        for(int i=0; i<nrUmUaddresses; i++) {
+
+           DivaIDtoNames mapp = mappings.get( getLowestDivaAddressNumber().get(i) );
+
+           if(mapp == null) {System.out.println( getLowestDivaAddressNumber().get(i) + " diva affill id has no mappings!" ); System.exit(0); }
+
+           affilMappingsObjects.add(mapp);
+
+        }
+
+    }
+
+
+    public List<DivaIDtoNames> getAffilMappingsObjects() {
+
+        return this.affilMappingsObjects;
+    }
 
     public Double getForskningsTidProcent() {
 
@@ -324,4 +376,98 @@ public class Author implements Comparable<Author>{
 
        return this.cas.compareTo(other.cas);
     }
+
+
+    public static String normalizeAndSortNames(String s) {
+
+        //based on this: https://blog.mafr.de/2015/10/10/normalizing-text-in-java/
+        String temp = Normalizer.normalize(s, Normalizer.Form.NFD);
+        temp = temp.replaceAll("[^\\p{ASCII}]", "");
+        temp = temp.replaceAll("-", " ");
+        temp = temp.replaceAll("\\.","");
+        // temp = temp.toLowerCase();
+
+        String[] splitted = temp.split(",");
+
+        for(int i=0; i<splitted.length; i++ ) {
+
+            splitted[i] = splitted[i].trim();
+
+        }
+
+        Arrays.sort(splitted);
+        return String.join(" ",splitted);
+    }
+
+
+
+    public String printMappedAuthorWithFractionsAndNorwegianModel() {
+
+
+        String seperator = "\t";
+        StringBuilder stringBuilder = new StringBuilder();
+
+        int nrUmUAdresses = this.getAffilMappingsObjects().size();
+
+        Post p = this.getEnclosingPost();
+
+        if(nrUmUAdresses != 0) {
+
+            List<DivaIDtoNames> divaIDtoNamesList = getAffilMappingsObjects();
+
+            for(int i=0; i<divaIDtoNamesList.size(); i++) {
+                //UmU author
+
+                if(i>0) stringBuilder.append("\n"); //new line for multi affiled
+
+                   stringBuilder.append(p.getPID()).append(seperator);
+
+                    stringBuilder.append(getDisambiguateID()).append(seperator);
+
+                    stringBuilder.append( getAuthorName() ).append(seperator);
+
+                    stringBuilder.append(getCas()).append(seperator);
+
+                    stringBuilder.append(getAutomaticAddedCass()).append(seperator);
+
+                    stringBuilder.append( fractionConsiderMultipleUmUAffils ).append(seperator);
+
+                    stringBuilder.append(divaIDtoNamesList.get(i).getFAKULTET() ).append(seperator);
+
+                    stringBuilder.append(divaIDtoNamesList.get(i).getINSTITUTION() ).append(seperator);
+
+            }
+
+        } else {
+
+            //non-UmU author
+
+            stringBuilder.append(p.getPID()).append(seperator);
+
+            stringBuilder.append(getDisambiguateID()).append(seperator);
+
+            stringBuilder.append( getAuthorName() ).append(seperator);
+
+            stringBuilder.append(getCas()).append(seperator);
+
+            stringBuilder.append(getAutomaticAddedCass()).append(seperator);
+
+            stringBuilder.append( fractionConsiderMultipleUmUAffils ).append(seperator);
+
+            stringBuilder.append( "external" ).append(seperator); //FACULTY
+
+            stringBuilder.append( "external" ).append(seperator); //INSTITUUTION
+
+
+
+        }
+
+       // System.out.println( p.getPID() + "\t" + a.getDisambiguateID() + "\t" + a.getAuthorName() +"\t" + a.getCas() +"\t" + a.getAutomaticAddedCass() +"\t" + a.getFractionIgnoreMultipleUmUAffils() + "\t" + a.getFractionConsiderMultipleUmUAffils() +"\t" +a.getNrUmUaddresses() + "\t" +a.getAffiliations() +"\t" +a.getAffilMappingsObjects() );
+
+
+
+        return stringBuilder.toString();
+
+    }
+
 }

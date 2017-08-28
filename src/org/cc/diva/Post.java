@@ -20,8 +20,8 @@ import java.util.List;
 public class Post implements Comparable<Post>{
 
 
-
-
+   boolean isDuplicate = false;
+   int duplicateOfPID;
 
     private NorwegianMatchInfo norskNivå;
     private StatusInModel infoRegardingInclusionInModel;
@@ -29,6 +29,24 @@ public class Post implements Comparable<Post>{
     private String[] rawData;
     private List<Author> authorList = new ArrayList<>();
     private int PID;
+
+    public void setDuplicate(boolean bool, int otherPID) {
+
+        isDuplicate = bool;
+        duplicateOfPID = otherPID;
+    }
+
+    public int getDuplicateOfPID() {
+
+        if(isDuplicate) return duplicateOfPID;
+
+        return -1;
+    }
+
+    public boolean isDuplicate() {
+
+        return isDuplicate;
+    }
 
     public Post(String[] row) {
 

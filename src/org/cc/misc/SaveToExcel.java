@@ -34,6 +34,143 @@ public class SaveToExcel {
     public SaveToExcel() {}
 
 
+    public void saveDesanbiguedAuthorFractions(List<Post> recordList) {
+
+        XSSFSheet sheet = workbook.createSheet("AuthorFracs");
+        XSSFFont font = workbook.createFont();
+        XSSFCellStyle style = workbook.createCellStyle();
+        font.setBold(true);
+        style.setFont(font);
+
+        sheet.createFreezePane(0,1);
+        int cellIndices = 0;
+        int rowIndices = 0;
+
+        //SKAPA EN LÅST HEADER-RAD
+        Row row = sheet.createRow(rowIndices);
+
+
+        Cell cell = row.createCell(0);
+        cell.setCellValue("PID" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(1);
+        cell.setCellValue("AUTHOR_ID" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(2);
+        cell.setCellValue("NAME" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(3);
+        cell.setCellValue("CAS1" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(4);
+        cell.setCellValue("CAS2" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(5);
+        cell.setCellValue("FRACTIONS" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(6);
+        cell.setCellValue("FACULTY" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(7);
+        cell.setCellValue("INSTITUTION" );
+        cell.setCellStyle(style);
+
+
+
+        for(Post p : recordList) {
+
+            for(Author author : p.getAuthorList() ) {
+
+
+                List<DivaIDtoNames> divaIDtoNames = author.getAffilMappingsObjects();
+                boolean isUmuAuthor = divaIDtoNames.size() > 0;
+
+                int indice = 0;
+                do {
+                    row = sheet.createRow(++rowIndices);
+                    cellIndices = -1;
+
+                    //PID
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getPID());
+
+                    //AUTHOR_ID"
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getDisambiguateID());
+
+
+                    //AUTHOR_NAME"
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getAuthorName() );
+
+                    //CAS 1"
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getCas() );
+
+                    //CAS 2"
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getAutomaticAddedCass() );
+
+                    //CAS FRAC"
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getFractionConsiderMultipleUmUAffils() );
+
+
+
+                    //FACULTY
+                    String faculty = ( isUmuAuthor ) ? divaIDtoNames.get(indice).getFAKULTET() : "external";
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(faculty);
+
+                    //INST
+
+                    String inst = ( isUmuAuthor ) ? divaIDtoNames.get(indice).getINSTITUTION() : "external";
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(inst);
+
+
+                    indice++;
+                } while(indice < divaIDtoNames.size() );
+
+
+
+            }
+
+
+        }
+
+
+        Date date = new Date() ;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm") ;
+
+
+        try (FileOutputStream outputStream = new FileOutputStream("Fractions" + dateFormat.format(date)  +".xlsx")) {
+            workbook.setActiveSheet(0);
+            workbook.setSelectedTab(0);
+            workbook.write(outputStream);
+            workbook.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+
     public void saveNorwegianMatchingInfo(List<Post> recordList) {
 
 
@@ -166,6 +303,23 @@ public class SaveToExcel {
         cell.setCellValue("DIVA_SENAST_ÄNDRAD" );
         cell.setCellStyle(style);
 
+        cell = row.createCell(26);
+        cell.setCellValue("NORSK_POÄNG" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(27);
+        cell.setCellValue("NR_FÖRFATTARE" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(28);
+        cell.setCellValue("DUBBLETT" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(29);
+        cell.setCellValue("DUBLETT_PID" );
+        cell.setCellStyle(style);
+
+
         for(Post p : recordList) {
 
 
@@ -277,6 +431,22 @@ public class SaveToExcel {
             cell.setCellValue(p.getRawDataRow()[ ReducedDiVAColumnIndices.LastUpdated.getValue() ] );
 
 
+            cell = row.createCell(++cellIndices);
+
+            cell.setCellValue(  norskNivå.getVikt() );
+
+
+            cell = row.createCell(++cellIndices);
+
+            cell.setCellValue(  p.getNrAuthors() );
+
+            cell = row.createCell(++cellIndices);
+
+            cell.setCellValue(  p.isDuplicate() );
+
+            cell = row.createCell(++cellIndices);
+
+            cell.setCellValue(  p.getDuplicateOfPID() );
 
         }
 

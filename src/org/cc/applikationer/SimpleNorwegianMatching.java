@@ -1,16 +1,14 @@
 package org.cc.applikationer;
 
 import org.cc.NorskaModellen.*;
-import org.cc.diva.CreateDivaTable;
-import org.cc.diva.Post;
-import org.cc.misc.SaveToExcel;
-import org.cc.misc.Thesaurus;
+import org.cc.diva.*;
+import org.cc.misc.*;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * Created by crco0001 on 6/20/2017.
@@ -18,7 +16,7 @@ import java.util.List;
 public class SimpleNorwegianMatching {
 
 
-    public static void main(String[] arg) throws IOException {
+    public static void main(String[] arg) throws IOException, XMLStreamException, ParseException {
 
 
         if(arg.length != 3) { System.out.println(" java -cp .. norwegianList.xlsx thesaurusFile.xlsx divaDump.csv"); System.exit(0); }
@@ -75,8 +73,58 @@ public class SimpleNorwegianMatching {
             }
 
 
-
         System.out.println("Object skapade: " + postList.size());
+
+
+        /**
+         *
+         * Identifierar dubbletter
+         *
+         */
+
+
+
+
+        System.out.println(DuplicationIdentifier.deDuplicate(postList) +" duplicated identified");
+
+
+        /**
+         *
+         * Author disambiguate
+         *
+         */
+
+
+        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(); //constructor with hardcoded paths to personalData.xml and Mappings.excel
+
+        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList);
+
+
+
+
+     /*   System.out.println("Printing authors..");
+
+
+        for(Post p : postList) {
+
+            List<Author> authorList = p.getAuthorList();
+
+
+                for(Author a : authorList) {
+
+                    System.out.println( p.getPID() + "\t" + a.getDisambiguateID() + "\t" + a.getAuthorName() +"\t" + a.getCas() +"\t" + a.getAutomaticAddedCass() +"\t" + a.getFractionIgnoreMultipleUmUAffils() + "\t" + a.getFractionConsiderMultipleUmUAffils() +"\t" +a.getNrUmUaddresses() + "\t" +a.getAffiliations() +"\t" +a.getAffilMappingsObjects() );
+                }
+
+
+        }
+
+
+        System.exit(0);
+
+
+*/
+
+
 
         System.out.println("Matchar mot norska listan..");
 
@@ -89,13 +137,43 @@ public class SimpleNorwegianMatching {
             p.setNorskNivå( matchInfo ); // uppdatera posten med information om matchning mot norska listan
 
 
+            Viktning.DefaultWeightning(p);
+
             }
 
-        System.out.println("OK.. now saving to Excel..");
+
+
+/*
+        System.out.println("OK.. saving to file..");
+
+        BufferedWriter writer = new BufferedWriter( new FileWriter( new File("resultDebugg.txt")));
+
+        for(Post p :postList) {
+
+            for(Author a : p.getAuthorList() ) {
+
+
+                writer.write(a.printMappedAuthorWithFractionsAndNorwegianModel());
+                writer.newLine();
+            }
+
+
+        }
+
+
+        writer.flush();
+        writer.close();
+       System.out.println("OK.. now saving to Excel..");
+
+*/
 
         SaveToExcel saveToExcel = new SaveToExcel();
         saveToExcel.saveNorwegianMatchingInfo(postList);
 
+        saveToExcel = new SaveToExcel();
+        saveToExcel.saveDesanbiguedAuthorFractions(postList);
+
+        System.out.println("Resultat sparat i två Excel-filer: Fractions och NorskMatchning..");
 
         }
 
