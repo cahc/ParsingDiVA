@@ -95,7 +95,9 @@ public class SimpleNorwegianMatching {
          */
 
 
-        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(); //constructor with hardcoded paths to personalData.xml and Mappings.excel
+      //  AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(); //constructor with hardcoded paths to personalData.xml and Mappings.excel
+
+        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20170807.xlsx"), new File("PersonalData_201708071322409.xml"));
 
         authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList);
 

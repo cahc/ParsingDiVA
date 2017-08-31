@@ -45,7 +45,7 @@ public class AuthorDisambiguation {
 
 
         ReadAffiliationMappingFile readAffiliationMappingFile = new ReadAffiliationMappingFile();
-        this.mappings = readAffiliationMappingFile.parseAffiliationMappingFile(new java.io.File("E:\\STARKA_MILJÖER_UTVÄRDERING\\V3_KOMPLETTERINGSRAPPORT\\Mappningsfil20170807.xlsx"));
+        this.mappings = readAffiliationMappingFile.parseAffiliationMappingFile(new java.io.File("E:\\STARKA_MILJÖER_UTVÄRDERING\\V3_KOMPLETTERINGSRAPPORT\\Mappningsfil20170807.xlsx")  );
 
         DataLoader personalData = new DataLoader( new File("E:\\STARKA_MILJÖER_UTVÄRDERING\\V3_KOMPLETTERINGSRAPPORT\\PersonalData_201708071322409.xml"));
 

@@ -319,6 +319,10 @@ public class SaveToExcel {
         cell.setCellValue("DUBLETT_PID" );
         cell.setCellStyle(style);
 
+        cell = row.createCell(30);
+        cell.setCellValue("NBN" );
+        cell.setCellStyle(style);
+
 
         for(Post p : recordList) {
 
@@ -447,6 +451,11 @@ public class SaveToExcel {
             cell = row.createCell(++cellIndices);
 
             cell.setCellValue(  p.getDuplicateOfPID() );
+
+            cell = row.createCell(++cellIndices);
+
+            cell.setCellValue(  p.getNBN() );
+
 
         }
 
