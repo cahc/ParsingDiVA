@@ -13,8 +13,15 @@ import java.util.*;
 /**
  * Created by crco0001 on 6/20/2017.
  */
-public class SimpleNorwegianMatching {
+public class SamFakModel {
 
+    /*
+
+    Samhällsvetenskapliga fakultetens model
+
+    Se dokumentation: "Norska modellen vid samFak, Datum 2017-09-01
+
+     */
 
     public static void main(String[] arg) throws IOException, XMLStreamException, ParseException {
 
@@ -99,7 +106,7 @@ public class SimpleNorwegianMatching {
 
       //  AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(); //constructor with hardcoded paths to personalData.xml and Mappings.excel
 
-        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20170807.xlsx"), new File("PersonalData_201708071322409.xml"));
+        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20170807.xlsx"), new File("PersonalData.xml"));
 
         authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList);
 
@@ -178,7 +185,10 @@ public class SimpleNorwegianMatching {
         saveToExcel.saveNorwegianMatchingInfo(postList);
 
         saveToExcel = new SaveToExcel();
-        saveToExcel.saveDisambiguatedAuthorFractions(postList);
+        saveToExcel.saveDisambiguatedAuthorFractions(postList,false);
+
+       saveToExcel = new SaveToExcel();
+        saveToExcel.saveDisambiguatedAuthorFractions(postList,true);
 
         System.out.println("Resultat sparat i två Excel-filer: Fractions och NorskMatchning..");
 

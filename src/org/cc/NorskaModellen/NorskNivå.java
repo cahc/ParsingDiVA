@@ -15,6 +15,7 @@ import static org.cc.diva.DivaHelpFunctions.extractSeriesName;
 public class NorskNivå {
 
 
+    private static String problematicSerie1 = DivaHelpFunctions.simplifyString("Studies in Educational Leadership");
 
     public static NorwegianMatchInfo getNorwegianLevel(List<NorskSerie> serieLista, List<NorskFörlag> förlagList, Post p, double threshold, Thesaurus thesaurus) {
 
@@ -93,6 +94,7 @@ public class NorskNivå {
             //no hit on ISSN; continue with journal name or with series name
 
             String simplifiedSeriesName = "";
+
             if(divaPublikationsTyp.equals(DivaPublicationTypes.review) || divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift)) simplifiedSeriesName = DivaHelpFunctions.simplifyString( thesaurus.replaceSerieBy( p.getJournal() ) );
 
             if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) ) {
@@ -101,7 +103,10 @@ public class NorskNivå {
 
             }
 
-            if(simplifiedSeriesName.length() > 1) {
+
+            boolean troublesome_series = !problematicSerie1.equals(simplifiedSeriesName);
+
+            if(simplifiedSeriesName.length() > 1 && troublesome_series) {
 
                 NormalizedLevenshtein levenshtein = new NormalizedLevenshtein();
 
