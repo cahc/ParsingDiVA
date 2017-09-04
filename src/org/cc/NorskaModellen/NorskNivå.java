@@ -92,16 +92,16 @@ public class NorskNivå {
 
             //no hit on ISSN; continue with journal name or with series name
 
-            String simplifyedSeriesName = "";
-            if(divaPublikationsTyp.equals(DivaPublicationTypes.review) || divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift)) simplifyedSeriesName = DivaHelpFunctions.simplifyString( thesaurus.replaceSerieBy( p.getJournal() ) );
+            String simplifiedSeriesName = "";
+            if(divaPublikationsTyp.equals(DivaPublicationTypes.review) || divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift)) simplifiedSeriesName = DivaHelpFunctions.simplifyString( thesaurus.replaceSerieBy( p.getJournal() ) );
 
             if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) ) {
                 String serieName = extractSeriesName( thesaurus.replaceSerieBy( p.getSeriesName() ));
-                if(serieName != null) simplifyedSeriesName = DivaHelpFunctions.simplifyString( serieName );
+                if(serieName != null) simplifiedSeriesName = DivaHelpFunctions.simplifyString( serieName );
 
             }
 
-            if(simplifyedSeriesName.length() > 1) {
+            if(simplifiedSeriesName.length() > 1) {
 
                 NormalizedLevenshtein levenshtein = new NormalizedLevenshtein();
 
@@ -110,7 +110,7 @@ public class NorskNivå {
 
 
                 for(int i=0; i<serieLista.size(); i++) {
-                    double sim = levenshtein.similarity(simplifyedSeriesName, serieLista.get(i).getSimplifyedTitle() );
+                    double sim = levenshtein.similarity(simplifiedSeriesName, serieLista.get(i).getSimplifyedTitle() );
                     if(sim > max) {max = sim; indice = i;}
                 }
 

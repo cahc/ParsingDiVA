@@ -59,7 +59,9 @@ public class SimpleNorwegianMatching {
 
          **/
 
-        ConsideredPublications defaultPubInclusion = new DefaultPubInclusion();
+        //ConsideredPublications defaultPubInclusion = new DefaultPubInclusion();
+
+        ConsideredPublications consideredPublications = new SFPubInclusion();
 
         List<Post> postList = new ArrayList<>(100);
 
@@ -134,12 +136,15 @@ public class SimpleNorwegianMatching {
 
 
 
-            p.setStatusInModel( defaultPubInclusion.consideredPub(p) ); // ska publikationen matchas mot norska listan, se StatusInMdelConstants
+            p.setStatusInModel( consideredPublications.consideredPub(p) ); // ska publikationen matchas mot norska listan, se StatusInMdelConstants
             NorwegianMatchInfo matchInfo = NorskNivå.getNorwegianLevel(listaMedSerier,listaMedFörlag,p,0.9,standardiseringsListor); //matcha eventuellt mot norska listan samt uppdatera StatusInModel
             p.setNorskNivå( matchInfo ); // uppdatera posten med information om matchning mot norska listan
 
 
-            Viktning.DefaultWeightning(p);
+            //Viktning.DefaultWeightning(p);
+
+            Viktning.SFWeighting(p);
+
 
             }
 
@@ -173,7 +178,7 @@ public class SimpleNorwegianMatching {
         saveToExcel.saveNorwegianMatchingInfo(postList);
 
         saveToExcel = new SaveToExcel();
-        saveToExcel.saveDesanbiguedAuthorFractions(postList);
+        saveToExcel.saveDisambiguatedAuthorFractions(postList);
 
         System.out.println("Resultat sparat i två Excel-filer: Fractions och NorskMatchning..");
 

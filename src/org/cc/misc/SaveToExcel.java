@@ -34,7 +34,7 @@ public class SaveToExcel {
     public SaveToExcel() {}
 
 
-    public void saveDesanbiguedAuthorFractions(List<Post> recordList) {
+    public void saveDisambiguatedAuthorFractions(List<Post> recordList) {
 
         XSSFSheet sheet = workbook.createSheet("AuthorFracs");
         XSSFFont font = workbook.createFont();
@@ -71,15 +71,24 @@ public class SaveToExcel {
         cell.setCellStyle(style);
 
         cell = row.createCell(5);
-        cell.setCellValue("FRACTIONS" );
+        cell.setCellValue("FRACTIONS (STANDARD)" );
         cell.setCellStyle(style);
 
         cell = row.createCell(6);
-        cell.setCellValue("FACULTY" );
+        cell.setCellValue("FRACTIONS (SAMFAK MODEL)" );
         cell.setCellStyle(style);
 
         cell = row.createCell(7);
+        cell.setCellValue("FACULTY" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(8);
         cell.setCellValue("INSTITUTION" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(9);
+        cell.setCellValue("UNIT (IF AVAILABLE OTHERWISE INST.)" );
         cell.setCellStyle(style);
 
 
@@ -122,11 +131,15 @@ public class SaveToExcel {
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue(author.getAutomaticAddedCass() );
 
-                    //CAS FRAC"
+                    //CAS FRAC STANDARD
 
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue(author.getFractionConsiderMultipleUmUAffils() );
 
+                    //CAS FRAC Min.01 AND Ignore multiple UmU-affils
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getFractionIgnoreMultipleUmUAffilsMin01() );
 
 
                     //FACULTY
@@ -139,6 +152,12 @@ public class SaveToExcel {
                     String inst = ( isUmuAuthor ) ? divaIDtoNames.get(indice).getINSTITUTION() : "external";
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue(inst);
+
+                    String unit = ( isUmuAuthor ) ? divaIDtoNames.get(indice).getENHET() : "external";
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(unit);
+
+
 
 
                     indice++;
@@ -253,73 +272,80 @@ public class SaveToExcel {
         cell.setCellValue("MONDELLINFO" );
         cell.setCellStyle(style);
 
+
+        //model specific info
         cell = row.createCell(15);
+        cell.setCellValue("MODELLINFO2" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(16);
         cell.setCellValue("DIVA_KANALER" );
         cell.setCellStyle(style);
 
 
 
-        cell = row.createCell(16);
+        cell = row.createCell(17);
         cell.setCellValue("TI" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(17);
+        cell = row.createCell(18);
         cell.setCellValue("ABSTRACT" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(18);
+        cell = row.createCell(19);
         cell.setCellValue("TIDSKRIFT" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(19);
+        cell = row.createCell(20);
         cell.setCellValue("TIDSKRIFT_ISSN" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(20);
+        cell = row.createCell(21);
         cell.setCellValue("SERIE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(21);
+        cell = row.createCell(22);
         cell.setCellValue("SERIE_ISSN" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(22);
+        cell = row.createCell(23);
         cell.setCellValue("FÖRLAG" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(23);
+        cell = row.createCell(24);
         cell.setCellValue("FÖRLAG_ISBN" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(24);
+        cell = row.createCell(25);
         cell.setCellValue("SPRÅK" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(25);
+        cell = row.createCell(26);
         cell.setCellValue("DIVA_SENAST_ÄNDRAD" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(26);
+        cell = row.createCell(27);
         cell.setCellValue("NORSK_POÄNG" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(27);
+        cell = row.createCell(28);
         cell.setCellValue("NR_FÖRFATTARE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(28);
+        cell = row.createCell(29);
         cell.setCellValue("DUBBLETT" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(29);
+        cell = row.createCell(30);
         cell.setCellValue("DUBLETT_PID" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(30);
+        cell = row.createCell(31);
         cell.setCellValue("NBN" );
         cell.setCellStyle(style);
 
@@ -395,6 +421,11 @@ public class SaveToExcel {
 
             cell = row.createCell(++cellIndices);
             cell.setCellValue(     p.getStatusInModel().getStatusInModel()  );
+
+
+            cell = row.createCell(++cellIndices);
+            cell.setCellValue(     p.getNorskNivå().getModelSpecificInfo() );
+
 
             cell = row.createCell(++cellIndices);
             cell.setCellValue(          p.getDivaChannels() );
