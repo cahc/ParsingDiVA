@@ -126,7 +126,7 @@ public class CmdParser {
 
     if( cmd.hasOption("version") ) {
 
-        System.out.println("Beta v0.7 2017-05-30 (release for new diva format)");
+        System.out.println("Beta v0.8 2017-09-xx (release for new SamFak model)");
         System.exit(0);
     }
 
