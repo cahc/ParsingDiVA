@@ -34,9 +34,9 @@ public class NorskNivå {
         // A) serieISSN eller serie namn --> behandlas som serie
         // B) utgivare eller ISBN --> förlag
 
-        //Bok matchas mot norska listan med utgivare eller ISBN-prefix
+        //Bok matchas mot norska listan med utgivare eller ISBN-prefix ELLER serie, serie har företräde..!!
 
-        // TODO CHECK IF THIS MAKES SENSE! LATER ON, BOOK CAN BE IN A SERIES OF CAUSE..
+
 
         if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift) || divaPublikationsTyp.equals(DivaPublicationTypes.review) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) ) {
 

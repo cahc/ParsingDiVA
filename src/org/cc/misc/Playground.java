@@ -22,8 +22,20 @@ public class Playground {
 
         NormalizedLevenshtein lvSim = new NormalizedLevenshtein();
 
-        System.out.println(lvSim.similarity("cristian, Colliander","cristian Colliander"));
+        String s1 = DivaHelpFunctions.simplifyString( "International Journal of Telerehabilitation" );
+        String s2 =   DivaHelpFunctions.simplifyString("International Journal of Neurorehabilitation" );
 
+        String s3 =  DivaHelpFunctions.simplifyString("International Journal of Engineering and Technology");
+        String s4 =   DivaHelpFunctions.simplifyString("International Journal of Web Engineering and Technology");
+
+        String s5 =  DivaHelpFunctions.simplifyString("The journal of crap");
+        String s6 =   DivaHelpFunctions.simplifyString("thejournal of crapp");
+
+        System.out.println("likhet mellan s1 och s2: " + lvSim.similarity(s1,s2));
+
+        System.out.println("likhet mellan s3 och s4: " + lvSim.similarity(s3,s4));
+
+        System.out.println("likhet mellan s5 och s6: " + lvSim.similarity(s5,s6));
 
         //if(arg.length != 1) {System.out.println("supply divaDumpFile"); System.exit(0); }
 
