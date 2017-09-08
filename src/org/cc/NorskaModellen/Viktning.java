@@ -443,7 +443,7 @@ public class Viktning {
                 matchInfo.setVikt(0);
                 matchInfo.setModelSpecificInfo("IGNORERAD (STATUS EJ PUBLICERAD)");
 
-            } else if(publicationsStatus.equals(publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT))) {
+            } else if(publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT)) {
 
                 matchInfo.setVikt(0);
                 matchInfo.setModelSpecificInfo("IGNORERAD (EJ VETENSKAPLIG INNEHÅLLSTYP)");
@@ -456,10 +456,10 @@ public class Viktning {
 
             } else {
 
-            System.out.println("ERROR!!!");
-
+            System.out.println("Error undefined weight for this publikation type!");
+            System.out.println("Publikation status: " + publicationsStatus);
             matchInfo.setVikt(-99);
-            matchInfo.setModelSpecificInfo("ERROR IN MATCHING RUTINE!");
+            matchInfo.setModelSpecificInfo("ERROR IN MATCHING ROUTINE!");
 
         }
 
