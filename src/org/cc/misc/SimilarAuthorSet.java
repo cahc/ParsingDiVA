@@ -1,6 +1,5 @@
 package org.cc.misc;
 
-import com.koloboke.collect.set.hash.HashByteSet;
 import org.cc.diva.Author;
 
 import java.util.ArrayList;
