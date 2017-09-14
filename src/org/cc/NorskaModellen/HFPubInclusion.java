@@ -13,7 +13,11 @@ public class HFPubInclusion implements ConsideredPublications {
     Humanistiska fakultetens beaktande av publikationer. Endast (1) MONOGRAFIER, (2) AVHANDLING, (3)ARTIKEL (4) BOKKAPITEL
 
      Alla andra publikationstyper klassas som övrigt och genererar två poäng (om de uppfyller kravet på vetenskaplighet, ej populärvetenskap eller abstract poster newsItem eller editorial) annars 0
-    in press, submitted betraktas ej publicerat och genererar noll poäng
+
+
+     in press, submitted betraktas ej publicerat och genererar noll poäng
+
+     Ovanstående gäller ej för HT 2017, e-pub ahead of print räknas nu som published
 
      */
 
@@ -21,7 +25,7 @@ public class HFPubInclusion implements ConsideredPublications {
 
     public StatusInModel consideredPub(Post p) {
 
-        /**
+        /*
 
         Generellt gäller att:
 
@@ -42,6 +46,8 @@ public class HFPubInclusion implements ConsideredPublications {
         Detta påverkar framförallt {"Artikel i tidskrift","Artikel, forskningsöversikt"} där det gäller att:
 
          1. Status = {Published}  (m a o *EJ* {"accepted","aheadofprint","inPress","submitted"} )
+
+         Nytt från HT 2017, aheadofprint räknas nu som published
 
         */
 
@@ -72,7 +78,7 @@ public class HFPubInclusion implements ConsideredPublications {
 
                     //finally check if published
 
-                    if(p.getDivaStatus().equals("published")) {
+                    if(p.getDivaStatus().equals("published") || p.getDivaStatus().equals("aheadofprint")) {
                         statusInModel.setIgnorerad(false); statusInModel.setStatusInModel(StatusInModelConstants.BEAKTAD_ÄNNU_EJ_MATCHAD_MOT_NORSKA_LISTAN);} else { statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD); statusInModel.setIgnorerad(true); }
                 }
 
