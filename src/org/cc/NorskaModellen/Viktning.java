@@ -181,7 +181,17 @@ public class Viktning {
             if(publicationsStatus.equals(StatusInModelConstants.IGNORERAD_ABSTRACT_POSTER_ELLER_PRESENTATION) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EDITORIAL_ABSTRACT_OR_NEWS_ITEM) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT) ) {
 
                 matchInfo.setVikt(0);
-                matchInfo.setModelSpecificInfo("Ej vetenskapligt innehåll alternativt ej publicerad");
+                String modelInfoString = "null";
+                if( publicationsStatus.equals(StatusInModelConstants.IGNORERAD_ABSTRACT_POSTER_ELLER_PRESENTATION) ) modelInfoString = "EJ VETENSKAPLIG SUBTYP (ABSTRACT,POSTER,PRESENTATION)";
+
+                if( publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EDITORIAL_ABSTRACT_OR_NEWS_ITEM) ) modelInfoString = "EJ VETENSKAPLIG SUBTYP (EDITORIAL,ABSTRACT,NEWS ITEM)";
+
+                if( publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD) ) modelInfoString = "EJ PUBLICERAD";
+
+
+                if( publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT) ) modelInfoString = "EJ VETENSKAPLIG INNEHÅLLSTYP";
+
+                matchInfo.setModelSpecificInfo(modelInfoString);
 
                 } else {
 
