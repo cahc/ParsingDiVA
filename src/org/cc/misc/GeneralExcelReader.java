@@ -19,7 +19,7 @@ public class GeneralExcelReader {
 
    private  XSSFWorkbook workbook;
 
-    GeneralExcelReader(String fileName) {
+    public GeneralExcelReader(String fileName) {
 
 
         //Get the workbook instance for XLS file

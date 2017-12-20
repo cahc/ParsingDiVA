@@ -1,13 +1,12 @@
 package org.cc.PersonalData;
 
+import org.cc.misc.GeneralExcelReader;
+
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by crco0001 on 12/18/2017.
@@ -46,11 +45,25 @@ public class PersonNumberToCas {
 
         PersonNumberToCas personNumberToCas = new PersonNumberToCas(new File("F:\\pdata.xml"));
 
-        System.out.println(personNumberToCas.getAllPersonObjects().size());
+        GeneralExcelReader generalExcelReader = new GeneralExcelReader("C:\\Users\\crco0001\\Desktop\\TEKNAT_PRLIM\\Teknat forskare.xlsx");
+
+        List<String> personnummer = generalExcelReader.getColumnData(0,0,true);
+
+
+
+     for(int i=0; i<personnummer.size(); i++) {
+
+         String s = personnummer.get(i);
+         personnummer.set(i, "19" + s.replaceAll("-",""));
+
+     }
+
+
+       //System.out.println(personNumberToCas.getAllPersonObjects().size());
 
         for(Person p : personNumberToCas.getAllPersonObjects()) {
 
-         //   System.out.println(p.getUID() +"\t" + p.getNIN() + "\t" + DataLoader.yearAndGender( p.getNIN() ));
+         // System.out.println(p.getUID() +"\t" + p.getNIN() + "\t" + DataLoader.yearAndGender( p.getNIN() ));
 
         }
 
@@ -65,21 +78,27 @@ public class PersonNumberToCas {
         });
 
 
-        Person searchObj = new Person();
-        searchObj.setNIN("198011233536");
-
-        int idx =  Collections.binarySearch(personNumberToCas.allPersonObjects, searchObj, new Comparator<Person>() {
-            @Override
-            public int compare(Person o1, Person o2) {
-
-                return o1.getNIN().compareTo(o2.getNIN());
-            }
-        });
 
 
-        System.out.println( personNumberToCas.allPersonObjects.get(idx) );
+     for(String s : personnummer) {
+
+         Person searchObj = new Person();
 
 
+         searchObj.setNIN( s );
+
+         int idx = Collections.binarySearch(personNumberToCas.allPersonObjects, searchObj, new Comparator<Person>() {
+             @Override
+             public int compare(Person o1, Person o2) {
+
+                 return o1.getNIN().compareTo(o2.getNIN());
+             }
+         });
+
+
+         System.out.println(idx > 0 ? personNumberToCas.allPersonObjects.get(idx) : "unknown\tunknown");
+
+     }
 
     }
 
