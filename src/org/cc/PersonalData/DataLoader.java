@@ -15,6 +15,7 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by crco0001 on 3/16/2017.
@@ -72,7 +73,7 @@ public class DataLoader {
                     newPerson.setMail(attribute.getValue());
 
                     attribute = startElement.getAttributeByName(new QName("NIN"));
-                    newPerson.setNIN(attribute.getValue());
+                    newPerson.setNIN(attribute.getValue().trim());
                     attribute = startElement.getAttributeByName(new QName("Gender"));
                     newPerson.setGender(attribute.getValue());
 
@@ -518,8 +519,6 @@ public class DataLoader {
     }
 
 
-
-
     public static void main(String[] arg) throws IOException, XMLStreamException, ParseException {
 
         DataLoader personalData = new DataLoader( new File("E:\\STARKA_MILJÖER_UTVÄRDERING\\V3_KOMPLETTERINGSRAPPORT\\PersonalData_201708071322409.xml"));
@@ -528,10 +527,12 @@ public class DataLoader {
 
         List<Person> allPersonObjects = personalData.getPersonData();
 
-         for(Person p : allPersonObjects) {
+        for(Person p : allPersonObjects) {
 
-             System.out.println(p.getNameForSearching() +" " + p.getUniqueFaculties());
+            System.out.println(p.getNameForSearching() +" " + p.getUniqueFaculties());
          }
+
+
 
 
 
