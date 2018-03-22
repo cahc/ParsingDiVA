@@ -16,6 +16,8 @@ public class NorskFörlag {
     private boolean Nedlagt;
     private List<String> ISBNprefix; // can be null
     private String Land; // can be null
+
+    private Integer Nivå2018; // can be null
     private Integer Nivå2017; // can be null
     private Integer Nivå2016; // can be null
     private Integer Nivå2015; // can be null
@@ -53,6 +55,7 @@ public class NorskFörlag {
         if(year.equals(2015)) return getNivå2015();
         if(year.equals(2016)) return getNivå2016();
         if(year.equals(2017)) return getNivå2017();
+        if(year.equals(2018)) return getNivå2018();
         return null; //obs!!
 
     }
@@ -60,7 +63,8 @@ public class NorskFörlag {
     public Integer getHistoricalMaxLevel() {
 
         Integer max = 0;
-        if(getNivå2017() != null && (max.compareTo( getNivå2016() ) < 0) ) max = getNivå2017();
+        if(getNivå2018() != null && (max.compareTo( getNivå2018() ) < 0) ) max = getNivå2018();
+        if(getNivå2017() != null && (max.compareTo( getNivå2017() ) < 0) ) max = getNivå2017();
         if(getNivå2016() != null && (max.compareTo( getNivå2016() ) < 0) ) max = getNivå2016();
         if(getNivå2015() != null && (max.compareTo( getNivå2015() ) < 0) ) max = getNivå2015();
         if(getNivå2014() != null && (max.compareTo( getNivå2014() ) < 0) ) max = getNivå2014();
@@ -131,6 +135,16 @@ public class NorskFörlag {
     public void setLand(String land) {
         Land = land;
     }
+
+
+    public Integer getNivå2018() {
+        return Nivå2018;
+    }
+
+    public void setNivå2018(Integer nivå2018) {
+        Nivå2018 = nivå2018;
+    }
+
 
     public Integer getNivå2017() {
         return Nivå2017;

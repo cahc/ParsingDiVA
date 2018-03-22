@@ -1,4 +1,4 @@
-package org.cc.applikationer;
+package  org.cc.applikationer;
 
 import org.cc.NorskaModellen.*;
 import org.cc.diva.*;

@@ -50,7 +50,7 @@ public class ReadNorwegianLists {
         Row row = rowIterator.next();
 
         if (!row.getCell(NorskSerieIndex.tidsskrift_id.getValue()).toString().equals("tidsskrift_id") || !row.getCell(NorskSerieIndex.Nivå_2004.getValue()).toString().equals("Nivå 2004")) {
-            System.out.println("Not a valid header in file!");
+            System.out.println("Not a valid header in norwegian authority file! (serier)");
             System.exit(1);
         }
 
@@ -67,7 +67,7 @@ public class ReadNorwegianLists {
             norskSerie.setTidskriftsID( Integer.valueOf( formatter.formatCellValue( row.getCell(NorskSerieIndex.tidsskrift_id.getValue()) ) ) );
             norskSerie.setOriginalTitel(row.getCell(NorskSerieIndex.Original_tittel.getValue()).toString());
             norskSerie.setInternationellTitel(row.getCell(NorskSerieIndex.Internasjonal_tittel.getValue()).toString());
-            //check if active today 2016
+            //check if active today 2018
             Cell nedlaggd = row.getCell(NorskSerieIndex.Nedlagt.getValue());
             if (nedlaggd == null || nedlaggd.getCellType() != Cell.CELL_TYPE_BLANK ) { /*do something */} else { norskSerie.setNedlaggd(true); }
 
@@ -109,9 +109,14 @@ public class ReadNorwegianLists {
 
             //Nivå 2017
 
+            cell = row.getCell(NorskSerieIndex.Nivå_2018.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2018(Integer.valueOf(formatter.formatCellValue(cell)));
+
+
+            //Nivå 2017
+
             cell = row.getCell(NorskSerieIndex.Nivå_2017.getValue());
             if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2017(Integer.valueOf(formatter.formatCellValue(cell)));
-
 
 
             //Nivå 2016
@@ -209,7 +214,7 @@ public class ReadNorwegianLists {
         Row row = rowIterator.next();
 
         if (!row.getCell(NorskFörlagIndex.forlag_id.getValue()).toString().equals("forlag_id") || !row.getCell(NorskFörlagIndex.Nivå2004.getValue()).toString().equals("Nivå 2004")) {
-            System.out.println("Not a valid header in file!");
+            System.out.println("Not a valid header in norwegian authority file! (förlag)");
             System.exit(1);
         }
 
@@ -225,7 +230,7 @@ public class ReadNorwegianLists {
             norskFörlag.setOriginaltittel(row.getCell(NorskFörlagIndex.Originaltittel.getValue()).toString());
             norskFörlag.setInternasjonaltittel(row.getCell(NorskFörlagIndex.InternasjonalTittel.getValue()).toString());
 
-            //check if active today 2017
+            //check if active today 2018
            Cell nedlaggd = row.getCell(NorskFörlagIndex.Nedlagt.getValue());
             if (nedlaggd == null || (nedlaggd.getCellType() == Cell.CELL_TYPE_BLANK)) {/*do something */} else { norskFörlag.setNedlagt(true); }
 
@@ -265,6 +270,12 @@ public class ReadNorwegianLists {
             //check land
             Cell cell = row.getCell(NorskFörlagIndex.Land.getValue());
             if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setLand(  cell.toString() );
+
+
+            //Nivå 2018
+            cell = row.getCell(NorskFörlagIndex.Nivå2018.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2018(Integer.valueOf(formatter.formatCellValue(cell)));
+
 
             //Nivå 2017
             cell = row.getCell(NorskFörlagIndex.Nivå2017.getValue());

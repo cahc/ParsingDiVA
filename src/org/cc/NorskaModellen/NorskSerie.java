@@ -21,6 +21,8 @@ public class NorskSerie {
     private String förlag; //can be null
     private String utgivare; //can be null
     private String språk; //can be null
+
+    private Integer nivå2018; //can be null
     private Integer nivå2017; //can be null
     private Integer nivå2016; //can be null
     private Integer nivå2015; //can be null
@@ -57,6 +59,7 @@ public class NorskSerie {
             if(year.equals(2015)) return getNivå2015();
             if(year.equals(2016)) return getNivå2016();
             if(year.equals(2017)) return getNivå2017();
+            if(year.equals(2018)) return getNivå2018();
             return null; //obs!!
 
         }
@@ -64,6 +67,7 @@ public class NorskSerie {
     public Integer getHistoricalMaxLevel() {
 
         Integer max = 0;
+        if(getNivå2018() != null && (max.compareTo( getNivå2018() ) < 0) ) max = getNivå2018();
         if(getNivå2017() != null && (max.compareTo( getNivå2017() ) < 0) ) max = getNivå2017();
         if(getNivå2016() != null && (max.compareTo( getNivå2016() ) < 0) ) max = getNivå2016();
         if(getNivå2015() != null && (max.compareTo( getNivå2015() ) < 0) ) max = getNivå2015();
@@ -209,6 +213,10 @@ public class NorskSerie {
     public void setNivå2016(Integer nivå2016) {
         this.nivå2016 = nivå2016;
     }
+
+    public Integer getNivå2018() { return  nivå2018; }
+
+    public void setNivå2018(Integer nivå2018) { this.nivå2018 = nivå2018; }
 
 
     public Integer getNivå2017() { return  nivå2017; }
