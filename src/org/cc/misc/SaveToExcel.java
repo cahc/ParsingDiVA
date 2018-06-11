@@ -1413,5 +1413,28 @@ public class SaveToExcel {
 
 
 
+    public void saveDumpOnly(String path) {
+
+        Date date = new Date() ;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm") ;
+
+
+        try (FileOutputStream outputStream = new FileOutputStream(path +"\\dump.xlsx")) {
+            workbook.setSheetOrder("Grunddata",0);
+            workbook.setActiveSheet(0);
+            workbook.setSelectedTab(0);
+            workbook.write(outputStream);
+            workbook.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+
+
 
 }

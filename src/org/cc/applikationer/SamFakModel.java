@@ -139,7 +139,7 @@ public class SamFakModel {
         saveToExcel = new SaveToExcel();
         saveToExcel.saveDisambiguatedAuthorFractions(postList,false);
 
-       saveToExcel = new SaveToExcel();
+        saveToExcel = new SaveToExcel();
         saveToExcel.saveDisambiguatedAuthorFractions(postList,true);
 
         System.out.println("Resultat sparat i tre Excel-filer: Fractions och NorskMatchning..");

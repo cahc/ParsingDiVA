@@ -43,7 +43,7 @@ public class PersonNumberToCas {
 
     public static void main(String[] arg) throws ParseException, XMLStreamException, IOException {
 
-        PersonNumberToCas personNumberToCas = new PersonNumberToCas(new File("F:\\pdata.xml"));
+        PersonNumberToCas personNumberToCas = new PersonNumberToCas(new File("C:\\Users\\crco0001\\Desktop\\TEKNAT_PRLIM\\PersonalData.xml"));
 
         GeneralExcelReader generalExcelReader = new GeneralExcelReader("C:\\Users\\crco0001\\Desktop\\TEKNAT_PRLIM\\Teknat forskare.xlsx");
 
@@ -63,7 +63,7 @@ public class PersonNumberToCas {
 
         for(Person p : personNumberToCas.getAllPersonObjects()) {
 
-         // System.out.println(p.getUID() +"\t" + p.getNIN() + "\t" + DataLoader.yearAndGender( p.getNIN() ));
+       //  System.out.println(p.getUID() +"\t" + p.getNIN() + "\t" + DataLoader.yearAndGender( p.getNIN() ));
 
         }
 

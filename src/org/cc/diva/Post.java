@@ -229,6 +229,13 @@ public class Post implements Comparable<Post>{
     }
 
 
+    public String getDivaLanguage() { return  this.rawData[ReducedDiVAColumnIndices.Language.getValue()]; }
+    public String getDivaPublicationYear() { return this.rawData[ReducedDiVAColumnIndices.Year.getValue()]; }
+
+    public String getDOI() { return this.rawData[ReducedDiVAColumnIndices.DOI.getValue()]; }
+    public String getPMID() { return this.rawData[ReducedDiVAColumnIndices.PMID.getValue()]; }
+
+
     public String getDivaPublicationType() {
         return this.rawData[ReducedDiVAColumnIndices.PublicationType.getValue()];
     }
@@ -239,6 +246,12 @@ public class Post implements Comparable<Post>{
 
     public String getDivaPublicationSubtype() {
         return this.rawData[ReducedDiVAColumnIndices.PublicationSubtype.getValue()];
+    }
+
+
+    public String getHost() {
+
+        return this.rawData[ReducedDiVAColumnIndices.HostPublication.getValue()];
     }
 
     public String getDivaStatus() {
