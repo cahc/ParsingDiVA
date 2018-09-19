@@ -1,6 +1,7 @@
 package org.cc.misc;
 
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
+import jsat.utils.IntList;
 import org.cc.diva.CreateDivaTable;
 import org.cc.diva.DeduplicatePostsPerAuthor;
 import org.cc.diva.DivaHelpFunctions;
@@ -17,7 +18,52 @@ import java.util.Arrays;
 public class Playground {
 
 
+    public static String fixName(String input) {
+
+        IntList spaces = new IntList();
+        IntList dashes = new IntList();
+        IntList spike = new IntList();
+        int N = input.length();
+
+        for(int i=0; i<N; i++){
+
+            if( input.charAt(i) == ' ') spaces.add(i);
+            if( input.charAt(i) == '-') dashes.add(i);
+            if( input.charAt(i) == '|') spike.add(i);
+
+        }
+
+        StringBuilder stringBuilder = new StringBuilder(input);
+
+        stringBuilder.setCharAt(0, Character.toUpperCase(input.charAt(0))); //Always capitalize start
+
+        for(int i : spaces) {
+
+            stringBuilder.setCharAt(i+1, Character.toUpperCase(input.charAt(i+1)));
+        }
+
+        for(int i : dashes) {
+
+            stringBuilder.setCharAt(i+1, Character.toUpperCase(input.charAt(i+1)));
+        }
+
+        for(int i : spike) {
+
+            stringBuilder.setCharAt(i+1, Character.toUpperCase(input.charAt(i+1)));
+        }
+
+
+
+        return stringBuilder.toString();
+    }
+
     public static void main(String[] arg) throws IOException {
+
+
+
+        String test = "edin, kerstin e";
+
+        System.out.println(fixName(test));
 
 
         NormalizedLevenshtein lvSim = new NormalizedLevenshtein();

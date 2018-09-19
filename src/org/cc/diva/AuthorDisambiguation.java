@@ -56,6 +56,38 @@ public class AuthorDisambiguation {
 
 
 
+    public String getFaculty(String institution) {
+
+        for(Map.Entry<Integer,DivaIDtoNames> entry : this.mappings.entrySet()) {
+
+            DivaIDtoNames divaIDtoNames = entry.getValue();
+
+            if(institution.equals( divaIDtoNames.getINSTITUTION()  ) ) return  divaIDtoNames.getFAKULTET();
+
+
+        }
+
+
+        return null;
+    }
+
+
+    public boolean validInstitution(String institution) {
+
+        for (Map.Entry<Integer, DivaIDtoNames> entry : this.mappings.entrySet()) {
+
+            DivaIDtoNames divaIDtoNames = entry.getValue();
+
+            if (institution.equals(divaIDtoNames.getINSTITUTION())) return true;
+
+
+        }
+
+        return false;
+    }
+
+
+
 
     public void mapAffiliationsAndDisanbigueAuthors(List<Post> postList) {
 

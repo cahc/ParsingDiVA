@@ -203,6 +203,12 @@ public class Author implements Comparable<Author>{
     }
 
 
+    public boolean hasUmuDivaAddress() {
+
+
+        return this.hasUmuDivaAddress;
+    }
+
     public List<Integer> getLowestDivaAddressNumber() {
 
         if(this.lowestDivaAddressNumber == null) return Collections.emptyList();
