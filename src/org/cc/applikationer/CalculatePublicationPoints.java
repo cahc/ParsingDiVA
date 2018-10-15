@@ -219,7 +219,9 @@ public class CalculatePublicationPoints {
 
         PublicationPointPerAuthor publicationPointPerAuthor = new PublicationPointPerAuthor();
 
-        publicationPointPerAuthor.calculateAggregateAuthorStatistics(consideredAuthorsPostPairs);
+        double collaborationWeight = 2.0;
+        publicationPointPerAuthor.calculateAggregateAuthorStatistics(consideredAuthorsPostPairs,collaborationWeight);
+        System.out.println("Using collaboration weight: " + collaborationWeight );
 
         //ADD CAS THAT HAVE NO PUB TO THE SUMMARY STATISTIC (i.e., 0,0,0)
 
@@ -253,8 +255,8 @@ public class CalculatePublicationPoints {
 
 
 
-
-        if(model.equals("HF")) saveToExcel.addAggregatedAuthorStatisticsHumantistiskaFakulteten(publicationPointPerAuthor);
+        //TODO OBS USING LF for new HF!!!
+        if(model.equals("HF")) saveToExcel.addAggregatedAuthorStatisticsLärarHögskolan(publicationPointPerAuthor); // saveToExcel.addAggregatedAuthorStatisticsHumantistiskaFakulteten(publicationPointPerAuthor);
         if(model.equals("LH")) saveToExcel.addAggregatedAuthorStatisticsLärarHögskolan(publicationPointPerAuthor);
 
         //add zero publishing CAS to reducedPostList with a dummy row

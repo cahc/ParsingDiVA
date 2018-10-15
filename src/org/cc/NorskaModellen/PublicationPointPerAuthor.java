@@ -28,7 +28,7 @@ public class PublicationPointPerAuthor {
     TreeMap<String, AggregatedAuthorInformation> aggregatedAuthorInformationTreeMap = new TreeMap<>();
 
 
-    public void calculateAggregateAuthorStatistics(List<Author> authors) throws UnsupportedEncodingException {
+    public void calculateAggregateAuthorStatistics(List<Author> authors, double collaborationWeight) throws UnsupportedEncodingException {
 
         for (Author a : authors) {
 
@@ -53,7 +53,7 @@ public class PublicationPointPerAuthor {
                 newAuthorStatistics.incrementRawSumOfPublications();
                 newAuthorStatistics.incrementRawSumOfWeights(publicationWeight);
 
-                newAuthorStatistics.incrementFractionalizedPubSum(  nrAuthorsMoreThanOne ? (fraction*publicationWeight*1.2) : publicationWeight   );
+                newAuthorStatistics.incrementFractionalizedPubSum(  nrAuthorsMoreThanOne ? (fraction*publicationWeight*collaborationWeight) : publicationWeight   );
 
 
                 //sätt forskningstid en gång
@@ -75,7 +75,7 @@ public class PublicationPointPerAuthor {
                 authorStatistics.incrementRawSumOfFractions(fraction);
                 authorStatistics.incrementRawSumOfPublications();
                 authorStatistics.incrementRawSumOfWeights(publicationWeight);
-                authorStatistics.incrementFractionalizedPubSum(  nrAuthorsMoreThanOne ? (fraction*publicationWeight*1.2) : publicationWeight   );
+                authorStatistics.incrementFractionalizedPubSum(  nrAuthorsMoreThanOne ? (fraction*publicationWeight*collaborationWeight) : publicationWeight   );
 
                 //Om posten är av typ övrigt, kontrollera att det är färre än 5 för det givna året
                 if (a.getEnclosingPost().getNorskNivå().getModelSpecificInfo().equals("Övrigt")) {

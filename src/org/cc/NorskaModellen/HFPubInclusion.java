@@ -68,7 +68,8 @@ public class HFPubInclusion implements ConsideredPublications {
 
                 //now check subtype
 
-                if(p.getDivaPublicationSubtype().equals("editorialMaterial") | p.getDivaPublicationSubtype().equals("meetingAbstract") | p.getDivaPublicationSubtype().equals("newsItem") ) {
+                //p.getDivaPublicationSubtype().equals("editorialMaterial") is allowed!!
+                if(p.getDivaPublicationSubtype().equals("meetingAbstract") | p.getDivaPublicationSubtype().equals("newsItem") ) {
 
 
                     statusInModel.setIgnorerad(true);
@@ -100,7 +101,15 @@ public class HFPubInclusion implements ConsideredPublications {
 
 
             statusInModel.setIgnorerad(true);
-            statusInModel.setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_SPECIALLFALL_EJ_NIVÅBESTÄMNING);
+            statusInModel.setStatusInModel( StatusInModelConstants.IGNORERAD_EJ_BEAKTAD_PUBLIKATIONSTYP);
+
+
+        } else
+
+
+        if("Proceedings (redaktörskap)".equals(p.getDivaPublicationType()) || "Samlingsverk (redaktörskap)".equals(p.getDivaPublicationType())) {
+
+            if(p.getDivaContentType().equals("Refereegranskat") || p.getDivaContentType().equals("Övrigt vetenskapligt")) { statusInModel.setStatusInModel(StatusInModelConstants.BEAKTAD_ÄNNU_EJ_MATCHAD_MOT_NORSKA_LISTAN); statusInModel.setIgnorerad(false); } else { statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT); statusInModel.setIgnorerad(true);}
 
 
         } else

@@ -97,16 +97,16 @@ public class Viktning {
             if (p.getDivaPublicationType().equals(DivaPublicationTypes.bok)) {
 
                 if (matchInfo.getNivå() == null) {
-                    matchInfo.setVikt(12);
-                    matchInfo.setModelSpecificInfo("Monografi övrigt");
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("Monografi ej nivåbestämd");
                 } else if (matchInfo.getNivå() == 0) {
-                    matchInfo.setVikt(12);
-                    matchInfo.setModelSpecificInfo("Monografi övrigt");
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("Monografi nivå 0");
                 } else if (matchInfo.getNivå() == 1) {
-                    matchInfo.setVikt(20);
+                    matchInfo.setVikt(5);
                     matchInfo.setModelSpecificInfo("Monografi nivå 1");
                 } else if (matchInfo.getNivå() == 2) {
-                    matchInfo.setVikt(30);
+                    matchInfo.setVikt(8);
                     matchInfo.setModelSpecificInfo("Monografi nivå 2");
                 }
 
@@ -114,34 +114,52 @@ public class Viktning {
             } else if (p.getDivaPublicationType().equals(DivaPublicationTypes.tidskrift) || p.getDivaPublicationType().equals(DivaPublicationTypes.review)) {
 
                 if (matchInfo.getNivå() == null) {
-                    matchInfo.setVikt(6);
-                    matchInfo.setModelSpecificInfo("Artikel övrigt");
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("Artikel ej nivåbestämd");
                 } else if (matchInfo.getNivå() == 0) {
-                    matchInfo.setVikt(6);
-                    matchInfo.setModelSpecificInfo("Artikel övrigt");
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("Artikel nivå 0");
                 } else if (matchInfo.getNivå() == 1) {
-                    matchInfo.setVikt(12);
+                    matchInfo.setVikt(1);
                     matchInfo.setModelSpecificInfo("Artikel nivå 1");
                 } else if (matchInfo.getNivå() == 2) {
-                    matchInfo.setVikt(18);
+                    matchInfo.setVikt(4);
                     matchInfo.setModelSpecificInfo("Artikel nivå 2");
                 }
 
             } else if (p.getDivaPublicationType().equals(DivaPublicationTypes.antologi)) {
 
                 if (matchInfo.getNivå() == null) {
-                    matchInfo.setVikt(5);
-                    matchInfo.setModelSpecificInfo("Bokkap. övrigt");
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("Bokkap. ej nivåbestämd");
                 } else if (matchInfo.getNivå() == 0) {
-                    matchInfo.setVikt(5);
-                    matchInfo.setModelSpecificInfo("Bokkap. övrigt");
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("Bokkap. nivå 0");
                 } else if (matchInfo.getNivå() == 1) {
-                    matchInfo.setVikt(10);
+                    matchInfo.setVikt(1);
                     matchInfo.setModelSpecificInfo("Bokkap. nivå 1");
                 } else if (matchInfo.getNivå() == 2) {
-                    matchInfo.setVikt(14);
+                    matchInfo.setVikt(2);
                     matchInfo.setModelSpecificInfo("Bokkap. nivå 2");
                 }
+
+
+            } else if(p.getDivaPublicationType().equals(DivaPublicationTypes.redaktörskapSamlingsverk) || p.getDivaPublicationType().equals(DivaPublicationTypes.redaktörskapProceeding) ) {
+
+                if (matchInfo.getNivå() == null) {
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("Redaktörskap (Proceeding/Samlingsverk) ej nivåbestämd");
+                } else if (matchInfo.getNivå() == 0) {
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("Redaktörskap (Proceeding/Samlingsverk) nivå 0");
+                } else if (matchInfo.getNivå() == 1) {
+                    matchInfo.setVikt(1);
+                    matchInfo.setModelSpecificInfo("Redaktörskap (Proceeding/Samlingsverk) nivå 1");
+                } else if (matchInfo.getNivå() == 2) {
+                    matchInfo.setVikt(2);
+                    matchInfo.setModelSpecificInfo("Redaktörskap (Proceeding/Samlingsverk) nivå 2");
+                }
+
 
 
             }
@@ -153,27 +171,34 @@ public class Viktning {
 
             if (p.getDivaPublicationType().equals(DivaPublicationTypes.bok)) {
 
-                    matchInfo.setVikt(12);
-                    matchInfo.setModelSpecificInfo("Monografi övrigt");
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("Monografi ej i norska listan");
                 }
                 if (p.getDivaPublicationType().equals(DivaPublicationTypes.tidskrift) || p.getDivaPublicationType().equals(DivaPublicationTypes.review)) {
 
-                        matchInfo.setVikt(6);
-                        matchInfo.setModelSpecificInfo("Artikel övrigt");
+                        matchInfo.setVikt(0);
+                        matchInfo.setModelSpecificInfo("Artikel ej i norska listan");
                     }
                     if (p.getDivaPublicationType().equals(DivaPublicationTypes.antologi)) {
 
-                            matchInfo.setVikt(5);
-                            matchInfo.setModelSpecificInfo("Bokkap. övrigt");
+                            matchInfo.setVikt(0);
+                            matchInfo.setModelSpecificInfo("Bokkap. ej i norska listan");
                         }
 
 
+                         if (p.getDivaPublicationType().equals(DivaPublicationTypes.redaktörskapProceeding) || p.getDivaPublicationType().equals(DivaPublicationTypes.redaktörskapSamlingsverk )) {
+
+                            matchInfo.setVikt(0);
+                            matchInfo.setModelSpecificInfo("Redaktörskap (Proceeding/Samlingsverk) ej i norska listan");
                     }
+
+
+        }
 
         //EJ BEAKTAD PUBLIKATIONSTYP
         else if (publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_BEAKTAD_PUBLIKATIONSTYP)) {
 
-                        matchInfo.setVikt(2);
+                        matchInfo.setVikt(0);
                         matchInfo.setModelSpecificInfo("Övrigt");
 
                     } else

@@ -34,15 +34,15 @@ public class NorskNivå {
         // A) serieISSN eller serie namn --> behandlas som serie
         // B) utgivare eller ISBN --> förlag
 
-        //Bok matchas mot norska listan med utgivare eller ISBN-prefix ELLER serie, serie har företräde..!!
+        //Bok och redaktörskap matchas mot norska listan med utgivare eller ISBN-prefix ELLER serie, serie har företräde..!!
 
 
 
-        if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift) || divaPublikationsTyp.equals(DivaPublicationTypes.review) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) ) {
+        if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift) || divaPublikationsTyp.equals(DivaPublicationTypes.review) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapProceeding) ) {
 
             List<String> divaIssn = null;
             if(divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift) || divaPublikationsTyp.equals(DivaPublicationTypes.review)) divaIssn = extractISSN( p.getJournalISSN() );
-            if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) ) divaIssn = extractISSN( p.getSeriesISSN() );
+            if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapProceeding)  ) divaIssn = extractISSN( p.getSeriesISSN() );
 
             if(divaIssn != null) {
 
@@ -97,7 +97,7 @@ public class NorskNivå {
 
             if(divaPublikationsTyp.equals(DivaPublicationTypes.review) || divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift)) simplifiedSeriesName = DivaHelpFunctions.simplifyString( thesaurus.replaceSerieBy( p.getJournal() ) );
 
-            if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) ) {
+            if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapProceeding) ) {
                 String serieName = extractSeriesName( thesaurus.replaceSerieBy( p.getSeriesName() ));
                 if(serieName != null) simplifiedSeriesName = DivaHelpFunctions.simplifyString( serieName );
 
@@ -139,7 +139,7 @@ public class NorskNivå {
 
         // Still no hit. Try with publisher and ISBN prefix if anthology/conferens or if it is a book
 
-        if(divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) ) {
+        if(divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapProceeding)  ) {
 
             String simplifiedDivaPublisher =  DivaHelpFunctions.simplifyString(  thesaurus.replaceFörlagBy( p.getPublisher() ) );
 
