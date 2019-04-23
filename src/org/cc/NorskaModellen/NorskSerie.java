@@ -17,11 +17,12 @@ public class NorskSerie {
     private boolean DOAJ; //can be null
     private String npuField;
     private String discipliner; //can be null
-    private String serieType; //can be null
+    //private String serieType; //can be null
     private String förlag; //can be null
     private String utgivare; //can be null
     private String språk; //can be null
 
+    private Integer nivå2019; //can be null
     private Integer nivå2018; //can be null
     private Integer nivå2017; //can be null
     private Integer nivå2016; //can be null
@@ -60,6 +61,7 @@ public class NorskSerie {
             if(year.equals(2016)) return getNivå2016();
             if(year.equals(2017)) return getNivå2017();
             if(year.equals(2018)) return getNivå2018();
+            if(year.equals(2019)) return getNivå2019();
             return null; //obs!!
 
         }
@@ -67,6 +69,7 @@ public class NorskSerie {
     public Integer getHistoricalMaxLevel() {
 
         Integer max = 0;
+        if(getNivå2019() != null && (max.compareTo( getNivå2019() ) < 0) ) max = getNivå2019();
         if(getNivå2018() != null && (max.compareTo( getNivå2018() ) < 0) ) max = getNivå2018();
         if(getNivå2017() != null && (max.compareTo( getNivå2017() ) < 0) ) max = getNivå2017();
         if(getNivå2016() != null && (max.compareTo( getNivå2016() ) < 0) ) max = getNivå2016();
@@ -166,17 +169,24 @@ public class NorskSerie {
         this.discipliner = discipliner;
     }
 
+    /*
     public String getSerieType() {
         return serieType;
     }
+
 
     public void setSerieType(String serieType) {
         this.serieType = serieType;
     }
 
+*/
+
+
     public String getFörlag() {
         return förlag;
     }
+
+
 
     public void setFörlag(String förlag) {
         this.förlag = förlag;
@@ -213,6 +223,12 @@ public class NorskSerie {
     public void setNivå2016(Integer nivå2016) {
         this.nivå2016 = nivå2016;
     }
+
+
+    public Integer getNivå2019() { return  nivå2019; }
+
+    public void setNivå2019(Integer nivå2019) { this.nivå2019 = nivå2019; }
+
 
     public Integer getNivå2018() { return  nivå2018; }
 

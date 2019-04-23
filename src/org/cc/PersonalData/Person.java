@@ -26,7 +26,10 @@ public class Person {
 
     public static Date addDays(Date date, int days) {
         Calendar cal = Calendar.getInstance();
+
         cal.setTime(date);
+
+
         cal.add(Calendar.DATE, days); //minus number would decrement the days
         return cal.getTime();
     }
@@ -85,7 +88,17 @@ public class Person {
 
                 Period p2 = this.employmentList.get(i);
 
-                if(p1.getOrganisationNumber().equals(p2.getOrganisationNumber()) && p1.getPosition().equals(p2.getPosition()) && addDays(p2.getEndDate(),1).equals(p1.getStartDate())   ) {
+             //   if(p2.getEndDate() == null) {
+
+              //      System.out.println("Period in merageAffils was null!");
+             //       System.out.println(p2);
+              //      System.out.println(this);
+             //       System.exit(0);
+
+            //    }
+
+
+                if( (p2.getEndDate() != null) && p1.getOrganisationNumber().equals(p2.getOrganisationNumber()) && p1.getPosition().equals(p2.getPosition()) && addDays(p2.getEndDate(),1).equals(p1.getStartDate())   ) {
 
                     p1.setStartDate(p2.getStartDate() );
                     i++;
@@ -153,7 +166,7 @@ public class Person {
 
                 Period p2 = this.affiliationList.get(i);
 
-                if(p1.getOrganisationNumber().equals(p2.getOrganisationNumber()) && p1.getPosition().equals(p2.getPosition()) && addDays(p2.getEndDate(),1).equals(p1.getStartDate())   ) {
+                if( (p2.getEndDate() != null) && p1.getOrganisationNumber().equals(p2.getOrganisationNumber()) && p1.getPosition().equals(p2.getPosition()) && addDays(p2.getEndDate(),1).equals(p1.getStartDate())   ) {
 
                     p1.setStartDate(p2.getStartDate() );
                     i++;

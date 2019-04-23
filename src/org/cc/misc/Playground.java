@@ -2,14 +2,18 @@ package org.cc.misc;
 
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import jsat.utils.IntList;
+import org.cc.PersonalData.DataLoader;
+import org.cc.PersonalData.Person;
 import org.cc.diva.CreateDivaTable;
 import org.cc.diva.DeduplicatePostsPerAuthor;
 import org.cc.diva.DivaHelpFunctions;
 import org.cc.wos.WosHelperFunctions;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.util.Arrays;
 
 /**
@@ -57,31 +61,36 @@ public class Playground {
         return stringBuilder.toString();
     }
 
-    public static void main(String[] arg) throws IOException {
+    public static void main(String[] arg) throws IOException, XMLStreamException, ParseException {
 
 
+        DataLoader personalData = new DataLoader( new File("PersonalData_201903180103182.xml") );
+        System.out.println(personalData.size());
+        Person p = personalData.getPersonByCas("crco0001");
+        System.out.println(p.getFacultyPositionYearEmployments());
 
-        String test = "edin, kerstin e";
 
-        System.out.println(fixName(test));
+      //  String test = "edin, kerstin e";
+
+       // System.out.println(fixName(test));
 
 
-        NormalizedLevenshtein lvSim = new NormalizedLevenshtein();
+      //  NormalizedLevenshtein lvSim = new NormalizedLevenshtein();
 
-        String s1 = DivaHelpFunctions.simplifyString( "International Journal of Telerehabilitation" );
-        String s2 =   DivaHelpFunctions.simplifyString("International Journal of Neurorehabilitation" );
+      //  String s1 = DivaHelpFunctions.simplifyString( "International Journal of Telerehabilitation" );
+      //  String s2 =   DivaHelpFunctions.simplifyString("International Journal of Neurorehabilitation" );
 
-        String s3 =  DivaHelpFunctions.simplifyString("International Journal of Engineering and Technology");
-        String s4 =   DivaHelpFunctions.simplifyString("International Journal of Web Engineering and Technology");
+     //   String s3 =  DivaHelpFunctions.simplifyString("International Journal of Engineering and Technology");
+     //   String s4 =   DivaHelpFunctions.simplifyString("International Journal of Web Engineering and Technology");
 
-        String s5 =  DivaHelpFunctions.simplifyString("The journal of crap");
-        String s6 =   DivaHelpFunctions.simplifyString("thejournal of crapp");
+     //   String s5 =  DivaHelpFunctions.simplifyString("The journal of crap");
+    //    String s6 =   DivaHelpFunctions.simplifyString("thejournal of crapp");
 
-        System.out.println("likhet mellan s1 och s2: " + lvSim.similarity(s1,s2));
+    //    System.out.println("likhet mellan s1 och s2: " + lvSim.similarity(s1,s2));
 
-        System.out.println("likhet mellan s3 och s4: " + lvSim.similarity(s3,s4));
+    //    System.out.println("likhet mellan s3 och s4: " + lvSim.similarity(s3,s4));
 
-        System.out.println("likhet mellan s5 och s6: " + lvSim.similarity(s5,s6));
+    //    System.out.println("likhet mellan s5 och s6: " + lvSim.similarity(s5,s6));
 
         //if(arg.length != 1) {System.out.println("supply divaDumpFile"); System.exit(0); }
 
