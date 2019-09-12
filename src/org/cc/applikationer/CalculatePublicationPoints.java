@@ -219,7 +219,7 @@ public class CalculatePublicationPoints {
 
         PublicationPointPerAuthor publicationPointPerAuthor = new PublicationPointPerAuthor();
 
-        double collaborationWeight = 2.0;
+        double collaborationWeight = 1.2;
         publicationPointPerAuthor.calculateAggregateAuthorStatistics(consideredAuthorsPostPairs,collaborationWeight);
         System.out.println("Using collaboration weight: " + collaborationWeight );
 

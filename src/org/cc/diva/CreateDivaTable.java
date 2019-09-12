@@ -169,6 +169,7 @@ public class CreateDivaTable {
             reducedColumns[ReducedDiVAColumnIndices.ArticleId.getValue()] = line[FullDivAColumnIndices.ArticleId.getValue()];
             reducedColumns[ReducedDiVAColumnIndices.Reviewed.getValue()] = line[FullDivAColumnIndices.Reviewed.getValue()];
             reducedColumns[ReducedDiVAColumnIndices.FreeFulltext.getValue()] = line[FullDivAColumnIndices.FreeFulltext.getValue()];
+            reducedColumns[ReducedDiVAColumnIndices.LocalId.getValue()] = line[FullDivAColumnIndices.LocalId.getValue()];
 
            if(line.length >= 68) { reducedColumns[ReducedDiVAColumnIndices.ContributorString.getValue()] = line[FullDivAColumnIndices.Contributor.getValue()]; } else {
 

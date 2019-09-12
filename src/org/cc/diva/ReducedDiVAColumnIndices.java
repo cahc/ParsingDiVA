@@ -42,7 +42,8 @@ public enum ReducedDiVAColumnIndices {
     ArticleId(34),
     Reviewed(35),
     FreeFulltext(36),
-    ContributorString(37);
+    ContributorString(37),
+    LocalId(38);
 
     private int index;
 

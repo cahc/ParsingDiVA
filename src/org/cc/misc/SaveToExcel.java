@@ -224,6 +224,11 @@ public class SaveToExcel {
         cell.setCellValue("NORWEGIAN_POINTS" );
         cell.setCellStyle(style);
 
+        //add localID, use to manually remap institutionen för geografi och ekonomisk historia
+
+        cell = row.createCell(40);
+        cell.setCellValue("LOCAL_ID");
+        cell.setCellStyle(style);
 
 
         for(Post p : recordList) {
@@ -474,6 +479,11 @@ public class SaveToExcel {
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue(      norskNivå.getVikt()     );
 
+
+                    //add localID
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue( p.getRawDataRow()[ ReducedDiVAColumnIndices.LocalId.getValue() ] );
 
                     indice++;
                 } while(indice < divaIDtoNames.size() );
