@@ -27,7 +27,7 @@ public class Author implements Comparable<Author>{
 
     private List<String> umuDivaAddresses; // can be null
     private List<Integer> lowestDivaAddressNumber; //can be null
-    private List<DivaIDtoNames> affilMappingsObjects; // can be null
+    private List<DivaIDtoNames> affilMappingsObjects; // can be null //TODO warning ensure that these are unique!!
     private int PID;
     private Post post; // reference to the post in which the specific author object is located
 
@@ -60,7 +60,7 @@ public class Author implements Comparable<Author>{
 
         if(this.nrUmUaddresses == 0) { affilMappingsObjects = Collections.emptyList(); return; }
 
-        affilMappingsObjects = new ArrayList<>(nrUmUaddresses);
+        ArrayList<DivaIDtoNames> affilMappingsObjectsTemporary = new ArrayList<>(nrUmUaddresses);
 
         for(int i=0; i<nrUmUaddresses; i++) {
 
@@ -68,9 +68,34 @@ public class Author implements Comparable<Author>{
 
            if(mapp == null) {System.out.println( getLowestDivaAddressNumber().get(i) + " diva affill id has no mappings!" ); System.exit(0); }
 
-           affilMappingsObjects.add(mapp);
+           affilMappingsObjectsTemporary.add(mapp); //TODO WARNING could potentially be duplicated "INST" here! if a centrum is mapped to an institution and an author is affiliated with both the centrum and the affilliation!!!!!
 
         }
+
+        if(affilMappingsObjectsTemporary.size() == 1) {
+
+            affilMappingsObjects = new ArrayList<>(affilMappingsObjectsTemporary);
+
+        } else {
+
+            affilMappingsObjects = new ArrayList<>();
+
+            //Check for potential duplicates with respect to INST, FAK, UNIT
+            HashSet<String> keepTrak = new HashSet<>(10);
+
+            for(DivaIDtoNames divaIDtoNames : affilMappingsObjectsTemporary) {
+
+               String mapped_string =  ( divaIDtoNames.getFAKULTET() +"/"+ divaIDtoNames.getINSTITUTION() + "/" + divaIDtoNames.getENHET() );
+              if( keepTrak.add(mapped_string) ) {affilMappingsObjects.add(divaIDtoNames); } else { System.out.println("warning mapping induced duplicate institution, ignoring the duplicate. see PID: " + this.getEnclosingPost().getPID() + " dup: " + mapped_string); }
+
+            }
+
+
+
+        }
+
+
+
 
     }
 
@@ -227,7 +252,7 @@ public class Author implements Comparable<Author>{
 
       if(!this.hasUmuDivaAddress) this.fractionConsiderMultipleUmUAffils = (1.0/ nrAuthors);
 
-      if(this.hasUmuDivaAddress) this.fractionConsiderMultipleUmUAffils = (1.0/nrAuthors) / this.umuDivaAddresses.size();
+      if(this.hasUmuDivaAddress) this.fractionConsiderMultipleUmUAffils = (1.0/nrAuthors) /  this.affilMappingsObjects.size(); //this.umuDivaAddresses.size();
 
         /*
 
@@ -250,7 +275,7 @@ public class Author implements Comparable<Author>{
             double frac = 1.0/nrAuthors;
             if(frac < 0.1) frac = 0.1;
 
-            this.fractionConsiderMultipleUmUAffilsMin01 = (frac / this.umuDivaAddresses.size());
+            this.fractionConsiderMultipleUmUAffilsMin01 = (frac /  this.affilMappingsObjects.size() ); //this.umuDivaAddresses.size());
 
         }
 

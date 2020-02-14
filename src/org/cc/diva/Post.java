@@ -79,7 +79,7 @@ public class Post implements Comparable<Post>{
         for (int i = 0; i < authorsAndAddresses.length; i++) {
 
             Author author = new Author(authorsAndAddresses[i]);
-            author.calculateAndSetFraction( this.nrAuthors );
+            //author.calculateAndSetFraction( this.nrAuthors ); use this later when we have fixed IDtoDiVAnames mapping in main()
             author.setPID( Integer.valueOf(rawData[ReducedDiVAColumnIndices.PID.getValue()]) );
             author.setEnclosingPost(this);
             authorList.add(author);

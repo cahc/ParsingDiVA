@@ -110,6 +110,18 @@ public class SamFakModel {
 
         authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList);
 
+        //now fractionalize
+
+        System.out.println("Fraktionaliserar..");
+        for(Post p : postList) {
+
+            for(Author a : p.getAuthorList()) {
+
+                a.calculateAndSetFraction( p.getNrAuthors() );
+            }
+
+        }
+
 
 
         System.out.println("Matchar mot norska listan..");

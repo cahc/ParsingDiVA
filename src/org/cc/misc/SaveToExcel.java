@@ -18,10 +18,7 @@ import org.cc.diva.ReducedDiVAColumnIndices;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by crco0001 on 7/12/2016.
@@ -85,148 +82,155 @@ public class SaveToExcel {
         cell.setCellStyle(style);
 
         cell = row.createCell(8);
+        cell.setCellValue("FACULTY FRACTION" );
+        cell.setCellStyle(style);
+
+
+
+
+        cell = row.createCell(9);
         cell.setCellValue("FACULTY" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(9);
+        cell = row.createCell(10);
         cell.setCellValue("INSTITUTION" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(10);
+        cell = row.createCell(11);
         cell.setCellValue("UNIT (IF AVAILABLE OTHERWISE INST.)" );
         cell.setCellStyle(style);
 
         //BIBLIOGRAPHIC INFO
 
-        cell = row.createCell(11);
+        cell = row.createCell(12);
         cell.setCellValue("DIVA_TYPE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(12);
+        cell = row.createCell(13);
         cell.setCellValue("DIVA_YEAR" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(13);
+        cell = row.createCell(14);
         cell.setCellValue("DIVA_CONTENT" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(14);
+        cell = row.createCell(15);
         cell.setCellValue("DIVA_SUBTYPE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(15);
+        cell = row.createCell(16);
         cell.setCellValue("DIVA_STATUS" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(16);
+        cell = row.createCell(17);
         cell.setCellValue("DIVA_AFFILIATIONS" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(17);
+        cell = row.createCell(18);
         cell.setCellValue("DIVA_URN" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(18);
+        cell = row.createCell(19);
         cell.setCellValue("DIVA_POTENTIAL_CHANNELS" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(19);
+        cell = row.createCell(20);
         cell.setCellValue("DIVA_TITLE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(20);
+        cell = row.createCell(21);
         cell.setCellValue("DIVA_ABSTRACT" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(21);
+        cell = row.createCell(22);
         cell.setCellValue("DIVA_JOURNAL" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(22);
+        cell = row.createCell(23);
         cell.setCellValue("DIVA_JOURNAL_ISSN" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(23);
+        cell = row.createCell(24);
         cell.setCellValue("DIVA_SERIES" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(24);
+        cell = row.createCell(25);
         cell.setCellValue("DIVA_SERIES_ISSN" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(25);
+        cell = row.createCell(26);
         cell.setCellValue("DIVA_PUBLISHER" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(26);
+        cell = row.createCell(27);
         cell.setCellValue("DIVA_ISBN" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(27);
+        cell = row.createCell(28);
         cell.setCellValue("DIVA_LANGUAGE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(28);
+        cell = row.createCell(29);
         cell.setCellValue("DIVA_LAST_CHANGED" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(29);
+        cell = row.createCell(30);
         cell.setCellValue("DIVA_NR_AUTHORS" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(30);
+        cell = row.createCell(31);
         cell.setCellValue("DIVA_IS_DUPLICATED" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(31);
+        cell = row.createCell(32);
         cell.setCellValue("DIVA_DUPLICATED_PID" );
         cell.setCellStyle(style);
 
         //NORSK STUFF
 
 
-        cell = row.createCell(32);
+        cell = row.createCell(33);
         cell.setCellValue("NORWEGIAN_ID" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(33);
+        cell = row.createCell(34);
         cell.setCellValue("NORWEGIAN_TYPE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(34);
+        cell = row.createCell(35);
         cell.setCellValue("NORWEGIAN_MATCH" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(35);
+        cell = row.createCell(36);
         cell.setCellValue("NORWEGIAN_NAME" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(36);
+        cell = row.createCell(37);
         cell.setCellValue("NORWEGIAN_LEVEL" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(37);
+        cell = row.createCell(38);
         cell.setCellValue("NORWEGIAN_LEVEL (HISTORICAL MAXIMUM)" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(38);
+        cell = row.createCell(39);
         cell.setCellValue("NORWEGIAN_MODEL_INFO" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(39);
+        cell = row.createCell(40);
         cell.setCellValue("NORWEGIAN_POINTS" );
         cell.setCellStyle(style);
 
         //add localID, use to manually remap institutionen för geografi och ekonomisk historia
 
-        cell = row.createCell(40);
+        cell = row.createCell(41);
         cell.setCellValue("LOCAL_ID");
         cell.setCellStyle(style);
 
@@ -243,6 +247,44 @@ public class SaveToExcel {
 
 
                 NorwegianMatchInfo norskNivå = p.getNorskNivå();
+                
+                
+                //
+                //Count number of FACULTIES an author is associated with. This is needed for fractionalization that dont d´split an author fraction over faculties but split on inst/unit on a lower level
+                //
+                
+                Map<String, Integer> facultyToOccurance = null;
+                boolean multipleUmUaffils = (divaIDtoNames.size() > 1);
+                
+                if(multipleUmUaffils) {
+                    
+                    facultyToOccurance = new HashMap<>();
+                    
+                    for(DivaIDtoNames id : divaIDtoNames) {
+                        
+                        String facultyName = id.getFAKULTET();
+                        
+                        Integer occurrence = facultyToOccurance.get(facultyName);
+                        if(occurrence == null) {
+                            
+                            facultyToOccurance.put(facultyName,1);
+                        } else {
+                            
+                            facultyToOccurance.put(facultyName, (occurrence+1) );
+                            
+                        }
+                        
+                        
+                        
+                    }//for ends
+                    
+                    
+                }
+                
+                
+                
+                ////End special treatment for non frac over Faculties
+                
 
                 int indice = 0;
                 do {
@@ -288,6 +330,28 @@ public class SaveToExcel {
 
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue(author.getFractionIgnoreMultipleUmUAffilsMin01() );
+
+
+                    //ignore multiple UmU-FACULTIES but fractionalize within!
+
+                    double faculty_special_frac = -1;
+                    if(isUmuAuthor && multipleUmUaffils) {
+
+                      faculty_special_frac =  author.getFractionIgnoreMultipleUmUAffils();
+                      int occurances = facultyToOccurance.get( divaIDtoNames.get(indice).getFAKULTET() );
+                      faculty_special_frac =  faculty_special_frac/occurances;
+
+
+                    } else {
+
+                        faculty_special_frac = author.getFractionIgnoreMultipleUmUAffils();
+                    }
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue( faculty_special_frac );
+
+
+
 
 
                     //FACULTY 8
