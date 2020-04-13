@@ -17,6 +17,8 @@ public class NorskFörlag {
     private List<String> ISBNprefix; // can be null
     private String Land; // can be null
 
+    private Integer Nivå2021; //can be null
+    private Integer Nivå2020; // can be null
     private Integer Nivå2019; // can be null
     private Integer Nivå2018; // can be null
     private Integer Nivå2017; // can be null
@@ -58,6 +60,9 @@ public class NorskFörlag {
         if(year.equals(2017)) return getNivå2017();
         if(year.equals(2018)) return getNivå2018();
         if(year.equals(2019)) return getNivå2019();
+        if(year.equals(2020)) return getNivå2020();
+        if(year.equals(2021)) return getNivå2021();
+
         return null; //obs!!
 
     }
@@ -65,7 +70,9 @@ public class NorskFörlag {
     public Integer getHistoricalMaxLevel() {
 
         Integer max = 0;
-        if(getNivå2019() != null && (max.compareTo( getNivå2018() ) < 0) ) max = getNivå2019();
+        if(getNivå2021() != null && (max.compareTo( getNivå2021() ) < 0) ) max = getNivå2021();
+        if(getNivå2020() != null && (max.compareTo( getNivå2020() ) < 0) ) max = getNivå2020();
+        if(getNivå2019() != null && (max.compareTo( getNivå2019() ) < 0) ) max = getNivå2019();
         if(getNivå2018() != null && (max.compareTo( getNivå2018() ) < 0) ) max = getNivå2018();
         if(getNivå2017() != null && (max.compareTo( getNivå2017() ) < 0) ) max = getNivå2017();
         if(getNivå2016() != null && (max.compareTo( getNivå2016() ) < 0) ) max = getNivå2016();
@@ -143,6 +150,23 @@ public class NorskFörlag {
         Land = land;
     }
 
+    public Integer getNivå2021() {
+        return Nivå2021;
+    }
+
+    public void setNivå2021(Integer nivå2021) {
+        Nivå2021 = nivå2021;
+    }
+
+
+    public Integer getNivå2020() {
+        return Nivå2020;
+    }
+
+    public void setNivå2020(Integer nivå2020) {
+        Nivå2020 = nivå2020;
+    }
+
 
     public Integer getNivå2019() {
         return Nivå2019;
@@ -151,8 +175,6 @@ public class NorskFörlag {
     public void setNivå2019(Integer nivå2019) {
         Nivå2019 = nivå2019;
     }
-
-
 
     public Integer getNivå2018() {
         return Nivå2018;

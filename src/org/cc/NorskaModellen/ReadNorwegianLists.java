@@ -107,6 +107,18 @@ public class ReadNorwegianLists {
             if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setSpråk(cell.toString());
 
 
+            //nivå 2021
+
+            cell = row.getCell(NorskSerieIndex.Nivå_2021.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2021(Integer.valueOf(formatter.formatCellValue(cell)));
+
+
+            //nivå 2020
+
+            cell = row.getCell(NorskSerieIndex.Nivå_2020.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2020(Integer.valueOf(formatter.formatCellValue(cell)));
+
+
             //Nivå 2019
 
             cell = row.getCell(NorskSerieIndex.Nivå_2019.getValue());
@@ -278,12 +290,18 @@ public class ReadNorwegianLists {
             if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setLand(  cell.toString() );
 
 
+            //Nivå 2021
+            cell = row.getCell(NorskFörlagIndex.Nivå2021.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2021(Integer.valueOf(formatter.formatCellValue(cell)));
+
+
+            //Nivå 2020
+            cell = row.getCell(NorskFörlagIndex.Nivå2020.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2020(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2019
             cell = row.getCell(NorskFörlagIndex.Nivå2019.getValue());
             if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2019(Integer.valueOf(formatter.formatCellValue(cell)));
-
-
 
             //Nivå 2018
             cell = row.getCell(NorskFörlagIndex.Nivå2018.getValue());
