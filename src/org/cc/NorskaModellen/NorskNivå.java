@@ -219,6 +219,8 @@ public class NorskNivå {
 
         }
 
+
+
         //Beaktad publikation men ej i Norska listan
         p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN );
         matchInfo.setInNorewgianList(false);
