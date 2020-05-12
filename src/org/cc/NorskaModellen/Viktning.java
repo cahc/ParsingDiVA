@@ -84,11 +84,13 @@ public class Viktning {
         String publicationsStatus = p.getStatusInModel().getStatusInModel();
         NorwegianMatchInfo matchInfo = p.getNorskNivå();
 
-        if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_SPECIALLFALL_EJ_NIVÅBESTÄMNING) && (p.getDivaPublicationType().equals(DivaPublicationTypes.avhandlingMonografi) || p.getDivaPublicationType().equals(DivaPublicationTypes.avhandlingSammanläggning))) {
+        if(p.getPID() == 1068229) System.out.println( p.getPID() + " --->" + publicationsStatus + " --> " + p.getDivaPublicationType() );
+
+        if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN) && (p.getDivaPublicationType().equals(DivaPublicationTypes.avhandlingMonografi) || p.getDivaPublicationType().equals(DivaPublicationTypes.avhandlingSammanläggning))) {
 
 
-            matchInfo.setVikt(32);
-            matchInfo.setModelSpecificInfo("Doktorsavhandling");
+            matchInfo.setVikt(5);
+            matchInfo.setModelSpecificInfo("Doktorsavhandling (endast för urvalsgrupp nydisp.)");
 
         } else
 

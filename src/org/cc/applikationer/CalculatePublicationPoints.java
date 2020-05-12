@@ -1,16 +1,16 @@
 package org.cc.applikationer;
 
 import org.cc.NorskaModellen.*;
-import org.cc.diva.Author;
-import org.cc.diva.DeduplicatePostsPerAuthor;
+import org.cc.diva.*;
 import org.cc.misc.CmdParser;
-import org.cc.diva.CreateDivaTable;
-import org.cc.diva.Post;
 import org.cc.misc.CAStoTime;
 import org.cc.misc.SaveToExcel;
 import org.cc.misc.Thesaurus;
+
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -18,7 +18,7 @@ import java.util.*;
  */
 public class CalculatePublicationPoints {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ParseException, XMLStreamException {
 
         CmdParser cmdParser = new CmdParser(args);
 
@@ -175,6 +175,24 @@ public class CalculatePublicationPoints {
         System.out.println("...klar!");
 
 
+        //FRACTIONALIZATION - TODO WHY WAS THIS REMOVE IN ERLIER VERSION, DOSENT MAKE ANY SENSE!!
+
+
+        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20200103.xlsx"), new File("PersonalData_202005070003254.xml"));
+        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(reducedPostList);
+
+
+        System.out.println("Fraktionaliserar..");
+        for(Post p : reducedPostList) {
+
+            for(Author a : p.getAuthorList()) {
+                a.calculateAndSetFraction( p.getNrAuthors() );
+            }
+
+        }
+
+
+
 
         /**
          *
@@ -219,7 +237,7 @@ public class CalculatePublicationPoints {
 
         PublicationPointPerAuthor publicationPointPerAuthor = new PublicationPointPerAuthor();
 
-        double collaborationWeight = 1.2;
+        double collaborationWeight = 2.0;
         publicationPointPerAuthor.calculateAggregateAuthorStatistics(consideredAuthorsPostPairs,collaborationWeight);
         System.out.println("Using collaboration weight: " + collaborationWeight );
 
@@ -255,8 +273,9 @@ public class CalculatePublicationPoints {
 
 
 
-        //TODO OBS USING LF for new HF!!!
-        if(model.equals("HF")) saveToExcel.addAggregatedAuthorStatisticsLärarHögskolan(publicationPointPerAuthor); // saveToExcel.addAggregatedAuthorStatisticsHumantistiskaFakulteten(publicationPointPerAuthor);
+        //TODO OBS USING LF for new HF WHAT THE HELL IS THIS!!!
+        if(model.equals("HF")) saveToExcel.addAggregatedAuthorStatisticsLärarHögskolan(publicationPointPerAuthor);
+
         if(model.equals("LH")) saveToExcel.addAggregatedAuthorStatisticsLärarHögskolan(publicationPointPerAuthor);
 
         //add zero publishing CAS to reducedPostList with a dummy row

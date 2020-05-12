@@ -232,6 +232,7 @@ public class NorskSerie {
 
 
     public void setNivå2021(Integer nivå2021) {this.nivå2021 = nivå2021; }
+
     public Integer getNivå2021() { return  nivå2021; }
 
     public void setNivå2020(Integer nivå2020) {this.nivå2020 = nivå2020; }

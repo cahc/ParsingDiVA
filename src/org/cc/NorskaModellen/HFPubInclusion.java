@@ -7,20 +7,6 @@ import org.cc.diva.Post;
  */
 public class HFPubInclusion implements ConsideredPublications {
 
-    /**
-
-
-    Humanistiska fakultetens beaktande av publikationer. Endast (1) MONOGRAFIER, (2) AVHANDLING, (3)ARTIKEL (4) BOKKAPITEL
-
-     Alla andra publikationstyper klassas som övrigt och genererar två poäng (om de uppfyller kravet på vetenskaplighet, ej populärvetenskap eller abstract poster newsItem eller editorial) annars 0
-
-
-     in press, submitted betraktas ej publicerat och genererar noll poäng
-
-     Ovanstående gäller ej för HT 2017, e-pub ahead of print räknas nu som published
-
-     */
-
 
 
     public StatusInModel consideredPub(Post p) {
@@ -29,9 +15,9 @@ public class HFPubInclusion implements ConsideredPublications {
 
         Generellt gäller att:
 
-        För att matchas mot norska listans autktoritetsregister måste en publikation vara av förlande typer och uppfylla vissa krav på vetenskapligt innehåll:
+        För att matchas mot norska listans autktoritetsregister måste en publikation vara av följande typer och uppfylla vissa krav på vetenskapligt innehåll:
 
-        {"Artikel i tidskrift","Artikel, forskningsöversikt","Bok","Kapitel i bok, del av antologi","Konferensbidrag"};
+        {"Artikel i tidskrift","Artikel, forskningsöversikt","Bok","Kapitel i bok, del av antologi", Redaktör för antologi/proceeding};
 
         Publikationen måste också vara av innehållstyp:
 
@@ -47,7 +33,10 @@ public class HFPubInclusion implements ConsideredPublications {
 
          1. Status = {Published}  (m a o *EJ* {"accepted","aheadofprint","inPress","submitted"} )
 
-         Nytt från HT 2017, aheadofprint räknas nu som published
+
+
+        SPECIALL: Avhandlingar beaktas för urvalsgruppen nydisputerade!
+                  Hanteras då som en bok nivå 1
 
         */
 
@@ -58,10 +47,9 @@ public class HFPubInclusion implements ConsideredPublications {
 
             statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT);
             statusInModel.setIgnorerad(true);
-        } else
 
 
-        if("Artikel i tidskrift".equals(p.getDivaPublicationType()) | "Artikel, forskningsöversikt".equals(p.getDivaPublicationType())) {
+        } else if("Artikel i tidskrift".equals(p.getDivaPublicationType()) | "Artikel, forskningsöversikt".equals(p.getDivaPublicationType())) {
 
 
             if(p.getDivaContentType().equals("Refereegranskat") | p.getDivaContentType().equals("Övrigt vetenskapligt")) {
@@ -88,40 +76,27 @@ public class HFPubInclusion implements ConsideredPublications {
 
 
 
-        } else
-
-        if("Bok".equals(p.getDivaPublicationType()) | "Kapitel i bok, del av antologi".equals(p.getDivaPublicationType())) {
-
-            if(p.getDivaContentType().equals("Refereegranskat") | p.getDivaContentType().equals("Övrigt vetenskapligt")) { statusInModel.setStatusInModel(StatusInModelConstants.BEAKTAD_ÄNNU_EJ_MATCHAD_MOT_NORSKA_LISTAN); statusInModel.setIgnorerad(false); } else { statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT); statusInModel.setIgnorerad(true);}
-
-
-        } else
-
-        if("Doktorsavhandling, monografi".equals( p.getDivaPublicationType() ) | "Doktorsavhandling, sammanläggning".equals(p.getDivaPublicationType()) ) {
-
-
-            statusInModel.setIgnorerad(true);
-            statusInModel.setStatusInModel( StatusInModelConstants.IGNORERAD_EJ_BEAKTAD_PUBLIKATIONSTYP);
-
-
-        } else
-
-
-        if("Proceedings (redaktörskap)".equals(p.getDivaPublicationType()) || "Samlingsverk (redaktörskap)".equals(p.getDivaPublicationType())) {
+        } else if("Bok".equals(p.getDivaPublicationType()) | "Kapitel i bok, del av antologi".equals(p.getDivaPublicationType())) {
 
             if(p.getDivaContentType().equals("Refereegranskat") || p.getDivaContentType().equals("Övrigt vetenskapligt")) { statusInModel.setStatusInModel(StatusInModelConstants.BEAKTAD_ÄNNU_EJ_MATCHAD_MOT_NORSKA_LISTAN); statusInModel.setIgnorerad(false); } else { statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT); statusInModel.setIgnorerad(true);}
 
 
-        } else
+        } else if("Doktorsavhandling, monografi".equals( p.getDivaPublicationType() ) || "Doktorsavhandling, sammanläggning".equals(p.getDivaPublicationType()) ) {
 
 
-        if("Manuskript (preprint)".equals(p.getDivaPublicationType())) {
+            statusInModel.setIgnorerad(false);
+            statusInModel.setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_SPECIALLFALL_EJ_NIVÅBESTÄMNING);
+            return statusInModel;
+
+        } else if("Proceedings (redaktörskap)".equals(p.getDivaPublicationType()) || "Samlingsverk (redaktörskap)".equals(p.getDivaPublicationType())) {
+
+            if(p.getDivaContentType().equals("Refereegranskat") || p.getDivaContentType().equals("Övrigt vetenskapligt")) { statusInModel.setStatusInModel(StatusInModelConstants.BEAKTAD_ÄNNU_EJ_MATCHAD_MOT_NORSKA_LISTAN); statusInModel.setIgnorerad(false); } else { statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT); statusInModel.setIgnorerad(true);}
+
+
+        } else if("Manuskript (preprint)".equals(p.getDivaPublicationType())) {
 
             statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD); statusInModel.setIgnorerad(true);
-        } else
-
-
-        {
+        } else {
 
             //ej beaktad publikationstyp - kan bli klassad som övrigt med notera att ett, säg, Konferensbidrag, av underkategorin abstracts, poster, presentation ska sättas som IGNORERAD_EJ_VETENSKAPLIG
 

@@ -37,9 +37,8 @@ public class PublicationPointPerAuthor {
             Double publicationWeight = a.getEnclosingPost().getNorskNivå().getVikt();
             Integer year = a.getEnclosingPost().getYear();
             double fraction = a.getFractionIgnoreMultipleUmUAffils();
+
             boolean nrAuthorsMoreThanOne = (a.getEnclosingPost().getNrAuthors() > 1);
-
-
 
             AggregatedAuthorInformation authorStatistics = aggregatedAuthorInformationTreeMap.get(cas);
 
