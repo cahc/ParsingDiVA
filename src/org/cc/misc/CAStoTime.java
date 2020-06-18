@@ -164,20 +164,19 @@ public class CAStoTime {
 
     public boolean includeRawPostBasedOnCas(CreateDivaTable divaTable, int row ) {
 
-
-
+        boolean include = false;
         String nameField =  divaTable.getRowInTable(row)[ReducedDiVAColumnIndices.Name.getValue()].toLowerCase();
 
         for(int i=0; i<casArray.length; i++) {
 
 
-            if( nameField.contains(casArray[i]) ) { seenCas.add(casArray[i]); return true; }
+            if( nameField.contains(casArray[i]) ) { seenCas.add(casArray[i]); include = true; } //TODO bugg in implementation 2020, seenCas is used for other stuff later must add all considered cas
 
 
         }
 
 
-        return false;
+        return include;
 
     }
 
