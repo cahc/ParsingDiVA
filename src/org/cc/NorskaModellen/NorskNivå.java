@@ -98,7 +98,12 @@ public class NorskNivå {
             if(divaPublikationsTyp.equals(DivaPublicationTypes.review) || divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift)) simplifiedSeriesName = DivaHelpFunctions.simplifyString( thesaurus.replaceSerieBy( p.getJournal() ) );
 
             if(divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapProceeding) ) {
-                String serieName = extractSeriesName( thesaurus.replaceSerieBy( p.getSeriesName() ));
+
+                //TODO the order of functions was not right here, missed ; in thesaurus-lookup
+               // String serieName = extractSeriesName( thesaurus.replaceSerieBy( p.getSeriesName() ));
+
+                String serieName = thesaurus.replaceSerieBy( extractSeriesName( p.getSeriesName() ) );
+
                 if(serieName != null) simplifiedSeriesName = DivaHelpFunctions.simplifyString( serieName );
 
             }

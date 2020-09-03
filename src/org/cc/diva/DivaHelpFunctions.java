@@ -149,7 +149,7 @@ public class DivaHelpFunctions {
 
         Matcher matcher = seriesName.matcher(input);
 
-        if(matcher.find()) { return matcher.group();} else return null;
+        if(matcher.find()) { return matcher.group().trim();} else return null;
 
     }
 
