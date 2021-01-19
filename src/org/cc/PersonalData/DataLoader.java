@@ -521,7 +521,8 @@ public class DataLoader {
 
     public static void main(String[] arg) throws IOException, XMLStreamException, ParseException {
 
-        DataLoader personalData = new DataLoader( new File("E:\\STARKA_MILJÖER_UTVÄRDERING\\V3_KOMPLETTERINGSRAPPORT\\PersonalData_201708071322409.xml"));
+      //  DataLoader personalData = new DataLoader( new File("C:\\Users\\crco0001\\OneDrive - Umeå universitet\\Desktop\\TillCristian_2021-01-18\\PersonalData_202008240003322.xml"));
+        DataLoader personalData = new DataLoader( new File("C:\\Users\\crco0001\\OneDrive - Umeå universitet\\Desktop\\TillCristian_2021-01-18\\PersonalData_202101180103485.xml"));
 
         System.out.println("Person objects: " + personalData.size());
 
@@ -529,7 +530,9 @@ public class DataLoader {
 
         for(Person p : allPersonObjects) {
 
+            if(!p.UID.equals("crco0001")) continue;
             System.out.println(p.getNameForSearching() +" " + p.getUniqueFaculties());
+            System.out.println(p.employmentList);
          }
 
 

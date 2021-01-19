@@ -28,6 +28,10 @@ public class Period implements Comparable<Period> {
 
         if(firstCheck == 0) {
 
+            //TODO bugg here fund 2021-01-18
+
+            if(this.endDate == null && other.endDate == null) return 0;
+
             if(this.endDate == null) return 1;
             if(other.endDate == null) return -1;
 
