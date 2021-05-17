@@ -178,7 +178,7 @@ public class CalculatePublicationPoints {
         //FRACTIONALIZATION - TODO WHY WAS THIS REMOVE IN ERLIER VERSION, DOSENT MAKE ANY SENSE!!
 
 
-        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20200103.xlsx"), new File("PersonalData_202006080006164.xml"));
+        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20200103.xlsx"), new File("PersonalData_202105170003468.xml"));
         authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(reducedPostList);
 
 
@@ -237,7 +237,7 @@ public class CalculatePublicationPoints {
 
         PublicationPointPerAuthor publicationPointPerAuthor = new PublicationPointPerAuthor();
 
-        double collaborationWeight = 1.2;
+        double collaborationWeight = 2.0;
         publicationPointPerAuthor.calculateAggregateAuthorStatistics(consideredAuthorsPostPairs,collaborationWeight);
         System.out.println("Using collaboration weight: " + collaborationWeight );
 

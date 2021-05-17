@@ -107,6 +107,13 @@ public class ReadNorwegianLists {
             if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setSpråk(cell.toString());
 
 
+            //nivå 2022
+
+            cell = row.getCell(NorskSerieIndex.Nivå_2022.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2022(Integer.valueOf(formatter.formatCellValue(cell)));
+
+
+
             //nivå 2021
 
             cell = row.getCell(NorskSerieIndex.Nivå_2021.getValue());
@@ -289,6 +296,10 @@ public class ReadNorwegianLists {
             Cell cell = row.getCell(NorskFörlagIndex.Land.getValue());
             if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setLand(  cell.toString() );
 
+
+            //Nivå 2022
+            cell = row.getCell(NorskFörlagIndex.Nivå2022.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2022(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2021
             cell = row.getCell(NorskFörlagIndex.Nivå2021.getValue());
