@@ -28,6 +28,28 @@ public class DivaHelpFunctions {
     private final static Pattern replaceMultipleRightParenthesis = Pattern.compile("\\){2,}(?!;)");
     private final static Pattern extractName = Pattern.compile("^.+?(?=\\[|\\(|$)");
 
+    private final static Pattern extractOrgHeightsLevel = Pattern.compile("^.*?(?= \\[)");
+    private final static Pattern extractNumbers = Pattern.compile("(?<=\\[)\\d{1,8}(?=])");
+
+    public static String orgNamesHeightLevel(String affiliation) {
+
+        Matcher matcher = extractOrgHeightsLevel.matcher(affiliation);
+
+        if(matcher.find()) { return matcher.group().trim();} else return null;
+
+    }
+
+    public static String orgNumberHighestLevel(String affiliation) {
+
+        Matcher matcher = extractNumbers.matcher(affiliation);
+
+        if(matcher.find()) { return matcher.group().trim();} else return null;
+
+    }
+
+
+
+
 
     public static boolean isInteger( String input ) {
         try {

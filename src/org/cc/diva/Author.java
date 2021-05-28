@@ -303,6 +303,28 @@ public class Author implements Comparable<Author>{
 
     }
 
+
+    //just different names when we work with diva portal stuff, that is not nessesarily UmU but controlled..
+
+    public List<String> getControlledAddresses() {
+
+        if( getNrUmUaddresses()==0 ) return Collections.emptyList();
+
+        return new ArrayList<>(this.umuDivaAddresses);
+
+
+    }
+
+
+    public boolean getHasControlledAddresses() {
+
+        return this.hasUmuDivaAddress;
+    }
+
+
+    /////////////////////////////////////
+
+
     public String getAffiliations() {
 
         StringBuilder stringBuilder = new StringBuilder(20);

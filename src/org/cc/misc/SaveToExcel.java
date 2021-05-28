@@ -829,7 +829,12 @@ public class SaveToExcel {
             cell.setCellValue(p.getRawDataRow()[ ReducedDiVAColumnIndices.Title.getValue() ] );
 
             cell = row.createCell(++cellIndices);
-            cell.setCellValue(p.getRawDataRow()[ ReducedDiVAColumnIndices.Abstract.getValue() ] );
+
+            String abs = p.getRawDataRow()[ ReducedDiVAColumnIndices.Abstract.getValue() ];
+            if(abs.length() > 32700 ) { abs = abs.substring(0,32000); abs = abs.concat("[TRUNCATED!!]");       }
+            cell.setCellValue( abs );
+
+           // cell.setCellValue(p.getRawDataRow()[ ReducedDiVAColumnIndices.Abstract.getValue() ] );
 
             cell = row.createCell(++cellIndices);
             cell.setCellValue(p.getRawDataRow()[ ReducedDiVAColumnIndices.Journal.getValue() ] );

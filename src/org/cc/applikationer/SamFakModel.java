@@ -117,6 +117,7 @@ public class SamFakModel {
 
             for(Author a : p.getAuthorList()) {
 
+                //todo buggy, getNrAuthors is based on observed authors, but ignores potential info regarding extra authors not registered! Rare but occurs
                 a.calculateAndSetFraction( p.getNrAuthors() );
             }
 
