@@ -234,6 +234,116 @@ public class NorskNivå {
     }
 
 
+    //ADDED FUNCTION 2021-06-22
+    //There is a problem with getNorwegianLevel (+ accompning get Viktning.get..) Say that an anthology mach on series (and publisher but that is ignored as series is match). If the series dont have *any* rating for the publication year then points 0, but what if the publisher has for that year (and, for example the series will be given point 1 later). Is it not weired to allocate 0 points in this case?
+    //if series match on anything that is not a journal and the level is NULL, then we should check the publisher
+
+    public static NorwegianMatchInfo getNorwegianLevelRestrictedToMatchOnPublisherOnlyPreMatched(List<NorskFörlag> förlagList, Post p, double threshold, Thesaurus thesaurus) {
+
+        NorwegianMatchInfo preMatchInfo = p.getNorskNivå();
+
+        if(p.getStatusInModel().isIgnorerad()) {
+
+            return preMatchInfo;
+        }
+
+        String divaPublikationsTyp = p.getDivaPublicationType();
+
+        if( divaPublikationsTyp.equals(DivaPublicationTypes.tidskrift) || divaPublikationsTyp.equals(DivaPublicationTypes.review) ) {
+
+            //this is not a case for publisher matching and should not happen
+            System.out.println("Warning journal type is matched in getNorwegianLevelRestrictedToMatchOnPublisherOnly..");
+            return preMatchInfo;
+        }
+
+
+        NorwegianMatchInfo matchInfo = new NorwegianMatchInfo();
+
+        if(divaPublikationsTyp.equals(DivaPublicationTypes.konferens) || divaPublikationsTyp.equals(DivaPublicationTypes.antologi) || divaPublikationsTyp.equals(DivaPublicationTypes.bok) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapSamlingsverk) || divaPublikationsTyp.equals(DivaPublicationTypes.redaktörskapProceeding)  ) {
+
+            String simplifiedDivaPublisher =  DivaHelpFunctions.simplifyString(  thesaurus.replaceFörlagBy( p.getPublisher() ) );
+
+            if(simplifiedDivaPublisher.length() != 0) {
+
+                NormalizedLevenshtein normalizedLevenshtein = new NormalizedLevenshtein();
+
+                double max = -1;
+                int indice = -1;
+                for(int i=0; i<förlagList.size(); i++) {
+                    double sim = normalizedLevenshtein.similarity(simplifiedDivaPublisher, förlagList.get(i).getSimplyfiedTitle() );
+                    if(sim > max) {max = sim; indice = i;}
+                }
+
+                if(max >= threshold) {
+                    matchInfo.setInNorewgianList(true);
+                    p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN );
+                    matchInfo.setType("förlag");
+                    matchInfo.setHow("förlag_name");
+                    matchInfo.setNorsk_id( förlagList.get(indice).getForlag_id()  );
+                    matchInfo.setNivå(  förlagList.get(indice).getLevel( p.getYear() ) );
+                    matchInfo.setMax_nivå( förlagList.get(indice).getHistoricalMaxLevel() );
+                    matchInfo.setNorsk_namn( förlagList.get(indice).getInternasjonaltittel() );
+                    return matchInfo;
+
+                }
+
+            }
+
+            //still no hit, lets try ISBN prefix..
+
+
+            List<String> divaISBN = extractDivaISBN(  p.getISBN()  ); // convert to ISBN-13 and hyphenate!
+
+            //create a prefix
+
+            if(divaISBN != null) {
+
+
+                for(int i=0; i< divaISBN.size(); i++) {
+
+
+                    divaISBN.set(i,   DivaHelpFunctions.createISBNprefix( divaISBN.get(i)  )    );
+
+                }
+
+
+                for (int i=0; i<förlagList.size(); i++) {
+
+                    List<String> norskaFörlagsISBN = förlagList.get(i).getISBNprefix();
+                    if (norskaFörlagsISBN == null) continue;
+
+                    for (String ISBN : norskaFörlagsISBN) {
+
+                        for (String divaisbn : divaISBN) {
+
+                            if (divaisbn.equals(ISBN)) {
+                                matchInfo.setInNorewgianList(true);
+                                p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN );
+                                matchInfo.setType("förlag");
+                                matchInfo.setHow("ISBN_prefix");
+                                matchInfo.setNorsk_id(  förlagList.get(i).getForlag_id() );
+                                matchInfo.setNivå(  förlagList.get(i).getLevel( p.getYear() ) );
+                                matchInfo.setMax_nivå( förlagList.get(i).getHistoricalMaxLevel() );
+                                matchInfo.setNorsk_namn( förlagList.get(i).getInternasjonaltittel() );
+                                return matchInfo;
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+
+        }
+
+
+        return preMatchInfo; //if no luck go with the preMatched version!
+
+    }
+
 
 
 }

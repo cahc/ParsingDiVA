@@ -84,8 +84,6 @@ public class Viktning {
         String publicationsStatus = p.getStatusInModel().getStatusInModel();
         NorwegianMatchInfo matchInfo = p.getNorskNivå();
 
-        if(p.getPID() == 1068229) System.out.println( p.getPID() + " --->" + publicationsStatus + " --> " + p.getDivaPublicationType() );
-
         if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN) && (p.getDivaPublicationType().equals(DivaPublicationTypes.avhandlingMonografi) || p.getDivaPublicationType().equals(DivaPublicationTypes.avhandlingSammanläggning))) {
 
 

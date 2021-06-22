@@ -127,6 +127,7 @@ public class SamFakModel {
 
         System.out.println("Matchar mot norska listan..");
 
+        //TODO see calculate publication points for "fix" where non journals are matched on series, but the series is NULL for the pubyear, then retry with restriced publisher match!
         for(Post p : postList) {
 
 
