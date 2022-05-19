@@ -17,6 +17,7 @@ public class NorskFörlag {
     private List<String> ISBNprefix; // can be null
     private String Land; // can be null
 
+    private Integer Nivå2023; //can be null
     private Integer Nivå2022; //can be null
     private Integer Nivå2021; //can be null
     private Integer Nivå2020; // can be null
@@ -64,6 +65,8 @@ public class NorskFörlag {
         if(year.equals(2020)) return getNivå2020();
         if(year.equals(2021)) return getNivå2021();
         if(year.equals(2022)) return getNivå2022();
+        if(year.equals(2023)) return getNivå2023();
+
         return null; //obs!!
 
     }
@@ -71,6 +74,8 @@ public class NorskFörlag {
     public Integer getHistoricalMaxLevel() {
 
         Integer max = 0;
+        if(getNivå2023() != null && (max.compareTo( getNivå2023() ) < 0) ) max = getNivå2023();
+
         if(getNivå2022() != null && (max.compareTo( getNivå2022() ) < 0) ) max = getNivå2022();
         if(getNivå2021() != null && (max.compareTo( getNivå2021() ) < 0) ) max = getNivå2021();
         if(getNivå2020() != null && (max.compareTo( getNivå2020() ) < 0) ) max = getNivå2020();
@@ -152,6 +157,9 @@ public class NorskFörlag {
         Land = land;
     }
 
+
+    public Integer getNivå2023() { return Nivå2023;}
+    public void setNivå2023(Integer nivå2023) {Nivå2023 = nivå2023;}
 
     public Integer getNivå2022() {
         return Nivå2022;

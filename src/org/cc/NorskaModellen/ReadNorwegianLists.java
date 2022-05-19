@@ -49,8 +49,11 @@ public class ReadNorwegianLists {
 
         Row row = rowIterator.next();
 
-        if (!row.getCell(NorskSerieIndex.tidsskrift_id.getValue()).toString().equals("NSD tidsskrift_id") || !row.getCell(NorskSerieIndex.Nivå_2004.getValue()).toString().equals("Nivå 2004")) {
+        if (!row.getCell(NorskSerieIndex.tidsskrift_id.getValue()).toString().equals("journal_id") || !row.getCell(NorskSerieIndex.Nivå_2004.getValue()).toString().equals("Level 2004")) {
             System.out.println("Not a valid header in norwegian authority file! (serier)");
+            System.out.println("Was:");
+            System.out.println( row.getCell(NorskSerieIndex.tidsskrift_id.getValue()).toString() );
+            System.out.println( row.getCell(NorskSerieIndex.Nivå_2004.getValue()).toString() );
             System.exit(1);
         }
 
@@ -105,6 +108,12 @@ public class ReadNorwegianLists {
             //check språk
             cell = row.getCell(NorskSerieIndex.Språk.getValue());
             if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setSpråk(cell.toString());
+
+
+            //nivå 2023
+
+            cell = row.getCell(NorskSerieIndex.Nivå_2023.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2023(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //nivå 2022
@@ -238,7 +247,7 @@ public class ReadNorwegianLists {
 
         Row row = rowIterator.next();
 
-        if (!row.getCell(NorskFörlagIndex.forlag_id.getValue()).toString().equals("NSD forlag_id") || !row.getCell(NorskFörlagIndex.Nivå2004.getValue()).toString().equals("Nivå 2004")) {
+        if (!row.getCell(NorskFörlagIndex.forlag_id.getValue()).toString().equals("publisher_id") || !row.getCell(NorskFörlagIndex.Nivå2004.getValue()).toString().equals("Level 2004")) {
             System.out.println("Not a valid header in norwegian authority file! (förlag)");
             System.exit(1);
         }
@@ -296,6 +305,10 @@ public class ReadNorwegianLists {
             Cell cell = row.getCell(NorskFörlagIndex.Land.getValue());
             if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setLand(  cell.toString() );
 
+            //Nivå 2023
+
+            cell = row.getCell(NorskFörlagIndex.Nivå2023.getValue());
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2023(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2022
             cell = row.getCell(NorskFörlagIndex.Nivå2022.getValue());

@@ -149,7 +149,7 @@ public class CalculatePublicationPoints {
             //Threshold increased!
 
             p.setStatusInModel( defaultPubInclusion.consideredPub(p) ); // ska publikationen matchas mot norska listan, se StatusInMdelConstants
-            NorwegianMatchInfo matchInfo = NorskNivå.getNorwegianLevel(listaMedSerier,listaMedFörlag,p,0.94,standardiseringsListor); //matcha eventuellt mot norska listan samt uppdatera StatusInModel
+            NorwegianMatchInfo matchInfo = NorskNivå.getNorwegianLevel(listaMedSerier,listaMedFörlag,p,0.94,standardiseringsListor,true); //matcha eventuellt mot norska listan samt uppdatera StatusInModel
             p.setNorskNivå( matchInfo ); // uppdatera posten med information om matchning mot norska listan
 
             //check if it is a non journal that has series match, if match but level NULL, try to do a match again restricted to publisher..
@@ -197,7 +197,7 @@ public class CalculatePublicationPoints {
         //FRACTIONALIZATION - TODO WHY WAS THIS REMOVE IN ERLIER VERSION, DOSENT MAKE ANY SENSE!!
 
 
-        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20200103.xlsx"), new File("PersonalData_202106100003534.xml"));
+        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20211104.xlsx"), new File("PersonalData_202205180006394.xml"));
         authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(reducedPostList);
 
 
@@ -256,7 +256,8 @@ public class CalculatePublicationPoints {
 
         PublicationPointPerAuthor publicationPointPerAuthor = new PublicationPointPerAuthor();
 
-        double collaborationWeight = 1.2;
+        double collaborationWeight = model.equals("HF") ? 2.0 : 1.2; //olika samarbetsvikter
+
         publicationPointPerAuthor.calculateAggregateAuthorStatistics(consideredAuthorsPostPairs,collaborationWeight);
         System.out.println("Using collaboration weight: " + collaborationWeight );
 

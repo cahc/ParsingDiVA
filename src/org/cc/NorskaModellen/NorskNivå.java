@@ -17,7 +17,7 @@ public class NorskNivå {
 
     private static String problematicSerie1 = DivaHelpFunctions.simplifyString("Studies in Educational Leadership");
 
-    public static NorwegianMatchInfo getNorwegianLevel(List<NorskSerie> serieLista, List<NorskFörlag> förlagList, Post p, double threshold, Thesaurus thesaurus) {
+    public static NorwegianMatchInfo getNorwegianLevel(List<NorskSerie> serieLista, List<NorskFörlag> förlagList, Post p, double threshold, Thesaurus thesaurus, boolean checkConsecutiveYearIfSeriesIsFoundButNullLevel) {
 
         NorwegianMatchInfo matchInfo = new NorwegianMatchInfo();
 
@@ -60,6 +60,13 @@ public class NorskNivå {
                             matchInfo.setNorsk_id(  serieLista.get(i).getTidskriftsID()  );
                             //get level
                             matchInfo.setNivå( serieLista.get(i).getLevel(  p.getYear() )  );
+
+                            if(checkConsecutiveYearIfSeriesIsFoundButNullLevel && serieLista.get(i).getLevel(  p.getYear() ) == null) {
+
+                                matchInfo.setNivå( serieLista.get(i).getLevel(  p.getYear() +1 )  );
+                                System.out.println("Warning! Using consecutive year for level post: " + p.getPID());
+                            }
+
                             matchInfo.setMax_nivå(  serieLista.get(i).getHistoricalMaxLevel()   );
                             matchInfo.setNorsk_namn( serieLista.get(i).getInternationellTitel() );
 
@@ -77,6 +84,14 @@ public class NorskNivå {
                             matchInfo.setNorsk_id(  serieLista.get(i).getTidskriftsID()  );
                             //get level
                             matchInfo.setNivå( serieLista.get(i).getLevel(  p.getYear() )  );
+
+                            if(checkConsecutiveYearIfSeriesIsFoundButNullLevel && serieLista.get(i).getLevel(  p.getYear() ) == null) {
+
+                                matchInfo.setNivå( serieLista.get(i).getLevel(  p.getYear() +1 )  );
+                                System.out.println("Warning! Using consecutive year for level post: " + p.getPID());
+                            }
+
+
                             matchInfo.setMax_nivå(  serieLista.get(i).getHistoricalMaxLevel()   );
                             matchInfo.setNorsk_namn( serieLista.get(i).getInternationellTitel() );
 
