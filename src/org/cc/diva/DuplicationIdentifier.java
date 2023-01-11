@@ -52,13 +52,15 @@ public class DuplicationIdentifier {
         boolean[] availiableForCheck = new boolean[pList.size()];
         for(int i=0; i<availiableForCheck.length; i++) availiableForCheck[i] = true;
 
-        NormalizedLevenshtein levenshtein = new NormalizedLevenshtein();
+       // NormalizedLevenshtein levenshtein = new NormalizedLevenshtein();
         for(int i=0; i<pList.size(); i++) {
 
             if( reducedTitles.get(i).length() <= 3 || ignore.contains( reducedTitles.get(i)) ) continue;
 
             Integer targetYear = pList.get(i).getYear();
             String targetType = pList.get(i).getDivaPublicationType();
+            String targetContent = pList.get(i).getDivaContentType();
+
 
             List<Integer> indicesOfDups = new ArrayList<>();
             indicesOfDups.add(i);
@@ -68,9 +70,10 @@ public class DuplicationIdentifier {
 
                         Integer compareYear = pList.get(j).getYear();
                         String compareType = pList.get(j).getDivaPublicationType();
+                        String compareTarget = pList.get(j).getDivaContentType();
 
-
-                        if(targetYear.equals(compareYear) && targetType.equals(compareType)) {
+                        //more conservative pre-check here as of 2023-10-11
+                        if(targetYear.equals(compareYear) && targetType.equals(compareType) && targetContent.equals(compareTarget)) {
 
                             //calculate title similarity
 

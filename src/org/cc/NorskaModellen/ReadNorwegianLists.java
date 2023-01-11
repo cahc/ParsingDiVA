@@ -1,6 +1,7 @@
 package org.cc.NorskaModellen;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -72,25 +73,25 @@ public class ReadNorwegianLists {
             norskSerie.setInternationellTitel(row.getCell(NorskSerieIndex.Internasjonal_tittel.getValue()).toString());
             //check if active today 2018
             Cell nedlaggd = row.getCell(NorskSerieIndex.Nedlagt.getValue());
-            if (nedlaggd == null || nedlaggd.getCellType() != Cell.CELL_TYPE_BLANK ) { /*do something */} else { norskSerie.setNedlaggd(true); }
+            if (nedlaggd == null || nedlaggd.getCellType() != CellType.BLANK ) { /*do something */} else { norskSerie.setNedlaggd(true); }
 
             //check print issn can be null
             Cell cell = row.getCell(NorskSerieIndex.Print_ISSN.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setIssnPrint(cell.toString());
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setIssnPrint(cell.toString());
 
             //check online issn can be null
             cell = row.getCell(NorskSerieIndex.Online_ISSN.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setIssnOnline(cell.toString());
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setIssnOnline(cell.toString());
 
             //is open access
             cell = row.getCell(NorskSerieIndex.Open_Access.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setDOAJ(true);
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setDOAJ(true);
 
             norskSerie.setNpuField(row.getCell(NorskSerieIndex.NPI_Fagfelt.getValue()).toString());
 
             //check vetenskapsdisciplin
             cell = row.getCell(NorskSerieIndex.Vitenskapsdisipliner.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setDiscipliner(cell.toString());
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setDiscipliner(cell.toString());
 
             //check serietyp
             //cell = row.getCell(NorskSerieIndex.Tidsskrift_type.getValue());
@@ -99,114 +100,114 @@ public class ReadNorwegianLists {
 
             //check Förlag
             cell = row.getCell(NorskSerieIndex.Forlag.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setFörlag(cell.toString());
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setFörlag(cell.toString());
 
             //check utgivare
             cell = row.getCell(NorskSerieIndex.Utgiver.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setUtgivare(cell.toString());
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setUtgivare(cell.toString());
 
             //check språk
             cell = row.getCell(NorskSerieIndex.Språk.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setSpråk(cell.toString());
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setSpråk(cell.toString());
 
 
             //nivå 2023
 
             cell = row.getCell(NorskSerieIndex.Nivå_2023.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2023(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2023(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //nivå 2022
 
             cell = row.getCell(NorskSerieIndex.Nivå_2022.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2022(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2022(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
 
             //nivå 2021
 
             cell = row.getCell(NorskSerieIndex.Nivå_2021.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2021(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2021(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //nivå 2020
 
             cell = row.getCell(NorskSerieIndex.Nivå_2020.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2020(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2020(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //Nivå 2019
 
             cell = row.getCell(NorskSerieIndex.Nivå_2019.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2019(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2019(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //Nivå 2018
 
             cell = row.getCell(NorskSerieIndex.Nivå_2018.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2018(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2018(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //Nivå 2017
 
             cell = row.getCell(NorskSerieIndex.Nivå_2017.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2017(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2017(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //Nivå 2016
             cell = row.getCell(NorskSerieIndex.Nivå_2016.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2016(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2016(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //Nivå 2015
             cell = row.getCell(NorskSerieIndex.Nivå_2015.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2015(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2015(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2014
             cell = row.getCell(NorskSerieIndex.Nivå_2014.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2014(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2014(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //Nivå 2013
             cell = row.getCell(NorskSerieIndex.Nivå_2013.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2013(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2013(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2012
             cell = row.getCell(NorskSerieIndex.Nivå_2012.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2012(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2012(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2011
             cell = row.getCell(NorskSerieIndex.Nivå_2011.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2011(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2011(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2010
             cell = row.getCell(NorskSerieIndex.Nivå_2010.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2010(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2010(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2009
             cell = row.getCell(NorskSerieIndex.Nivå_2009.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2009(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2009(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2008
             cell = row.getCell(NorskSerieIndex.Nivå_2008.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2008(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2008(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //Nivå 2007
             cell = row.getCell(NorskSerieIndex.Nivå_2007.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2007(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2007(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2006
             cell = row.getCell(NorskSerieIndex.Nivå_2006.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2006(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2006(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2005
             cell = row.getCell(NorskSerieIndex.Nivå_2005.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2005(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2005(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2004
             cell = row.getCell(NorskSerieIndex.Nivå_2004.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskSerie.setNivå2004(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2004(Integer.valueOf(formatter.formatCellValue(cell)));
 
             norskSerieList.add(norskSerie);
         }
@@ -270,7 +271,7 @@ public class ReadNorwegianLists {
 
             //check ISBN prefix, 0 or multiple is possible
             Cell isbnPrefixes = row.getCell(NorskFörlagIndex.ISBNprefix.getValue());
-            if (isbnPrefixes == null || isbnPrefixes.getCellType() == Cell.CELL_TYPE_BLANK) {
+            if (isbnPrefixes == null || isbnPrefixes.getCellType() == CellType.BLANK) {
                 norskFörlag.setISBNprefix(null);
             } else {
 
@@ -303,90 +304,91 @@ public class ReadNorwegianLists {
 
             //check land
             Cell cell = row.getCell(NorskFörlagIndex.Land.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setLand(  cell.toString() );
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setLand(  cell.toString() );
 
             //Nivå 2023
 
             cell = row.getCell(NorskFörlagIndex.Nivå2023.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2023(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2023(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2022
             cell = row.getCell(NorskFörlagIndex.Nivå2022.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2022(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2022(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2021
             cell = row.getCell(NorskFörlagIndex.Nivå2021.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2021(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2021(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //Nivå 2020
             cell = row.getCell(NorskFörlagIndex.Nivå2020.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2020(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2020(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2019
             cell = row.getCell(NorskFörlagIndex.Nivå2019.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2019(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2019(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2018
             cell = row.getCell(NorskFörlagIndex.Nivå2018.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2018(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2018(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //Nivå 2017
             cell = row.getCell(NorskFörlagIndex.Nivå2017.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2017(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2017(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2016
             cell = row.getCell(NorskFörlagIndex.Nivå2016.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2016(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2016(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2015
             cell = row.getCell(NorskFörlagIndex.Nivå2015.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2015(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2015(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2014
             cell = row.getCell(NorskFörlagIndex.Nivå2014.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2014(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2014(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2013
             cell = row.getCell(NorskFörlagIndex.Nivå2013.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2013(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2013(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2012
             cell = row.getCell(NorskFörlagIndex.Nivå2012.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2012(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2012(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2011
             cell = row.getCell(NorskFörlagIndex.Nivå2011.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2011(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2011(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2010
             cell = row.getCell(NorskFörlagIndex.Nivå2010.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2010(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2010(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2009
             cell = row.getCell(NorskFörlagIndex.Nivå2009.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2009(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2009(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2008
             cell = row.getCell(NorskFörlagIndex.Nivå2008.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2008(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2008(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2007
             cell = row.getCell(NorskFörlagIndex.Nivå2007.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2007(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2007(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2006
             cell = row.getCell(NorskFörlagIndex.Nivå2006.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2006(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK ) norskFörlag.setNivå2006(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2005
             cell = row.getCell(NorskFörlagIndex.Nivå2005.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2005(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK ) norskFörlag.setNivå2005(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //Nivå 2004
             cell = row.getCell(NorskFörlagIndex.Nivå2004.getValue());
-            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) norskFörlag.setNivå2004(Integer.valueOf(formatter.formatCellValue(cell)));
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2004(Integer.valueOf(formatter.formatCellValue(cell)));
+
 
 
             //finally add object to list

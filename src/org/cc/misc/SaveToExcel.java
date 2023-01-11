@@ -2,6 +2,7 @@ package org.cc.misc;
 
 import SwePub.Record;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -76,161 +77,165 @@ public class SaveToExcel {
         cell.setCellValue("FRACTIONS (STANDARD + MIN0.1)" );
         cell.setCellStyle(style);
 
-
         cell = row.createCell(7);
+        cell.setCellValue("FRACTIONS (NO INTERNAL FRACTIONS)" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(8);
         cell.setCellValue("FRACTIONS (NO INTERNAL FRACTIONS + MIN0.1)" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(8);
+        cell = row.createCell(9);
         cell.setCellValue("FACULTY FRACTION" );
         cell.setCellStyle(style);
 
 
 
 
-        cell = row.createCell(9);
+        cell = row.createCell(10);
         cell.setCellValue("FACULTY" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(10);
+        cell = row.createCell(11);
         cell.setCellValue("INSTITUTION" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(11);
+        cell = row.createCell(12);
         cell.setCellValue("UNIT (IF AVAILABLE OTHERWISE INST.)" );
         cell.setCellStyle(style);
 
         //BIBLIOGRAPHIC INFO
 
-        cell = row.createCell(12);
+        cell = row.createCell(13);
         cell.setCellValue("DIVA_TYPE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(13);
+        cell = row.createCell(14);
         cell.setCellValue("DIVA_YEAR" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(14);
+        cell = row.createCell(15);
         cell.setCellValue("DIVA_CONTENT" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(15);
+        cell = row.createCell(16);
         cell.setCellValue("DIVA_SUBTYPE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(16);
+        cell = row.createCell(17);
         cell.setCellValue("DIVA_STATUS" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(17);
+        cell = row.createCell(18);
         cell.setCellValue("DIVA_AFFILIATIONS" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(18);
+        cell = row.createCell(19);
         cell.setCellValue("DIVA_URN" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(19);
+        cell = row.createCell(20);
         cell.setCellValue("DIVA_POTENTIAL_CHANNELS" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(20);
+        cell = row.createCell(21);
         cell.setCellValue("DIVA_TITLE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(21);
+        cell = row.createCell(22);
         cell.setCellValue("DIVA_ABSTRACT" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(22);
+        cell = row.createCell(23);
         cell.setCellValue("DIVA_JOURNAL" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(23);
+        cell = row.createCell(24);
         cell.setCellValue("DIVA_JOURNAL_ISSN" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(24);
+        cell = row.createCell(25);
         cell.setCellValue("DIVA_SERIES" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(25);
+        cell = row.createCell(26);
         cell.setCellValue("DIVA_SERIES_ISSN" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(26);
+        cell = row.createCell(27);
         cell.setCellValue("DIVA_PUBLISHER" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(27);
+        cell = row.createCell(28);
         cell.setCellValue("DIVA_ISBN" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(28);
+        cell = row.createCell(29);
         cell.setCellValue("DIVA_LANGUAGE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(29);
+        cell = row.createCell(30);
         cell.setCellValue("DIVA_LAST_CHANGED" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(30);
+        cell = row.createCell(31);
         cell.setCellValue("DIVA_NR_AUTHORS" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(31);
+        cell = row.createCell(32);
         cell.setCellValue("DIVA_IS_DUPLICATED" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(32);
+        cell = row.createCell(33);
         cell.setCellValue("DIVA_DUPLICATED_PID" );
         cell.setCellStyle(style);
 
         //NORSK STUFF
 
 
-        cell = row.createCell(33);
+        cell = row.createCell(34);
         cell.setCellValue("NORWEGIAN_ID" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(34);
+        cell = row.createCell(35);
         cell.setCellValue("NORWEGIAN_TYPE" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(35);
+        cell = row.createCell(36);
         cell.setCellValue("NORWEGIAN_MATCH" );
         cell.setCellStyle(style);
 
 
-        cell = row.createCell(36);
+        cell = row.createCell(37);
         cell.setCellValue("NORWEGIAN_NAME" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(37);
+        cell = row.createCell(38);
         cell.setCellValue("NORWEGIAN_LEVEL" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(38);
+        cell = row.createCell(39);
         cell.setCellValue("NORWEGIAN_LEVEL (HISTORICAL MAXIMUM)" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(39);
+        cell = row.createCell(40);
         cell.setCellValue("NORWEGIAN_MODEL_INFO" );
         cell.setCellStyle(style);
 
-        cell = row.createCell(40);
+        cell = row.createCell(41);
         cell.setCellValue("NORWEGIAN_POINTS" );
         cell.setCellStyle(style);
 
         //add localID, use to manually remap institutionen för geografi och ekonomisk historia
 
-        cell = row.createCell(41);
+        cell = row.createCell(42);
         cell.setCellValue("LOCAL_ID");
         cell.setCellStyle(style);
 
@@ -321,12 +326,17 @@ public class SaveToExcel {
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue(author.getFractionConsiderMultipleUmUAffils() );
 
-                    // NEW NEW
+                    // NEW NEW 7
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue(author.getFractionConsiderMultipleUmUAffilsMin01() );
 
+                    //NEW 2022-11-16, fractions ignoring internal, and no min01
 
-                    //CAS FRAC Min.01 AND Ignore multiple UmU-affils 7
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getFractionIgnoreMultipleUmUAffils() );
+
+
+                    //CAS FRAC Min.01 AND Ignore multiple UmU-affils 8
 
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue(author.getFractionIgnoreMultipleUmUAffilsMin01() );
@@ -1323,7 +1333,7 @@ public class SaveToExcel {
 
             cell = row.createCell(++cellIndices);
             cell.setCellValue( aggregatedAuthorInformation.getRawSumOfFractions() );
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(decimalStyle);
 
 
@@ -1428,7 +1438,7 @@ public class SaveToExcel {
 
             cell = row.createCell(++cellIndices);
             cell.setCellValue( aggregatedAuthorInformation.getRawSumOfFractions() );
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(decimalStyle);
 
 

@@ -63,8 +63,11 @@ public class NorskNivå {
 
                             if(checkConsecutiveYearIfSeriesIsFoundButNullLevel && serieLista.get(i).getLevel(  p.getYear() ) == null) {
 
-                                matchInfo.setNivå( serieLista.get(i).getLevel(  p.getYear() +1 )  );
-                                System.out.println("Warning! Using consecutive year for level post: " + p.getPID());
+                                Integer consecutiveLevel = serieLista.get(i).getLevel(  p.getYear() +1 );
+
+                                System.out.println("PID: " +  p.getPID() + " in serial ***" + serieLista.get(i).getInternationellTitel() + "*** exists in but don't have any level for the publication year. Using level for the consecutive year if available:" + (consecutiveLevel != null) );
+                                matchInfo.setNivå( consecutiveLevel );
+
                             }
 
                             matchInfo.setMax_nivå(  serieLista.get(i).getHistoricalMaxLevel()   );
@@ -87,8 +90,10 @@ public class NorskNivå {
 
                             if(checkConsecutiveYearIfSeriesIsFoundButNullLevel && serieLista.get(i).getLevel(  p.getYear() ) == null) {
 
-                                matchInfo.setNivå( serieLista.get(i).getLevel(  p.getYear() +1 )  );
-                                System.out.println("Warning! Using consecutive year for level post: " + p.getPID());
+                                Integer consecutiveLevel = serieLista.get(i).getLevel(  p.getYear() +1 );
+                                System.out.println("PID: " +  p.getPID() + " in serial ***" + serieLista.get(i).getInternationellTitel() + "*** exists in but don't have any level for the publication year. Using level for the consecutive year if available:" + (consecutiveLevel != null) );
+                                matchInfo.setNivå( consecutiveLevel  );
+
                             }
 
 
