@@ -523,4 +523,28 @@ public class Author implements Comparable<Author>{
 
     }
 
+    @Override
+    public String toString() {
+        return "Author{" +
+                "printAuthor=" + printAuthor +
+                ", hasUmuDivaAddress=" + hasUmuDivaAddress +
+                ", nrUmUaddresses=" + nrUmUaddresses +
+                ", cas='" + cas + '\'' +
+                ", authorName='" + authorName + '\'' +
+                ", forskningstid=" + forskningstid +
+                ", fractionConsiderMultipleUmUAffils=" + fractionConsiderMultipleUmUAffils +
+                ", fractionConsiderMultipleUmUAffilsMin01=" + fractionConsiderMultipleUmUAffilsMin01 +
+                ", fractionIgnoreMultipleUmUAffils=" + fractionIgnoreMultipleUmUAffils +
+                ", fractionIgnoreMultipleUmUAffilsMin01=" + fractionIgnoreMultipleUmUAffilsMin01 +
+                ", umuDivaAddresses=" + umuDivaAddresses +
+                ", lowestDivaAddressNumber=" + lowestDivaAddressNumber +
+                ", affilMappingsObjects=" + affilMappingsObjects +
+                ", PID=" + PID +
+                ", post=" + post +
+                ", disambiguateID='" + disambiguateID + '\'' +
+                ", automaticAddedCas='" + automaticAddedCas + '\'' +
+                '}';
+    }
 }
+
+

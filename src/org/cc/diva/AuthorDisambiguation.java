@@ -1,5 +1,6 @@
 package org.cc.diva;
 
+import com.googlecode.cqengine.query.simple.In;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import org.cc.PersonalData.DataLoader;
 import org.cc.PersonalData.Person;
@@ -87,6 +88,43 @@ public class AuthorDisambiguation {
     }
 
 
+    public boolean removeNonConsideredUmUaffiliationIfPossible(Author a) {
+
+        if(a.getLowestDivaAddressNumber().size() == 0) return false;
+        HashSet<Integer> notConsidered = new HashSet<>();
+        List<Integer> lowestID = a.getLowestDivaAddressNumber();
+        for(Integer i : lowestID) {
+
+            DivaIDtoNames divaIDtoNames = mappings.get(i);
+            if( !divaIDtoNames.isCONSIDER_WHEN_FRACTIONALISING() ) {
+
+                notConsidered.add( i );
+
+            }
+
+        }
+
+        if(notConsidered.size() == 0) return false;
+
+        if(notConsidered.size() == a.getLowestDivaAddressNumber().size() ) {
+            System.out.println("Warning only \"non considered\" affiliation(s): "+ a.getLowestDivaAddressNumber() );
+            return false;
+
+        }
+
+        if(notConsidered.size() < a.getLowestDivaAddressNumber().size())  {
+
+            System.out.println("I will remove non considered: " + notConsidered);
+            return true;
+        }
+
+        if(notConsidered.size() > a.getLowestDivaAddressNumber().size() )  {
+
+            new Exception("Non considered affils larger than total affils. Not  possible!");
+        }
+
+        return false;
+    }
 
 
     public void mapAffiliationsAndDisanbigueAuthors(List<Post> postList) {
