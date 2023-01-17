@@ -90,7 +90,9 @@ public class AuthorDisambiguation {
 
     public boolean removeNonConsideredUmUaffiliationIfPossible(Author a) {
 
+        //not umu
         if(a.getLowestDivaAddressNumber().size() == 0) return false;
+
         HashSet<Integer> notConsidered = new HashSet<>();
         List<Integer> lowestID = a.getLowestDivaAddressNumber();
         for(Integer i : lowestID) {
@@ -99,22 +101,39 @@ public class AuthorDisambiguation {
             if( !divaIDtoNames.isCONSIDER_WHEN_FRACTIONALISING() ) {
 
                 notConsidered.add( i );
-
             }
 
         }
-
+        //no  umu affiliations that was not considered
         if(notConsidered.size() == 0) return false;
 
+        //one one umu affiliation, and that was a non considered. Nothing to do but to give an warning
         if(notConsidered.size() == a.getLowestDivaAddressNumber().size() ) {
-            System.out.println("Warning only \"non considered\" affiliation(s): "+ a.getLowestDivaAddressNumber() );
+            System.out.println("Warning only \"non considered\" affiliation(s): "+ a.getLowestDivaAddressNumber() + " for " + a.getEnclosingPost().getPID());
             return false;
 
         }
 
+        //lets alter the author object and remove non considered umu affiliations
         if(notConsidered.size() < a.getLowestDivaAddressNumber().size())  {
 
-            System.out.println("I will remove non considered: " + notConsidered);
+            //lowest id remove
+            List<Integer> ids = a.getLowestDivaAddressNumber();
+            ids.removeAll(  notConsidered  );
+
+            //divaIdToName-objects remove
+            List<DivaIDtoNames> divaIDtoNamesList = a.getAffilMappingsObjects();
+            ListIterator<DivaIDtoNames> iter = divaIDtoNamesList.listIterator();
+
+            while(iter.hasNext()) {
+
+                DivaIDtoNames divaIDtoNames = iter.next();
+                boolean remove = notConsidered.contains( divaIDtoNames.getDivaID() );
+                if(remove) iter.remove();
+
+            }
+
+            System.out.println("I will remove non considered: " + notConsidered + "After removal: " + a.getLowestDivaAddressNumber() + " " + a.getAffilMappingsObjects());
             return true;
         }
 
@@ -122,7 +141,6 @@ public class AuthorDisambiguation {
 
             new Exception("Non considered affils larger than total affils. Not  possible!");
         }
-
         return false;
     }
 
