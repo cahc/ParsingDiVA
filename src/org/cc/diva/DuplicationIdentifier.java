@@ -45,7 +45,9 @@ public class DuplicationIdentifier {
 
         ignore.add( simplifyTitle("introduction") );
         ignore.add( simplifyTitle("introduktion") );
+        ignore.add( simplifyTitle("inledning") );
         ignore.add( simplifyTitle("förord") );
+        ignore.add( simplifyTitle("preface") );
         ignore.add( simplifyTitle("editorial") );
 
 

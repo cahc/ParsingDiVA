@@ -537,7 +537,7 @@ public class CreateAuthorImportFile {
 
 
         System.out.println("Running author disambiguation..wait");
-        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList);
+        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList,false);
 
 
         /*

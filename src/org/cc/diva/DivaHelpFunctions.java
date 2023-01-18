@@ -81,6 +81,73 @@ public class DivaHelpFunctions {
 
     }
 
+    public static String[] splitAuthInformationNonRegexExperimental(String s) {
+
+
+        //IF S IS NULL.. that is now author information at all, "NA" in R.
+        //CAN BE AN ERROR IN RAW SOURCE OR ONLY A CONSORTIUM
+
+        if(s == null) {
+
+            s = "UNKNOWN_AUTHOR";
+        }
+
+
+
+        int left_parenthesis = 0;
+        int right_parenthesis = 0;
+        List<Integer> splitPos = new ArrayList<>();
+
+        for(int i = 0, n = s.length(); i < n ; i++) {
+
+            if( (s.charAt(i)) == ';' ) {
+
+                if(left_parenthesis == right_parenthesis) {
+
+                    //System.out.println("; at position " + i + " OK to split!");
+                    splitPos.add(i); } else {
+
+                    //System.out.println("; at position " + i + " BAD don't split!");
+
+                }
+            }
+
+
+            if( (s.charAt(i)) == '(' ) {
+                //System.out.println("( at position " + i);
+                left_parenthesis++; }
+            if( (s.charAt(i)) == ')' ) {
+                //System.out.println(") at position " + i);
+                right_parenthesis++; }
+
+        }
+
+
+        //FALL BACK TO REGEX!
+        if(left_parenthesis != right_parenthesis) {
+
+            return splitAuthorInformation(s);
+
+        }
+
+        int start=0;
+        ArrayList<String> results = new ArrayList<>();
+        for(Integer split : splitPos) {
+
+            results.add( s.substring(start,split).trim()  );
+            //System.out.println(s.substring(start,split)  );
+            start=split+1;
+
+        }
+        //last one or the only one if splitPos.size() == 0
+        //System.out.println( s.substring(start,s.length()) );
+        results.add(s.substring(start,s.length()).trim() );
+
+        return results.toArray(new String[0]);
+    }
+
+
+
     public static List<String> extractDivaISBN(String input) {
 
         //TODO use ISBN hypenator instead

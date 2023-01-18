@@ -32,8 +32,67 @@ public class Author implements Comparable<Author>{
     private Post post; // reference to the post in which the specific author object is located
 
     String disambiguateID = "XA0";
-
+    public int removedNonConsidered = 0; // 0= not altered, 1= altered, 2=non considered but could not alter affiliation
     String automaticAddedCas;
+
+    private static boolean removeNonConsideredUmUaffiliationIfPossible(Author a, Map<Integer,DivaIDtoNames> mappings) {
+
+        //not umu
+        if(a.getLowestDivaAddressNumber().size() == 0) return false;
+
+        HashSet<Integer> notConsidered = new HashSet<>();
+        List<Integer> lowestID = a.getLowestDivaAddressNumber();
+        for(Integer i : lowestID) {
+
+            DivaIDtoNames divaIDtoNames = mappings.get(i);
+            if( !divaIDtoNames.isCONSIDER_WHEN_FRACTIONALISING() ) {
+
+                notConsidered.add( i );
+            }
+
+        }
+        //no  umu affiliations that was not considered
+        if(notConsidered.size() == 0) return false;
+
+        //one one umu affiliation, and that was a non considered. Nothing to do but to give an warning
+        if(notConsidered.size() == a.getLowestDivaAddressNumber().size() ) {
+            System.out.println("Warning only \"non considered\" affiliation(s): "+ a.getLowestDivaAddressNumber() + " in " + a.getEnclosingPost().getPID());
+            a.removedNonConsidered = 2;
+            return false;
+
+        }
+
+        //lets alter the author object and remove non considered umu affiliations
+        if(notConsidered.size() < a.getLowestDivaAddressNumber().size())  {
+
+            //lowest id remove
+            List<Integer> ids = a.getLowestDivaAddressNumber();
+            ids.removeAll(  notConsidered  );
+
+            //divaIdToName-objects remove
+            List<DivaIDtoNames> divaIDtoNamesList = a.getAffilMappingsObjects();
+            ListIterator<DivaIDtoNames> iter = divaIDtoNamesList.listIterator();
+
+
+            while(iter.hasNext()) {
+
+                DivaIDtoNames divaIDtoNames = iter.next();
+                boolean remove = notConsidered.contains( divaIDtoNames.getDivaID() );
+                if(remove) iter.remove();
+
+            }
+
+            System.out.println("I will remove non considered affiliation: " + notConsidered + "from " + a.getEnclosingPost().getPID() );
+            a.removedNonConsidered =1;
+            return true;
+        }
+
+        if(notConsidered.size() > a.getLowestDivaAddressNumber().size() )  {
+
+            new Exception("Non considered affils larger than total affils. Not  possible!");
+        }
+        return false;
+    }
 
     public void addAutomaticAddedCas(String cas2) {
 
@@ -56,7 +115,7 @@ public class Author implements Comparable<Author>{
 
         return disambiguateID;
     }
-    public void mappAffiliations(Map<Integer,DivaIDtoNames> mappings) {
+    public void mappAffiliations(Map<Integer,DivaIDtoNames> mappings, boolean removeNonConsideredUmUAffils) {
 
         if(this.nrUmUaddresses == 0) { affilMappingsObjects = Collections.emptyList(); return; }
 
@@ -76,8 +135,21 @@ public class Author implements Comparable<Author>{
 
             affilMappingsObjects = new ArrayList<>(affilMappingsObjectsTemporary);
 
+            if(!affilMappingsObjectsTemporary.get(0).isCONSIDER_WHEN_FRACTIONALISING() ) this.removedNonConsidered = 2;
+
+
         } else {
 
+
+            //first remove non considered UmU affils if possible
+            if(removeNonConsideredUmUAffils) {
+
+                affilMappingsObjects = new ArrayList<>(affilMappingsObjectsTemporary);
+                removeNonConsideredUmUaffiliationIfPossible(this,mappings);
+            }
+
+
+            affilMappingsObjectsTemporary = new ArrayList<>( getAffilMappingsObjects() );
             affilMappingsObjects = new ArrayList<>();
 
             //Check for potential duplicates with respect to INST, FAK, UNIT
@@ -348,6 +420,10 @@ public class Author implements Comparable<Author>{
 
     }
 
+    /*
+
+    2023-01-17, not used to be removed later
+
     public String printSeveralRowPerAuthorFracMethod1(int frac) {
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -423,6 +499,8 @@ public class Author implements Comparable<Author>{
         return stringBuilder.toString();
     }
 
+
+     */
 
     @Override
     public int compareTo(Author other) {

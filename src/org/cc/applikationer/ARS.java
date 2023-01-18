@@ -111,20 +111,10 @@ public class ARS {
 
         AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new File(arg[3]), new File(arg[4]));
 
-        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList);
+        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList,true);
 
         //now fractionalize
 
-        for(Post p : postList) {
-
-            for(Author a : p.getAuthorList()) {
-
-                //System.out.println(a);
-                System.out.println( authorDisambiguation.removeNonConsideredUmUaffiliationIfPossible(a) + "\t" + a.getLowestDivaAddressNumber() + "\t" + a.getAffiliations());
-            }
-        }
-
-        System.exit(0);
 
         System.out.println("Fraktionaliserar..");
         for(Post p : postList) {

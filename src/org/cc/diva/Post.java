@@ -74,7 +74,11 @@ public class Post implements Comparable<Post>{
 
         String nameFiled = this.rawData[ReducedDiVAColumnIndices.Name.getValue()];
 
-        String[] authorsAndAddresses = DivaHelpFunctions.splitAuthorInformation(nameFiled);
+
+
+        //TODO evaluate this change in splitting from 2023-01-18, using non regex if balanced, regex if not
+        //String[] authorsAndAddresses = DivaHelpFunctions.splitAuthorInformation(nameFiled);
+        String[] authorsAndAddresses = DivaHelpFunctions.splitAuthInformationNonRegexExperimental(nameFiled);
 
         for (int i = 0; i < authorsAndAddresses.length; i++) {
 
@@ -258,6 +262,9 @@ public class Post implements Comparable<Post>{
         return this.rawData[ReducedDiVAColumnIndices.Status.getValue()];
     }
 
+/*
+
+    //2023-01-17, not used, might remove later
 
     public String printMultipleAuthorPerRow() {
 
@@ -350,7 +357,7 @@ public class Post implements Comparable<Post>{
 
     }
 
-
+*/
 
 
     @Override

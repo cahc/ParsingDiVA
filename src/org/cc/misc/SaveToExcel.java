@@ -239,6 +239,12 @@ public class SaveToExcel {
         cell.setCellValue("LOCAL_ID");
         cell.setCellStyle(style);
 
+        //add info if the affiliation has been altered, i.e., non considered removed (0=no, 1=yes, 2=count not remove, only non considered
+
+        cell = row.createCell(43);
+        cell.setCellValue("AFFIL_MAPPING_INFO");
+        cell.setCellStyle(style);
+
 
         for(Post p : recordList) {
 
@@ -558,6 +564,11 @@ public class SaveToExcel {
 
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue( p.getRawDataRow()[ ReducedDiVAColumnIndices.LocalId.getValue() ] );
+
+                    //affil mapping info
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.removedNonConsidered );
+
 
                     indice++;
                 } while(indice < divaIDtoNames.size() );

@@ -108,7 +108,7 @@ public class SamFakModel {
 
         AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File(arg[3]), new File(arg[4]));
 
-        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList);
+        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList,false);
 
         //now fractionalize
 

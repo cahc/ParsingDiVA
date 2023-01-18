@@ -198,7 +198,7 @@ public class CalculatePublicationPoints {
 
 
         AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20211104.xlsx"), new File("PersonalData_202205180006394.xml"));
-        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(reducedPostList);
+        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(reducedPostList,false);
 
 
         System.out.println("Fraktionaliserar..");

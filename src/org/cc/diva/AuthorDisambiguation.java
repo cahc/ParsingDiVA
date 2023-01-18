@@ -56,7 +56,6 @@ public class AuthorDisambiguation {
 
 
 
-
     public String getFaculty(String institution) {
 
         for(Map.Entry<Integer,DivaIDtoNames> entry : this.mappings.entrySet()) {
@@ -88,6 +87,8 @@ public class AuthorDisambiguation {
     }
 
 
+    /*
+    2023 moved to Author Object as a static method, to be removed
     public boolean removeNonConsideredUmUaffiliationIfPossible(Author a) {
 
         //not umu
@@ -133,7 +134,7 @@ public class AuthorDisambiguation {
 
             }
 
-            System.out.println("I will remove non considered: " + notConsidered + "After removal: " + a.getLowestDivaAddressNumber() + " " + a.getAffilMappingsObjects());
+            System.out.println("I will remove non considered: " + notConsidered + "After removal: " + a.getLowestDivaAddressNumber() + " " + a.getAffilMappingsObjects() + " " + a.getAffiliations() );
             return true;
         }
 
@@ -145,7 +146,9 @@ public class AuthorDisambiguation {
     }
 
 
-    public void mapAffiliationsAndDisanbigueAuthors(List<Post> postList) {
+     */
+
+    public void mapAffiliationsAndDisanbigueAuthors(List<Post> postList, boolean removeNonConsideredUmUAffils) {
 
 
         //FIRST map umu-affiliations to DivaIDtoNames
@@ -154,7 +157,7 @@ public class AuthorDisambiguation {
 
             for(Author a : p.getAuthorList()) {
 
-                a.mappAffiliations(mappings);
+                a.mappAffiliations(mappings,removeNonConsideredUmUAffils);
             }
 
         }
