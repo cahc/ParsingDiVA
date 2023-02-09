@@ -5,7 +5,7 @@ import org.cc.diva.Post;
 /**
  * Created by crco0001 on 6/21/2016.
  */
-public class DefaultPubInclusion implements ConsideredPublications {
+public class DefaultPubIncludingAheadOfPrint implements ConsideredPublications {
 
 
 
@@ -24,13 +24,14 @@ public class DefaultPubInclusion implements ConsideredPublications {
 
         Beroende på publikationstyp så ställs också krav på att följande underkategorier *EJ* är uppfyllda:
 
-        1.Artikel i tidskift != {"editorialMaterial","meetingAbstract","newsItem",}
+        1.Artikel i tidskift != {"editorialMaterial","meetingAbstract","newsItem"}
         2.Konferensbidrag != {"abstracts","poster","presentation"}
 
-        Med publiceringsår avses tryckår. Publikationen måste vara publicerad med fullständiga bibliografiska uppgifter.
-        Detta påverkar framförallt {"Artikel i tidskrift","Artikel, forskningsöversikt"} där det gäller att:
+        Med publiceringsår avses i regel tryckår.
+        Implementering 2023. Accepterar aheadofprint för tidksrifter men flaggar dessa vid matchning mot norska modellen
 
-         1. Status = {Published}  (m a o *EJ* {"accepted","aheadofprint","inPress","submitted"} )
+
+         1. Status = {Published, aheadofprint}  (m a o *EJ* {"accepted","inPress","submitted"} )
 
         */
 
@@ -55,7 +56,7 @@ public class DefaultPubInclusion implements ConsideredPublications {
 
                     //finally check if published
 
-                    if(p.getDivaStatus().equals("published")) {
+                    if(p.getDivaStatus().equals("published") || p.getDivaStatus().equals("aheadofprint")) {
                         statusInModel.setIgnorerad(false); statusInModel.setStatusInModel(StatusInModelConstants.BEAKTAD_ÄNNU_EJ_MATCHAD_MOT_NORSKA_LISTAN);} else { statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD); statusInModel.setIgnorerad(true); }
                 }
 

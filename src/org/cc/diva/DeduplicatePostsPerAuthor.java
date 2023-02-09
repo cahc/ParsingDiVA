@@ -1,7 +1,5 @@
 package org.cc.diva;
 
-import org.cc.NorskaModellen.DefaultPubInclusion;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

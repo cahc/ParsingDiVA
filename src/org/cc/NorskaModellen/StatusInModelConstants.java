@@ -12,9 +12,17 @@ public class StatusInModelConstants {
     //Beaktad publikation och i norska listan
     public static final String BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN = "Beaktad publikationstyp i norska listan";
 
+    //Beaktad publikation och i norska listan, epub-a-head-of-print
+    public static final String BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD = "Beaktad publikationstyp i norska listan (epubaheadofprint)";
+
     //Beaktad publikation ej i norska listan
 
     public static final String BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN = "Beaktad publikationstyp ej i norska listan";
+
+    //Beaktad publikation ej i norska listan, ebub-a-head-of-print
+
+    public static final String BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN_EPUBAHEAD = "Beaktad publikationstyp ej i norska listan (epubaheadofprint)";
+
 
     //Beaktad publikation som ej ska matchas mot norska listan
 

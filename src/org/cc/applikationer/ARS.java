@@ -68,9 +68,11 @@ public class ARS {
 
          **/
 
-        //ConsideredPublications defaultPubInclusion = new DefaultPubInclusion();
 
-        ConsideredPublications sfPubInclusion = new SFPubInclusion();
+        ConsideredPublications publicationsToInclude = new DefaultPubIncludingAheadOfPrint();
+
+        //samfak och årsredovisningsversion, inkluderar ej epubAheadOfPrint
+        //ConsideredPublications publicationsToInclude = new SFPubInclusion();
 
         List<Post> postList = new ArrayList<>(100);
 
@@ -137,14 +139,15 @@ public class ARS {
 
             //OBS hög tröskel, 0.94
 
-            p.setStatusInModel( sfPubInclusion.consideredPub(p) ); // ska publikationen matchas mot norska listan, se StatusInMdelConstants
+            p.setStatusInModel( publicationsToInclude.consideredPub(p) ); // ska publikationen matchas mot norska listan, se StatusInMdelConstants
             NorwegianMatchInfo matchInfo = NorskNivå.getNorwegianLevel(listaMedSerier,listaMedFörlag,p,0.94,standardiseringsListor,true); //matcha eventuellt mot norska listan samt uppdatera StatusInModel
             p.setNorskNivå( matchInfo ); // uppdatera posten med information om matchning mot norska listan
 
 
-            //Viktning.DefaultWeightning(p);
+            //considers epubahead of print
+            Viktning.DefaultWeighting(p);
 
-            Viktning.SFWeighting(p);
+            //Viktning.SFWeighting(p);
 
 
             }

@@ -26,7 +26,10 @@ public class NorskNivå {
             return matchInfo;
         }
 
+        //if ConsideredPublication() allows epubahead of print, make speciall note of these records in the output
         String divaPublikationsTyp = p.getDivaPublicationType();
+        boolean aheadofprint = p.isAheadOfPrint();
+
 
         //Artikel i i tidskrift kan matachas mot norska listan med ISSN/EISSN eller Tidskriftsnamn
 
@@ -54,7 +57,7 @@ public class NorskNivå {
 
 
                             matchInfo.setInNorewgianList(true);
-                            p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN );
+                           if( !aheadofprint ) { p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN ); } else {  p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD ); }
                             matchInfo.setType("serie");
                             matchInfo.setHow("issn");
                             matchInfo.setNorsk_id(  serieLista.get(i).getTidskriftsID()  );
@@ -81,7 +84,7 @@ public class NorskNivå {
 
                         if(serieLista.get(i).getIssnOnline() != null && serieLista.get(i).getIssnOnline().equals(s) ) {
                             matchInfo.setInNorewgianList(true);
-                            p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN );
+                            if(!aheadofprint) { p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN ); } else { p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD );  }
                             matchInfo.setType("serie");
                             matchInfo.setHow("eissn");
                             matchInfo.setNorsk_id(  serieLista.get(i).getTidskriftsID()  );
@@ -146,7 +149,7 @@ public class NorskNivå {
 
                 if(max >= threshold) {
                     matchInfo.setInNorewgianList(true);
-                    p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN );
+                   if(!aheadofprint) { p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN ); } else {  p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD ); }
                     matchInfo.setType("serie");
                     matchInfo.setHow("serie_name");
                     matchInfo.setNorsk_id(  serieLista.get(indice).getTidskriftsID()  );
@@ -247,7 +250,7 @@ public class NorskNivå {
 
 
         //Beaktad publikation men ej i Norska listan
-        p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN );
+        if(!aheadofprint) { p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN ); } else {  p.getStatusInModel().setStatusInModel( StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN_EPUBAHEAD ); }
         matchInfo.setInNorewgianList(false);
 
         return matchInfo;

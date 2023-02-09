@@ -30,6 +30,15 @@ public class Post implements Comparable<Post>{
     private List<Author> authorList = new ArrayList<>();
     private int PID;
 
+
+    public boolean isAheadOfPrint() {
+        String status = this.rawData[ReducedDiVAColumnIndices.Status.getValue() ];
+
+        return ("aheadofprint".equals( status ));
+
+    }
+
+
     public void setDuplicate(boolean bool, int otherPID) {
 
         isDuplicate = bool;

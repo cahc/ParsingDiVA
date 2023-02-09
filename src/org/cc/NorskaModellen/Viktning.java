@@ -13,26 +13,31 @@ public class Viktning {
      * implementerar olika viktningsscheman
      */
 
-    public static void DefaultWeightning(Post p) {
+    public static void DefaultWeighting(Post p) {
 
 
         String publicationsStatus = p.getStatusInModel().getStatusInModel();
+        NorwegianMatchInfo matchInfo = p.getNorskNivå();
 
-        if (StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN.equals(publicationsStatus)) {
+        if (StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN.equals(publicationsStatus) || StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD.equals(publicationsStatus)) {
 
 
-            NorwegianMatchInfo matchInfo = p.getNorskNivå();
+
 
             if ("serie".equals(matchInfo.getType())) {
 
 
                 if (matchInfo.getNivå() == null) {
                     matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("SERIE NIVÅ 0");
                 } else if (matchInfo.getNivå() == 0) {
                     matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("SERIE NIVÅ 0");
                 } else if (matchInfo.getNivå() == 1) {
                     matchInfo.setVikt(1);
+                    matchInfo.setModelSpecificInfo("SERIE NIVÅ 1");
                 } else if (matchInfo.getNivå() == 2) {
+                    matchInfo.setModelSpecificInfo("SERIE NIVÅ 2");
                     matchInfo.setVikt(3);
                 }
 
@@ -44,12 +49,16 @@ public class Viktning {
 
                 if (matchInfo.getNivå() == null) {
                     matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("FÖRLAG NIVÅ 0 (ARTIKEL)");
                 } else if (matchInfo.getNivå() == 0) {
                     matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("FÖRLAG NIVÅ 0 (ARTIKEL)");
                 } else if (matchInfo.getNivå() == 1) {
                     matchInfo.setVikt(0.7);
+                    matchInfo.setModelSpecificInfo("FÖRLAG NIVÅ 1 (ARTIKEL)");
                 } else if (matchInfo.getNivå() == 2) {
                     matchInfo.setVikt(1);
+                    matchInfo.setModelSpecificInfo("FÖRLAG NIVÅ 2 (ARTIKEL)");
                 }
 
             }
@@ -59,24 +68,82 @@ public class Viktning {
 
                 if (matchInfo.getNivå() == null) {
                     matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("FÖRLAG NIVÅ 0 (BOK)");
                 } else if (matchInfo.getNivå() == 0) {
                     matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("FÖRLAG NIVÅ 0 (BOK)");
                 } else if (matchInfo.getNivå() == 1) {
                     matchInfo.setVikt(5);
+                    matchInfo.setModelSpecificInfo("FÖRLAG NIVÅ 1 (BOK)");
                 } else if (matchInfo.getNivå() == 2) {
+                    matchInfo.setModelSpecificInfo("FÖRLAG NIVÅ 2 (BOK)");
                     matchInfo.setVikt(8);
                 }
 
             }
 
-        } else {
-            //ej i norska listan
-            NorwegianMatchInfo matchInfo = p.getNorskNivå();
+
+            //override series for diva book types!
+
+            if ("serie".equals(matchInfo.getType()) && p.getDivaPublicationType().equals(DivaPublicationTypes.bok)) {
+
+
+                if (matchInfo.getNivå() == null) {
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("SERIE NIVÅ 0 (BOKSERIE, BOK)");
+                } else if (matchInfo.getNivå() == 0) {
+                    matchInfo.setVikt(0);
+                    matchInfo.setModelSpecificInfo("SERIE NIVÅ 0 (BOKSERIE, BOK)");
+                } else if (matchInfo.getNivå() == 1) {
+                    matchInfo.setVikt(5);
+                    matchInfo.setModelSpecificInfo("SERIE NIVÅ 1 (BOKSERIE, BOK)");
+                } else if (matchInfo.getNivå() == 2) {
+                    matchInfo.setVikt(8);
+                    matchInfo.setModelSpecificInfo("SERIE NIVÅ 2 (BOKSERIE, BOK)");
+                }
+
+            }
+
+            //EJ i norska listan
+        } else if (publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_BEAKTAD_PUBLIKATIONSTYP)) {
+
             matchInfo.setVikt(0);
+            matchInfo.setModelSpecificInfo("IGNORERAD (EJ BEAKTAD PUBLIKATIONSTYP)");
+
+        } else if(publicationsStatus.equals(StatusInModelConstants.IGNORERAD_ABSTRACT_POSTER_ELLER_PRESENTATION) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EDITORIAL_ABSTRACT_OR_NEWS_ITEM)  ) {
+
+            matchInfo.setVikt(0);
+            matchInfo.setModelSpecificInfo("IGNORERAD (ABSTARACT, POSTER, NEWS ITEM ETC.)");
+
+        } else if(publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD) ) {
+
+            matchInfo.setVikt(0);
+            matchInfo.setModelSpecificInfo("IGNORERAD (STATUS EJ PUBLICERAD)");
+
+        } else if(publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT)) {
+
+            matchInfo.setVikt(0);
+            matchInfo.setModelSpecificInfo("IGNORERAD (EJ VETENSKAPLIG INNEHÅLLSTYP)");
+
+
+        }  else if(publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN) || publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN_EPUBAHEAD)) {
+
+            matchInfo.setVikt(0);
+            matchInfo.setModelSpecificInfo("KANALEN EJ I DET NORSKA AUKTORITETSREGISTRET");
+
+        } else {
+
+            System.out.println("Error undefined weight for this publikation type!");
+            System.out.println("Publikation status: " + publicationsStatus);
+            matchInfo.setVikt(-99);
+            matchInfo.setModelSpecificInfo("ERROR IN MATCHING ROUTINE!");
+
         }
 
 
-    }
+
+
+    } //weighting function ends
 
 
     public static void HFWeighting(Post p) {
