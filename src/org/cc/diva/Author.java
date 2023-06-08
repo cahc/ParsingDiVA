@@ -141,11 +141,16 @@ public class Author implements Comparable<Author>{
         } else {
 
 
+            //TODO this is not right... changes from ARS? check this
+
             //first remove non considered UmU affils if possible
             if(removeNonConsideredUmUAffils) {
 
                 affilMappingsObjects = new ArrayList<>(affilMappingsObjectsTemporary);
                 removeNonConsideredUmUaffiliationIfPossible(this,mappings);
+            } else {
+
+                affilMappingsObjects = new ArrayList<>(affilMappingsObjectsTemporary);
             }
 
 

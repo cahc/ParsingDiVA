@@ -150,10 +150,10 @@ public class AuthorDisambiguation {
 
     public void mapAffiliationsAndDisanbigueAuthors(List<Post> postList, boolean removeNonConsideredUmUAffils) {
 
-
         //FIRST map umu-affiliations to DivaIDtoNames
 
         for(Post p : postList ) {
+
 
             for(Author a : p.getAuthorList()) {
 

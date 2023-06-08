@@ -268,9 +268,7 @@ public class Viktning {
                         matchInfo.setVikt(0);
                         matchInfo.setModelSpecificInfo("Övrigt");
 
-                    } else
-
-            if(publicationsStatus.equals(StatusInModelConstants.IGNORERAD_ABSTRACT_POSTER_ELLER_PRESENTATION) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EDITORIAL_ABSTRACT_OR_NEWS_ITEM) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT) ) {
+                    } else if(publicationsStatus.equals(StatusInModelConstants.IGNORERAD_ABSTRACT_POSTER_ELLER_PRESENTATION) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EDITORIAL_ABSTRACT_OR_NEWS_ITEM) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT) ) {
 
                 matchInfo.setVikt(0);
                 String modelInfoString = "null";
@@ -285,10 +283,18 @@ public class Viktning {
 
                 matchInfo.setModelSpecificInfo(modelInfoString);
 
-                } else {
+                } else if(publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN_EPUBAHEAD) || publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD)) {
 
-                matchInfo.setVikt(-99);
-                matchInfo.setModelSpecificInfo("ERROR IN WEIGHTING SCHEMA!!!");
+                 matchInfo.setVikt(0);
+                 String modelInfoString = "EPUB AHEAD OF PRINT (EJ FINALT PUBLICERINGSÅR)";
+                 matchInfo.setModelSpecificInfo(modelInfoString);
+
+
+            } else {
+
+            matchInfo.setVikt(-99);
+            matchInfo.setModelSpecificInfo("ERROR IN WEIGHTING SCHEMA!!!");
+
             }
 
             }
@@ -424,10 +430,17 @@ public class Viktning {
             matchInfo.setVikt(0);
             matchInfo.setModelSpecificInfo("Ej vetenskapligt innehåll alt. ej publicerad");
 
-        } else {
+        } else if(publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN_EPUBAHEAD) || publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD)) {
 
+            matchInfo.setVikt(0);
+            String modelInfoString = "EPUB AHEAD OF PRINT (EJ FINALT PUBLICERINGSÅR)";
+            matchInfo.setModelSpecificInfo(modelInfoString);
+
+
+        } else {
             matchInfo.setVikt(-99);
             matchInfo.setModelSpecificInfo("ERROR IN WEIGHTING SCHEMA!!!");
+
         }
 
 

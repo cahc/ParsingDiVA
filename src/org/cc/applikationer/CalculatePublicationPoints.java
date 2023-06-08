@@ -197,7 +197,7 @@ public class CalculatePublicationPoints {
         //FRACTIONALIZATION - TODO WHY WAS THIS REMOVE IN ERLIER VERSION, DOSENT MAKE ANY SENSE!!
 
 
-        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20211104.xlsx"), new File("PersonalData_202205180006394.xml"));
+        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20221121.xlsx"), new File("PersonalData_202306070002171.xml"));
         authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(reducedPostList,false);
 
 

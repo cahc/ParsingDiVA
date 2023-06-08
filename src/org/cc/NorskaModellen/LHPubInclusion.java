@@ -39,10 +39,10 @@ public class LHPubInclusion implements ConsideredPublications {
         StatusInModel statusInModel = new StatusInModel();
 
 
-        if("Artikel i tidskrift".equals(p.getDivaPublicationType()) | "Artikel, forskningsöversikt".equals(p.getDivaPublicationType())) {
+        if("Artikel i tidskrift".equals(p.getDivaPublicationType()) || "Artikel, forskningsöversikt".equals(p.getDivaPublicationType())) {
 
 
-            if(p.getDivaContentType().equals("Refereegranskat") | p.getDivaContentType().equals("Övrigt vetenskapligt")) {
+            if(p.getDivaContentType().equals("Refereegranskat") || p.getDivaContentType().equals("Övrigt vetenskapligt")) {
 
                 //now check subtype
 
@@ -56,7 +56,7 @@ public class LHPubInclusion implements ConsideredPublications {
 
                     //finally check if published
 
-                    if(p.getDivaStatus().equals("published")) {
+                    if(p.getDivaStatus().equals("published") || p.getDivaStatus().equals("aheadofprint") ) {
                         statusInModel.setIgnorerad(false); statusInModel.setStatusInModel(StatusInModelConstants.BEAKTAD_ÄNNU_EJ_MATCHAD_MOT_NORSKA_LISTAN);} else { statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD); statusInModel.setIgnorerad(true); }
                 }
 
