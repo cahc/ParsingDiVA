@@ -1,4 +1,4 @@
-package org.cc.isbn;
+package org.cc.isbn.depreciated;
 
 /**
  * Created by crco0001 on 6/10/2016.
@@ -14,7 +14,7 @@ public class ISBN implements StandardID {
      * the constructor requires a valid isbn string; dashes and spaces are ignored.
      */
     public ISBN(String isbn)
-            throws InvalidStandardIDException{
+            throws InvalidStandardIDException {
         init (isbn,false);
     }
     /**

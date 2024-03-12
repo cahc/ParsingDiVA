@@ -144,6 +144,24 @@ public class ARS {
             p.setNorskNivå( matchInfo ); // uppdatera posten med information om matchning mot norska listan
 
 
+            //check if it is a non journal that has series match, if match but level NULL, try to do a match again restricted to publisher..
+            //this is a fix introduced 2021-06-22
+            if(matchInfo.getNivå() == null && "serie".equals( matchInfo.getType() ) && !p.getDivaPublicationType().equals(DivaPublicationTypes.tidskrift) && !p.getDivaPublicationType().equals( DivaPublicationTypes.review ) ) {
+
+                System.out.print(p.getPID() + " is matched against series, is not a journal AND the series level for the pubyear is NULL. Try again with publisher restricted matching.. ");
+
+                NorwegianMatchInfo matchInfo2 = NorskNivå.getNorwegianLevelRestrictedToMatchOnPublisherOnlyPreMatched(listaMedFörlag,p,0.94,standardiseringsListor);
+
+                //now check if if matchInfo2 is the same *object* as before (i.e., no new publisher match were made..)
+
+                if(matchInfo2 == matchInfo) {System.out.println("no new match on publisher was made");} else {System.out.println("the matchInfo changed from NULL-series to publisher!"); }
+
+                p.setNorskNivå(matchInfo2);
+
+            }
+
+
+
             //considers epubahead of print
             Viktning.DefaultWeighting(p);
 
@@ -158,10 +176,10 @@ public class ARS {
         saveToExcel.saveNorwegianMatchingInfo(postList);
 
         saveToExcel = new SaveToExcel();
-        saveToExcel.saveDisambiguatedAuthorFractions(postList,false);
+        saveToExcel.saveDisambiguatedAuthorFractions2024VERSION(postList,false);
 
         saveToExcel = new SaveToExcel();
-        saveToExcel.saveDisambiguatedAuthorFractions(postList,true);
+        saveToExcel.saveDisambiguatedAuthorFractions2024VERSION(postList,true);
 
         System.out.println("Resultat sparat i tre Excel-filer: Fractions och NorskMatchning..");
 

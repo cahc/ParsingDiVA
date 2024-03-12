@@ -1,11 +1,12 @@
 package org.cc.NorskaModellen;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import org.cc.diva.*;
+import org.cc.isbn.IsbnPrefix;
 import org.cc.misc.Thesaurus;
 
 import java.util.List;
 
-import static org.cc.diva.DivaHelpFunctions.extractDivaISBN;
+//import static org.cc.diva.DivaHelpFunctions.extractDivaISBN;
 import static org.cc.diva.DivaHelpFunctions.extractISSN;
 import static org.cc.diva.DivaHelpFunctions.extractSeriesName;
 
@@ -14,10 +15,12 @@ import static org.cc.diva.DivaHelpFunctions.extractSeriesName;
  */
 public class NorskNivå {
 
-
+    static IsbnPrefix isbnPrefix = new IsbnPrefix();
     private static String problematicSerie1 = DivaHelpFunctions.simplifyString("Studies in Educational Leadership");
 
     public static NorwegianMatchInfo getNorwegianLevel(List<NorskSerie> serieLista, List<NorskFörlag> förlagList, Post p, double threshold, Thesaurus thesaurus, boolean checkConsecutiveYearIfSeriesIsFoundButNullLevel) {
+
+
 
         NorwegianMatchInfo matchInfo = new NorwegianMatchInfo();
 
@@ -199,20 +202,22 @@ public class NorskNivå {
 
             //still no hit, lets try ISBN prefix..
 
+            //List<String> divaISBN = extractDivaISBN(  p.getISBN()  ); // convert to ISBN-13 and hyphenate!
 
-            List<String> divaISBN = extractDivaISBN(  p.getISBN()  ); // convert to ISBN-13 and hyphenate!
+            List<String> divaISBN = isbnPrefix.getPrefixes( p.getISBN() );
+
 
             //create a prefix
 
-            if(divaISBN != null) {
+            if(divaISBN != null && divaISBN.size() != 0) {
 
 
-                for(int i=0; i< divaISBN.size(); i++) {
+                //for(int i=0; i< divaISBN.size(); i++) {
 
 
-                    divaISBN.set(i,   DivaHelpFunctions.createISBNprefix( divaISBN.get(i)  )    );
+                  //  divaISBN.set(i,   DivaHelpFunctions.createISBNprefix( divaISBN.get(i)  )    );
 
-                }
+              //  }
 
 
                 for (int i=0; i<förlagList.size(); i++) {
@@ -315,19 +320,19 @@ public class NorskNivå {
             //still no hit, lets try ISBN prefix..
 
 
-            List<String> divaISBN = extractDivaISBN(  p.getISBN()  ); // convert to ISBN-13 and hyphenate!
-
+            //List<String> divaISBN = extractDivaISBN(  p.getISBN()  ); // convert to ISBN-13 and hyphenate!
+            List<String> divaISBN = isbnPrefix.getPrefixes( p.getISBN() );
             //create a prefix
 
-            if(divaISBN != null) {
+            if(divaISBN != null && divaISBN.size() >0) {
 
 
-                for(int i=0; i< divaISBN.size(); i++) {
+              //  for(int i=0; i< divaISBN.size(); i++) {
 
 
-                    divaISBN.set(i,   DivaHelpFunctions.createISBNprefix( divaISBN.get(i)  )    );
+               //     divaISBN.set(i,   DivaHelpFunctions.createISBNprefix( divaISBN.get(i)  )    );
 
-                }
+              //  }
 
 
                 for (int i=0; i<förlagList.size(); i++) {

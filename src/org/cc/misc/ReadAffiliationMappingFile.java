@@ -36,7 +36,7 @@ public class ReadAffiliationMappingFile {
 
 
 
-    public Map<Integer,DivaIDtoNames> parseAffiliationMappingFile(File file) throws FileNotFoundException {
+    public Map<Integer,DivaIDtoNames> parseAffiliationMappingFile(File file) throws IOException {
         DataFormatter formatter = new DataFormatter();
         if (!file.exists()) {
             System.out.println("divaID to AffilObject don't exist. Check file name / path.");
@@ -93,7 +93,7 @@ public class ReadAffiliationMappingFile {
         }
 
 
-
+        workbook.close();
         return map;
 
     }

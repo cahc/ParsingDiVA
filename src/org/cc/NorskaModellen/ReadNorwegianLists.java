@@ -22,7 +22,7 @@ import java.util.List;
 public class ReadNorwegianLists {
 
 
-    public static List<NorskSerie> parseSeries(File file) throws FileNotFoundException {
+    public static List<NorskSerie> parseSeries(File file) throws IOException {
         DataFormatter formatter = new DataFormatter();
         if (!file.exists()) {
             System.out.println("norwegianList don't exist. Check file name / path.");
@@ -50,11 +50,12 @@ public class ReadNorwegianLists {
 
         Row row = rowIterator.next();
 
-        if (!row.getCell(NorskSerieIndex.tidsskrift_id.getValue()).toString().equals("journal_id") || !row.getCell(NorskSerieIndex.Nivå_2004.getValue()).toString().equals("Level 2004")) {
+        if (!row.getCell(NorskSerieIndex.tidsskrift_id.getValue()).toString().equals("journal_id") || !row.getCell(NorskSerieIndex.Nivå_2004.getValue()).toString().equals("Level 2004") || !row.getCell(NorskSerieIndex.Nivå_2025.getValue()).toString().equals("Level 2025") ) {
             System.out.println("Not a valid header in norwegian authority file! (serier)");
             System.out.println("Was:");
             System.out.println( row.getCell(NorskSerieIndex.tidsskrift_id.getValue()).toString() );
             System.out.println( row.getCell(NorskSerieIndex.Nivå_2004.getValue()).toString() );
+            System.out.println( row.getCell(NorskSerieIndex.Nivå_2025.getValue()).toString() );
             System.exit(1);
         }
 
@@ -109,6 +110,12 @@ public class ReadNorwegianLists {
             //check språk
             cell = row.getCell(NorskSerieIndex.Språk.getValue());
             if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setSpråk(cell.toString());
+
+
+            //nivå 2025
+
+            cell = row.getCell(NorskSerieIndex.Nivå_2025.getValue());
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskSerie.setNivå2025(Integer.valueOf(formatter.formatCellValue(cell)));
 
 
             //nivå 2024
@@ -217,13 +224,13 @@ public class ReadNorwegianLists {
             norskSerieList.add(norskSerie);
         }
 
-
+        workbook.close();
         return norskSerieList;
 
     }
 
 
-    public static List<NorskFörlag> parseFörlag(File file) throws FileNotFoundException {
+    public static List<NorskFörlag> parseFörlag(File file) throws IOException {
 
         DataFormatter formatter = new DataFormatter();
         if (!file.exists()) {
@@ -253,7 +260,7 @@ public class ReadNorwegianLists {
 
         Row row = rowIterator.next();
 
-        if (!row.getCell(NorskFörlagIndex.forlag_id.getValue()).toString().equals("publisher_id") || !row.getCell(NorskFörlagIndex.Nivå2004.getValue()).toString().equals("Level 2004")) {
+        if (!row.getCell(NorskFörlagIndex.forlag_id.getValue()).toString().equals("publisher_id") || !row.getCell(NorskFörlagIndex.Nivå2004.getValue()).toString().equals("Level 2004") || !row.getCell(NorskFörlagIndex.Nivå2025.getValue()).toString().equals("Level 2025")  ) {
             System.out.println("Not a valid header in norwegian authority file! (förlag)");
             System.exit(1);
         }
@@ -310,6 +317,12 @@ public class ReadNorwegianLists {
             //check land
             Cell cell = row.getCell(NorskFörlagIndex.Land.getValue());
             if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setLand(  cell.toString() );
+
+
+            //nivå 2025
+
+            cell = row.getCell(NorskFörlagIndex.Nivå2025.getValue());
+            if (cell != null && cell.getCellType() != CellType.BLANK) norskFörlag.setNivå2025(Integer.valueOf(formatter.formatCellValue(cell)));
 
             //nivå 2024
 
@@ -408,7 +421,7 @@ public class ReadNorwegianLists {
             norskFörlagList.add(norskFörlag);
 
         }
-
+        workbook.close();
         return norskFörlagList;
     }
 

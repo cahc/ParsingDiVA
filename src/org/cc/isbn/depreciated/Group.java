@@ -1,4 +1,4 @@
-package org.cc.isbn;
+package org.cc.isbn.depreciated;
 
 /**
  * Created by crco0001 on 2017.*/

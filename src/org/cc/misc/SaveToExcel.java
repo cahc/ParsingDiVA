@@ -604,6 +604,693 @@ public class SaveToExcel {
     }
 
 
+    public void saveDisambiguatedAuthorFractions2024VERSION(List<Post> recordList, boolean includeExternalAuthors) {
+
+        /*
+        SHEET 1
+         */
+        XSSFSheet sheet = workbook.createSheet("FÖRFATTARFRAKTIONER");
+        XSSFFont font = workbook.createFont();
+        XSSFCellStyle style = workbook.createCellStyle();
+        font.setBold(true);
+        style.setFont(font);
+
+        sheet.createFreezePane(0,1);
+        int cellIndices = 0;
+        int rowIndices = 0;
+
+        /*
+        SHEET 2, ABSTRACTS
+        */
+
+        XSSFSheet sheet2 = workbook.createSheet("ABSTRACTS");
+        XSSFFont font2 = workbook.createFont();
+        XSSFCellStyle style2 = workbook.createCellStyle();
+        font2.setBold(true);
+        style2.setFont(font2);
+
+        sheet2.createFreezePane(0,1);
+        int cellIndices2 = 0;
+        int rowIndices2 = 0;
+
+
+        //SKAPA EN LÅST HEADER-RAD
+
+        Row row2 = sheet2.createRow(rowIndices2);
+        Cell cell2 = row2.createCell(0);
+        cell2.setCellValue("PID");
+        cell2.setCellStyle(style2);
+        cell2 = row2.createCell(1);
+        cell2.setCellValue("ABSTRACTS");
+        cell2.setCellStyle(style2);
+
+
+        //SKAPA EN LÅST HEADER-RAD
+        Row row = sheet.createRow(rowIndices);
+
+
+        Cell cell = row.createCell(0);
+        cell.setCellValue("PID" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(1);
+        cell.setCellValue("AUTHOR_ID" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(2);
+        cell.setCellValue("NAME" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(3);
+        cell.setCellValue("UMUID" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(4);
+        cell.setCellValue("UMUID (FIX MISSING IF POSSIBLE)" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(5);
+        cell.setCellValue("FRACTIONS (STANDARD)" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(6);
+        cell.setCellValue("FRACTIONS (STANDARD + MIN0.1)" );
+        cell.setCellStyle(style);
+    /*
+
+        cell = row.createCell(7);
+        cell.setCellValue("FRACTIONS (NO INTERNAL FRACTIONS)" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(8);
+        cell.setCellValue("FRACTIONS (NO INTERNAL FRACTIONS + MIN0.1)" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(9);
+        cell.setCellValue("FACULTY FRACTION" );
+        cell.setCellStyle(style);
+
+   */
+
+
+        cell = row.createCell(7);
+        cell.setCellValue("FACULTY" );
+        cell.setCellStyle(style);
+
+
+
+        cell = row.createCell(8);
+        cell.setCellValue("INSTITUTION" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(9);
+        cell.setCellValue("UNIT (IF AVAILABLE OTHERWISE INST.)" );
+        cell.setCellStyle(style);
+
+        //BIBLIOGRAPHIC INFO
+
+        cell = row.createCell(10);
+        cell.setCellValue("DIVA_TYPE" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(11);
+        cell.setCellValue("DIVA_YEAR" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(12);
+        cell.setCellValue("DIVA_CONTENT" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(13);
+        cell.setCellValue("DIVA_SUBTYPE" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(14);
+        cell.setCellValue("DIVA_STATUS" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(15);
+        cell.setCellValue("DIVA_AFFILIATIONS" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(16);
+        cell.setCellValue("DIVA_URN" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(17);
+        cell.setCellValue("DIVA_POTENTIAL_CHANNELS" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(18);
+        cell.setCellValue("DIVA_TITLE" );
+        cell.setCellStyle(style);
+
+        //cell = row.createCell(19);
+        //cell.setCellValue("DIVA_ABSTRACT" );
+        //cell.setCellStyle(style);
+
+        cell = row.createCell(19);
+        cell.setCellValue("DIVA_JOURNAL" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(20);
+        cell.setCellValue("DIVA_JOURNAL_ISSN" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(21);
+        cell.setCellValue("DIVA_SERIES" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(22);
+        cell.setCellValue("DIVA_SERIES_ISSN" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(23);
+        cell.setCellValue("DIVA_PUBLISHER" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(24);
+        cell.setCellValue("DIVA_ISBN" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(25);
+        cell.setCellValue("DIVA_LANGUAGE" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(26);
+        cell.setCellValue("DIVA_LAST_CHANGED" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(27);
+        cell.setCellValue("DIVA_NR_AUTHORS" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(28);
+        cell.setCellValue("DIVA_IS_DUPLICATED" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(29);
+        cell.setCellValue("DIVA_DUPLICATED_PID" );
+        cell.setCellStyle(style);
+
+        //NORSK STUFF
+
+
+        cell = row.createCell(30);
+        cell.setCellValue("NORWEGIAN_ID" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(31);
+        cell.setCellValue("NORWEGIAN_TYPE" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(32);
+        cell.setCellValue("NORWEGIAN_MATCH" );
+        cell.setCellStyle(style);
+
+
+        cell = row.createCell(33);
+        cell.setCellValue("NORWEGIAN_NAME" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(34);
+        cell.setCellValue("NORWEGIAN_LEVEL" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(35);
+        cell.setCellValue("NORWEGIAN_LEVEL (HISTORICAL MAXIMUM)" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(36);
+        cell.setCellValue("NORWEGIAN_MODEL_INFO" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(37);
+        cell.setCellValue("PUBLICATION_MODEL_INFO" );
+        cell.setCellStyle(style);
+
+        cell = row.createCell(38);
+        cell.setCellValue("NORWEGIAN_POINTS" );
+        cell.setCellStyle(style);
+
+        //add localID, use to manually remap institutionen för geografi och ekonomisk historia
+
+        cell = row.createCell(39);
+        cell.setCellValue("LOCAL_ID");
+        cell.setCellStyle(style);
+
+        //add info if the affiliation has been altered, i.e., non considered removed (0=no, 1=yes, 2=count not remove, only non considered
+
+        cell = row.createCell(40);
+        cell.setCellValue("AFFIL_MAPPING_INFO");
+        cell.setCellStyle(style);
+
+        //2024 add IDs
+
+        cell = row.createCell(41);
+        cell.setCellValue("DOI");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(42);
+        cell.setCellValue("EID");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(43);
+        cell.setCellValue("WOS");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(44);
+        cell.setCellValue("PMID");
+        cell.setCellStyle(style);
+
+        for(Post p : recordList) {
+
+                String summary2 = p.getRawDataRow()[ ReducedDiVAColumnIndices.Abstract.getValue() ];
+                if(summary2.length() > 32700 ) { summary2 = summary2.substring(0,32000); summary2 = summary2.concat("[TRUNCATED!!]");       }
+
+                row2 = sheet2.createRow(++rowIndices2);
+                cellIndices2 = -1;
+
+                //PID
+                cell2 = row2.createCell(++cellIndices2);
+                cell2.setCellValue(p.getPID());
+
+                //ABSTRACTS
+
+                cell2 = row2.createCell(++cellIndices2);
+                cell2.setCellValue(summary2);
+
+
+
+
+
+            for(Author author : p.getAuthorList() ) {
+
+
+                List<DivaIDtoNames> divaIDtoNames = author.getAffilMappingsObjects();
+                boolean isUmuAuthor = divaIDtoNames.size() > 0;
+
+                if(!includeExternalAuthors && !isUmuAuthor) continue;
+
+
+                NorwegianMatchInfo norskNivå = p.getNorskNivå();
+
+
+                //
+                //Count number of FACULTIES an author is associated with. This is needed for fractionalization that dont d´split an author fraction over faculties but split on inst/unit on a lower level
+                //
+
+                Map<String, Integer> facultyToOccurance = null;
+                boolean multipleUmUaffils = (divaIDtoNames.size() > 1);
+
+                if(multipleUmUaffils) {
+
+                    facultyToOccurance = new HashMap<>();
+
+                    for(DivaIDtoNames id : divaIDtoNames) {
+
+                        String facultyName = id.getFAKULTET();
+
+                        Integer occurrence = facultyToOccurance.get(facultyName);
+                        if(occurrence == null) {
+
+                            facultyToOccurance.put(facultyName,1);
+                        } else {
+
+                            facultyToOccurance.put(facultyName, (occurrence+1) );
+
+                        }
+
+
+
+                    }//for ends
+
+
+                }
+
+
+
+                ////End special treatment for non frac over Faculties
+
+
+                int indice = 0;
+                do {
+                    row = sheet.createRow(++rowIndices);
+                    cellIndices = -1;
+
+                    //PID 1
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getPID());
+
+                    //AUTHOR_ID" 2
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getDisambiguateID());
+
+
+                    //AUTHOR_NAME" 3
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getAuthorName() );
+
+                    //CAS 1" 4
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getCas() );
+
+                    //CAS 2" 5
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getAutomaticAddedCass() );
+
+                    //CAS FRAC STANDARD 6
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getFractionConsiderMultipleUmUAffils() );
+
+                    // NEW NEW 7
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getFractionConsiderMultipleUmUAffilsMin01() );
+
+
+                    //NEW 2022-11-16, fractions ignoring internal, and no min01 , 8
+
+                   // cell = row.createCell(++cellIndices);
+                   // cell.setCellValue(author.getFractionIgnoreMultipleUmUAffils() );
+
+
+                    //CAS FRAC Min.01 AND Ignore multiple UmU-affils 9
+
+                   // cell = row.createCell(++cellIndices);
+                   // cell.setCellValue(author.getFractionIgnoreMultipleUmUAffilsMin01() );
+
+
+                    //ignore multiple UmU-FACULTIES but fractionalize within!
+
+                    double faculty_special_frac = -1;
+                    if(isUmuAuthor && multipleUmUaffils) {
+
+                        faculty_special_frac =  author.getFractionIgnoreMultipleUmUAffils();
+                        int occurances = facultyToOccurance.get( divaIDtoNames.get(indice).getFAKULTET() );
+                        faculty_special_frac =  faculty_special_frac/occurances;
+
+
+                    } else {
+
+                        faculty_special_frac = author.getFractionIgnoreMultipleUmUAffils();
+                    }
+
+                   // cell = row.createCell(++cellIndices);
+                   // cell.setCellValue( faculty_special_frac );
+
+
+
+
+
+                    //FACULTY 10
+                    String faculty = ( isUmuAuthor ) ? divaIDtoNames.get(indice).getFAKULTET() : "external";
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(faculty);
+
+                    //INST 11
+
+                    String inst = ( isUmuAuthor ) ? divaIDtoNames.get(indice).getINSTITUTION() : "external";
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(inst);
+
+
+                    //INST 12 UNIT
+
+                    String unit = ( isUmuAuthor ) ? divaIDtoNames.get(indice).getENHET() : "external";
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(unit);
+
+                    //SET DIVA BIBLIOGRAPHIC STUFF
+
+                    //DIVA TYPE 13
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getDivaPublicationType()  );
+
+
+                    //DIVA YEAR 14
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getYear()  );
+
+                    //DIVA CONTENT 15
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getDivaContentType()  );
+
+                    //DIVA SUBTYPE 16
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getDivaPublicationSubtype()  );
+
+                    //DIVA status 17
+                    cell = row.createCell(++cellIndices);
+
+                    String status = p.getDivaStatus();
+
+                    if("".equals(status)) {status = "published";}
+
+                    cell.setCellValue( status );
+
+                    //DIVA AFFILIATIONS 18
+                    cell = row.createCell(++cellIndices);
+
+                    String name = p.getRawDataRow()[ ReducedDiVAColumnIndices.Name.getValue() ];
+                    if(name.length() > 32700 ) { name = name.substring(0,32000); name = name.concat("[TRUNCATED!!]");       }
+                    cell.setCellValue( name );
+
+                    //DIVA URN 19
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getNBN()  );
+
+                    //DIVA CHANEL 20
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getDivaChannels()  );
+
+                    //DIVA TITLE 21
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getTitle()  );
+
+                    //DIVA ABSTRACT 22
+
+                    //MOVED TO OWN SHEET 2024
+                    //cell = row.createCell(++cellIndices);
+                    //String summary = p.getRawDataRow()[ ReducedDiVAColumnIndices.Abstract.getValue() ];
+                    //if(summary.length() > 32700 ) { summary = summary.substring(0,32000); summary = summary.concat("[TRUNCATED!!]");       }
+                    //cell.setCellValue( summary );
+
+                    //DIVA JOURNAL 23
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getJournal()  );
+
+                    //DIVA JOURNAL ISSN 24
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getJournalISSN()  );
+
+
+                    //DIVA SERIES 25
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getSeriesName()  );
+
+
+                    //DIVA SERIES ISSN 26
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getSeriesISSN()  );
+
+                    //DIVA PUBLISHER 27
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getPublisher()  );
+
+                    //DIVA PUBLISHER 28
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getISBN()  );
+
+
+
+                    //DIVA LANGUAGE 29
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getRawDataRow()[ ReducedDiVAColumnIndices.Language.getValue() ] );
+
+                    //DIVA LAST UPDATED  30
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getRawDataRow()[ ReducedDiVAColumnIndices.LastUpdated.getValue() ] );
+
+                    //DIVA NR AUTHORS 31
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(p.getNrAuthors());
+
+
+                    //DIVA IS DUPE 32
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(  p.isDuplicate() );
+
+
+                    //DIVA WHICH DUPE 33
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(  p.getDuplicateOfPID() );
+
+
+                    //SET NORWEGIAN STUFF
+
+                    //NORWEGIAN ID 34
+
+                    cell = row.createCell(++cellIndices);
+
+                    Integer nid = norskNivå.getNorsk_id();
+                    if(nid.equals(-99)) { cell.setCellValue( "not available" ); } else {cell.setCellValue( nid ); }
+
+
+                    //NORWEGIAN TYPE 35
+
+                    cell = row.createCell(++cellIndices);
+                    String type = norskNivå.getType();
+                    cell.setCellValue((type == null) ? "not available" : type);
+
+                    //NOWRWEGIAN MATCH 36
+
+                    cell = row.createCell(++cellIndices);
+                    String how = norskNivå.getHow();
+                    cell.setCellValue((how == null) ? "not available" : how);
+
+                    //NOWRWEGIAN NAME 37
+
+                    cell = row.createCell(++cellIndices);
+                    String namn = norskNivå.getNorsk_namn();
+                    cell.setCellValue((namn == null) ? "not available" : namn);
+
+                    //NORWEGIAN LEVEL 38
+
+                    cell = row.createCell(++cellIndices);
+                    Integer nivåStandard = norskNivå.getNivå();
+                    cell.setCellValue((nivåStandard == null) ? "not available" : nivåStandard.toString());
+
+                    //NORWEGIAN LEVEL 39
+
+                    cell = row.createCell(++cellIndices);
+                    Integer nivåMax = norskNivå.getMax_nivå();
+                    cell.setCellValue((nivåMax == null) ? "not available" : nivåMax.toString());
+
+
+                    //NORWEGIAN MODEL SPECIFIC INFO 40
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(     norskNivå.getModelSpecificInfo() );
+
+                    //PUBLICATION MODEL SPECIFICATION 41
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(     p.getStatusInModel().getStatusInModel()  );
+
+
+                    //NORWEGIAN POINTS 42
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(      norskNivå.getVikt()     );
+
+
+                    //add localID 43
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue( p.getRawDataRow()[ ReducedDiVAColumnIndices.LocalId.getValue() ] );
+
+                    //affil mapping info 44
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.removedNonConsidered );
+
+                  //ADD DOI
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue( p.getRawDataRow()[ ReducedDiVAColumnIndices.DOI.getValue() ] );
+
+                    //ADD EID
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue( p.getRawDataRow()[ ReducedDiVAColumnIndices.ScopusId.getValue() ] );
+
+                    //ADD WOS
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue( p.getRawDataRow()[ ReducedDiVAColumnIndices.ISI.getValue() ] );
+
+                    //ADD PMID
+
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue( p.getRawDataRow()[ ReducedDiVAColumnIndices.PMID.getValue() ] );
+
+
+
+                    indice++;
+                } while(indice < divaIDtoNames.size() );
+
+
+
+            }
+
+
+        }
+
+        sheet.autoSizeColumn(0);
+        sheet.autoSizeColumn(1);
+        sheet.autoSizeColumn(2);
+        sheet.autoSizeColumn(3);
+        sheet.autoSizeColumn(4);
+        sheet.autoSizeColumn(5);
+        sheet.autoSizeColumn(6);
+        sheet.autoSizeColumn(7);
+        sheet.autoSizeColumn(8);
+        sheet.autoSizeColumn(9);
+        sheet.autoSizeColumn(10);
+        sheet.autoSizeColumn(11);
+        sheet.autoSizeColumn(12);
+        sheet.autoSizeColumn(13);
+        sheet.autoSizeColumn(14);
+        sheet.autoSizeColumn(41);
+        sheet.autoSizeColumn(42);
+        sheet.autoSizeColumn(43);
+        sheet.autoSizeColumn(44);
+
+        sheet2.autoSizeColumn(0); //abstract sheet
+
+        Date date = new Date() ;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm") ;
+
+
+        String fileName;
+
+        if(includeExternalAuthors) {fileName = "FractionsIncludedExternal"; } else {fileName = "FractionsExcludedExternal";}
+
+
+        try (FileOutputStream outputStream = new FileOutputStream(fileName + dateFormat.format(date)  +".xlsx")) {
+            workbook.setActiveSheet(0);
+            workbook.setSelectedTab(0);
+            workbook.write(outputStream);
+            workbook.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
 
     public void saveNorwegianMatchingInfo(List<Post> recordList) {
 
@@ -930,8 +1617,6 @@ public class SaveToExcel {
 
 
     }
-
-
 
 
     public void addFullPublicationData(List<Post> postList) {

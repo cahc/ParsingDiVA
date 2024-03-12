@@ -1,7 +1,7 @@
 package org.cc.diva;
-import org.cc.isbn.ISBN;
-import org.cc.isbn.ISBNHyphenAppender;
-import org.cc.isbn.InvalidStandardIDException;
+import org.cc.isbn.depreciated.ISBN;
+import org.cc.isbn.depreciated.ISBNHyphenAppender;
+import org.cc.isbn.depreciated.InvalidStandardIDException;
 import org.jsoup.Jsoup;
 
 import java.text.Normalizer;
