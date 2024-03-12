@@ -6,11 +6,11 @@ import org.cc.misc.SaveToExcel;
 import org.cc.misc.Thesaurus;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by crco0001 on 6/20/2017.
@@ -28,7 +28,42 @@ public class ARS {
     public static void main(String[] arg) throws IOException, XMLStreamException, ParseException {
 
 
-        if(arg.length != 5) { System.out.println(" java -cp ... norwegianList.xlsx thesaurusFile.xlsx divaDump.csv AffiliationMappingFile.xlsx PersonalData.xml"); System.exit(0); }
+        if(arg.length != 5 && arg.length != 6) { System.out.println(" java -cp ... norwegianList.xlsx thesaurusFile.xlsx divaDump.csv AffiliationMappingFile.xlsx PersonalData.xml pidFilterLista.txt (frivillig)"); System.exit(0); }
+
+
+        ArrayList<Integer> PIDtoKeep = new ArrayList();
+        if(arg.length == 6) {
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(arg[5]))));
+
+            String line;
+            while(  (line = reader.readLine() ) != null ) {
+
+                String PID = line.trim();
+
+
+               if(PID.length() >=2 ) PIDtoKeep.add(Integer.valueOf(PID));
+
+            }
+
+            reader.close();
+        }
+
+
+        if(PIDtoKeep.size() > 1) {
+            System.out.print(PIDtoKeep.size() + " PID:s inlästa, beakta endast dessa poster? Yes (Y) Abort (A):");
+            Scanner sc = new Scanner(System.in);
+            String yesOrNo = sc.nextLine();
+            if (!yesOrNo.equalsIgnoreCase("Y")) {
+
+                System.out.println("avbryter..");
+                System.exit(0);
+
+            }
+
+        }
+
+
 
 
        File auktoritetsRegisterFil = new File( arg[0] );
@@ -60,6 +95,10 @@ public class ARS {
         System.out.println("Antal poster i rådata: " + divaTable.nrRows() );
 
 
+
+
+
+
         /**
 
 
@@ -79,16 +118,29 @@ public class ARS {
         for(int i = 0; i< divaTable.nrRows(); i++) {
 
 
-                //if(listaMedCasForskningstid.includeRawPostByDefault(divaTable, i)) {
+
                 Post post = new Post(divaTable.getRowInTable(i));
-                postList.add(post);
+                int f = post.getPID();
+                if(PIDtoKeep.size() > 0) {
+
+                    if( PIDtoKeep.contains(f) ) postList.add(post);
+
+                } else {
+
+                    postList.add(post);
+                }
+
 
 
             }
 
 
         System.out.println("Object skapade: " + postList.size());
+        if(PIDtoKeep.size() > 0) {
 
+            if(PIDtoKeep.size() != postList.size()) System.out.println("*******VARNING******** PID-LISTAN INNEHÅLLER FLER PID:s ÄN VAD SOM KUNDE HITTAS I EXPORTFILEN FRÅN DIVA!! " + PIDtoKeep.size() + " != " + postList.size());
+
+        }
 
         /**
          *
