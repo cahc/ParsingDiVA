@@ -161,6 +161,15 @@ public class NorskNivå {
                     matchInfo.setMax_nivå(  serieLista.get(indice).getHistoricalMaxLevel()   );
                     matchInfo.setNorsk_namn( serieLista.get(indice).getInternationellTitel() );
 
+                    if(checkConsecutiveYearIfSeriesIsFoundButNullLevel && serieLista.get(indice).getLevel(  p.getYear() ) == null) {
+
+                        Integer consecutiveLevel = serieLista.get(indice).getLevel(  p.getYear() +1 );
+
+                        System.out.println("PID: " +  p.getPID() + " in serial ***" + serieLista.get(indice).getInternationellTitel() + "*** exists in but don't have any level for the publication year. Using level for the consecutive year if available:" + (consecutiveLevel != null) );
+                        matchInfo.setNivå( consecutiveLevel );
+
+                    }
+
                     return matchInfo;
 
                 }
