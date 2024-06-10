@@ -13,7 +13,26 @@ public class CmdParser {
     String casFileName;
     String thesaurusFileName;
     String modelType;
+    String persondataXML;
 
+    String divaMappingFile;
+
+
+    public String getPersondataXML() {
+        return persondataXML;
+    }
+
+    public void setPersondataXML(String persondataXML) {
+        this.persondataXML = persondataXML;
+    }
+
+    public String getDivaMappingFile() {
+        return divaMappingFile;
+    }
+
+    public void setDivaMappingFile(String divaMappingFile) {
+        this.divaMappingFile = divaMappingFile;
+    }
 
     public void setModelType(String modelType) {
 
@@ -100,6 +119,16 @@ public class CmdParser {
             .desc(  "Excel (.xlsx) file that contains standardisations w.r.t. series and publisher names" )
             .build();
 
+        Option mappingFile = Option.builder("mappingFile")
+                .hasArg()
+                .desc(  "Excel (.xlsx) file that contains Diva mappings" )
+                .build();
+
+        Option personFile = Option.builder("persondata")
+                .hasArg()
+                .desc(  "XML file from personsök" )
+                .build();
+
     options.addOption(help);
     options.addOption(divaFile);
     options.addOption(norwegianFile);
@@ -107,6 +136,9 @@ public class CmdParser {
     options.addOption(thesaurusFile);
     options.addOption(programVersion);
     options.addOption(model);
+    options.addOption(mappingFile);
+    options.addOption(personFile);
+
         CommandLineParser parser = new DefaultParser();
 
     if(args.length == 0) {
@@ -126,7 +158,7 @@ public class CmdParser {
 
     if( cmd.hasOption("version") ) {
 
-        System.out.println("Beta v0.8 2017-09-xx (release for new SamFak model)");
+        System.out.println("Beta v1.01 2024-05-15");
         System.exit(0);
     }
 
@@ -161,6 +193,20 @@ public class CmdParser {
        setModelType(typ.toUpperCase());
 
    }
+
+   if(cmd.hasOption("mappingFile")) {
+
+       setDivaMappingFile(cmd.getOptionValue("mappingFile"));
+   } else {  printHelpAndExit(options);}
+
+   if(cmd.hasOption("persondata")) {
+
+       setPersondataXML( cmd.getOptionValue("persondata"));
+   } else {
+
+       printHelpAndExit(options);
+   }
+
 
 }
 

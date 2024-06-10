@@ -56,8 +56,8 @@ public class HFPubInclusion implements ConsideredPublications {
 
                 //now check subtype
 
-                //p.getDivaPublicationSubtype().equals("editorialMaterial") is allowed!!
-                if(p.getDivaPublicationSubtype().equals("meetingAbstract") | p.getDivaPublicationSubtype().equals("newsItem") ) {
+
+                if(p.getDivaPublicationSubtype().equals("meetingAbstract") || p.getDivaPublicationSubtype().equals("newsItem") ||   p.getDivaPublicationSubtype().equals("editorialMaterial") ) {
 
 
                     statusInModel.setIgnorerad(true);

@@ -28,7 +28,7 @@ public class PublicationPointPerAuthor {
     TreeMap<String, AggregatedAuthorInformation> aggregatedAuthorInformationTreeMap = new TreeMap<>();
 
 
-    public void calculateAggregateAuthorStatistics(List<Author> authors, double collaborationWeight) throws UnsupportedEncodingException {
+    public void calculateAggregateAuthorStatistics(List<Author> authors, double collaborationWeight, boolean minAuthorFracOneTenth) throws UnsupportedEncodingException {
 
         for (Author a : authors) {
 
@@ -36,7 +36,9 @@ public class PublicationPointPerAuthor {
             String cas = a.getCas();
             Double publicationWeight = a.getEnclosingPost().getNorskNivå().getVikt();
             Integer year = a.getEnclosingPost().getYear();
-            double fraction = a.getFractionIgnoreMultipleUmUAffils();
+
+            double fraction = minAuthorFracOneTenth ?  a.getFractionIgnoreMultipleUmUAffilsMin01() : a.getFractionConsiderMultipleUmUAffils();
+            //double fraction = a.getFractionIgnoreMultipleUmUAffils();
 
             boolean nrAuthorsMoreThanOne = (a.getEnclosingPost().getNrAuthors() > 1);
 

@@ -46,7 +46,7 @@ public class LHPubInclusion implements ConsideredPublications {
 
                 //now check subtype
 
-                if(p.getDivaPublicationSubtype().equals("editorialMaterial") | p.getDivaPublicationSubtype().equals("meetingAbstract") | p.getDivaPublicationSubtype().equals("newsItem") ) {
+                if(p.getDivaPublicationSubtype().equals("editorialMaterial") || p.getDivaPublicationSubtype().equals("meetingAbstract") || p.getDivaPublicationSubtype().equals("newsItem") ) {
 
 
                     statusInModel.setIgnorerad(true);

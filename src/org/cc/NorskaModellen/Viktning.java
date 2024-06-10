@@ -159,7 +159,7 @@ public class Viktning {
 
         } else
 
-        if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN)) {
+        if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN) || StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD.equals(publicationsStatus)) {
 
             if (p.getDivaPublicationType().equals(DivaPublicationTypes.bok)) {
 
@@ -220,10 +220,10 @@ public class Viktning {
                     matchInfo.setVikt(0);
                     matchInfo.setModelSpecificInfo("Redaktörskap (Proceeding/Samlingsverk) nivå 0");
                 } else if (matchInfo.getNivå() == 1) {
-                    matchInfo.setVikt(1);
+                    matchInfo.setVikt(0.5);
                     matchInfo.setModelSpecificInfo("Redaktörskap (Proceeding/Samlingsverk) nivå 1");
                 } else if (matchInfo.getNivå() == 2) {
-                    matchInfo.setVikt(2);
+                    matchInfo.setVikt(1);
                     matchInfo.setModelSpecificInfo("Redaktörskap (Proceeding/Samlingsverk) nivå 2");
                 }
 
@@ -233,7 +233,7 @@ public class Viktning {
 
         }
         //FANNS EJ I NORSKA LISTAN
-        else if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN)) {
+        else if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN) || publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN_EPUBAHEAD)) {
 
 
             if (p.getDivaPublicationType().equals(DivaPublicationTypes.bok)) {
@@ -315,7 +315,7 @@ public class Viktning {
 
         } else
 
-        if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN)) {
+        if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN) || StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD.equals(publicationsStatus)) {
 
             if (p.getDivaPublicationType().equals(DivaPublicationTypes.bok)) {
 
@@ -408,7 +408,7 @@ public class Viktning {
 
         }
         //FANNS EJ I NORSKA LISTAN
-        else if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN)) {
+        else if (publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN) || StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN_EPUBAHEAD.equals(publicationsStatus)) {
 
                 matchInfo.setVikt(0);
                 matchInfo.setModelSpecificInfo("Publikationskanalen ej återfunnen i norska listan");
@@ -428,13 +428,13 @@ public class Viktning {
         if(publicationsStatus.equals(StatusInModelConstants.IGNORERAD_ABSTRACT_POSTER_ELLER_PRESENTATION) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EDITORIAL_ABSTRACT_OR_NEWS_ITEM) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_PUBLICERAD) || publicationsStatus.equals(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT) ) {
 
             matchInfo.setVikt(0);
-            matchInfo.setModelSpecificInfo("Ej vetenskapligt innehåll alt. ej publicerad");
+            matchInfo.setModelSpecificInfo("editorial/abstarct/poster/presentation/submitted etc. (ignored)"); //Ej vetenskapligt innehåll alt. ej publicerad"
 
-        } else if(publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN_EPUBAHEAD) || publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD)) {
+       // } else if(publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_EJ_I_NORSKA_LISTAN_EPUBAHEAD) || publicationsStatus.equals(StatusInModelConstants.BEAKTAD_PUBLIKATION_I_NORSKA_LISTAN_EPUBAHEAD)) {
 
-            matchInfo.setVikt(0);
-            String modelInfoString = "EPUB AHEAD OF PRINT (EJ FINALT PUBLICERINGSÅR)";
-            matchInfo.setModelSpecificInfo(modelInfoString);
+       //     matchInfo.setVikt(0);
+      //      String modelInfoString = "EPUB AHEAD OF PRINT (EJ FINALT PUBLICERINGSÅR)";
+     //       matchInfo.setModelSpecificInfo(modelInfoString);
 
 
         } else {

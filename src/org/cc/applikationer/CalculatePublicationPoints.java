@@ -18,6 +18,8 @@ import java.util.*;
  */
 public class CalculatePublicationPoints {
 
+
+
     public static void main(String[] args) throws IOException, ParseException, XMLStreamException {
 
         CmdParser cmdParser = new CmdParser(args);
@@ -32,6 +34,18 @@ public class CalculatePublicationPoints {
         File divaDumpFil = new File(cmdParser.getDivaFileName());
         File casFil =  new File(cmdParser.getCasFileName());
         File thesaurusFil = new File(cmdParser.getThesaurusFileName());
+
+        File mappingFile = new File(cmdParser.getDivaMappingFile());
+        File personData = new File(cmdParser.getPersondataXML());
+
+        /**
+
+        För att flagga förmodat oventenskapliga publikationer baserat på titel (introduction, introduction, preface etc)
+
+         */
+
+
+        IdentifyPrefaceEtc identifyPrefaceEtc = new IdentifyPrefaceEtc();
 
         String model = cmdParser.getModelType();
 
@@ -188,6 +202,15 @@ public class CalculatePublicationPoints {
             //Default
             //Viktning.DefaultWeightning(p);
 
+
+            String checkForWeekTitle = identifyPrefaceEtc.checkForPrefaceIntroEtcAndConsiderShareOfTotalTitleLength( p.getTitle() );
+            if(checkForWeekTitle != null) {
+
+                System.out.println("WARNING" +"\t" + p.getPID() + "\t" + checkForWeekTitle +"\t" + p.getDivaPublicationType());
+
+            }
+
+
         }
 
 
@@ -197,7 +220,7 @@ public class CalculatePublicationPoints {
         //FRACTIONALIZATION - TODO WHY WAS THIS REMOVE IN ERLIER VERSION, DOSENT MAKE ANY SENSE!!
 
 
-        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new java.io.File("Mappningsfil20221121.xlsx"), new File("PersonalData_202306070002171.xml"));
+        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(mappingFile, personData);
         authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(reducedPostList,false);
 
 
@@ -258,8 +281,11 @@ public class CalculatePublicationPoints {
 
         double collaborationWeight = model.equals("HF") ? 2.0 : 1.2; //olika samarbetsvikter
 
-        publicationPointPerAuthor.calculateAggregateAuthorStatistics(consideredAuthorsPostPairs,collaborationWeight);
+        boolean min01Frac = model.equals("HF") ? true : false;
+
+        publicationPointPerAuthor.calculateAggregateAuthorStatistics(consideredAuthorsPostPairs,collaborationWeight, min01Frac);
         System.out.println("Using collaboration weight: " + collaborationWeight );
+        System.out.println("Author fraction no less than 0.1: " + min01Frac);
 
         //ADD CAS THAT HAVE NO PUB TO THE SUMMARY STATISTIC (i.e., 0,0,0)
 
