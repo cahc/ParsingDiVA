@@ -17,6 +17,7 @@ public class NorskFörlag {
     private List<String> ISBNprefix; // can be null
     private String Land; // can be null
 
+    private Integer Nivå2026;
     private Integer Nivå2025; //can be null
     private Integer Nivå2024; //can be null
     private Integer Nivå2023; //can be null
@@ -70,6 +71,7 @@ public class NorskFörlag {
         if(year.equals(2023)) return getNivå2023();
         if(year.equals(2024)) return getNivå2024();
         if(year.equals(2025)) return getNivå2025();
+        if(year.equals(2026)) return getNivå2026();
 
         return null; //obs!!
 
@@ -79,6 +81,7 @@ public class NorskFörlag {
 
         Integer max = 0;
 
+        if(getNivå2026() != null && (max.compareTo( getNivå2026() ) < 0) ) max = getNivå2026();
         if(getNivå2025() != null && (max.compareTo( getNivå2025() ) < 0) ) max = getNivå2025();
         if(getNivå2024() != null && (max.compareTo( getNivå2024() ) < 0) ) max = getNivå2024();
         if(getNivå2023() != null && (max.compareTo( getNivå2023() ) < 0) ) max = getNivå2023();
@@ -162,6 +165,9 @@ public class NorskFörlag {
     public void setLand(String land) {
         Land = land;
     }
+
+    public Integer getNivå2026() { return Nivå2026;}
+    public void setNivå2026(Integer nivå2026) {Nivå2026 = nivå2026;}
 
     public Integer getNivå2025() { return Nivå2025;}
     public void setNivå2025(Integer nivå2025) {Nivå2025 = nivå2025;}

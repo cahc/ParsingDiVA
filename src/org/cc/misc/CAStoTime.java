@@ -144,21 +144,22 @@ public class CAStoTime {
 
 
 
-    public void ContributorFieldContainsCASDEBUGFUNCTION(CreateDivaTable divaTable, int row) {
+    public boolean ContributorFieldContainsCASDEBUGFUNCTION(CreateDivaTable divaTable, int row) {
 
         String contributorField =  divaTable.getRowInTable(row)[ReducedDiVAColumnIndices.ContributorString.getValue()].toLowerCase();
 
-        if(contributorField.length() < 2) return;
+        if(contributorField.length() < 2) return false;
 
 
         for(int i=0; i<casArray.length; i++) {
 
 
-            if( contributorField.contains(casArray[i]) ) {  System.out.println("WARNING, CAS: " + casArray[i] +" found in contrib. field för PID: " +divaTable.getRowInTable(row)[ReducedDiVAColumnIndices.PID.getValue()].toLowerCase() ); }
+            if( contributorField.contains(casArray[i]) ) {  System.out.println("WARNING, CAS: " + casArray[i] +" found in contrib. field för PID: " +divaTable.getRowInTable(row)[ReducedDiVAColumnIndices.PID.getValue()].toLowerCase() ); return true; }
 
 
         }
 
+        return false;
     }
 
 
@@ -166,6 +167,24 @@ public class CAStoTime {
 
         boolean include = false;
         String nameField =  divaTable.getRowInTable(row)[ReducedDiVAColumnIndices.Name.getValue()].toLowerCase();
+
+        for(int i=0; i<casArray.length; i++) {
+
+
+            if( nameField.contains(casArray[i]) ) { seenCas.add(casArray[i]); include = true; } //TODO bugg in implementation 2020, seenCas is used for other stuff later must add all considered cas
+
+
+        }
+
+
+        return include;
+
+    }
+
+    public boolean includeRawPostBasedOnCas(String[] rowInTable ) {
+
+        boolean include = false;
+        String nameField =  rowInTable[ReducedDiVAColumnIndices.Name.getValue()].toLowerCase();
 
         for(int i=0; i<casArray.length; i++) {
 

@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 
+import static org.cc.diva.ContribParser.newAuthorField;
+
 /**
  * Created by crco0001 on 7/5/2016.
  */
@@ -106,10 +108,9 @@ public class CalculatePublicationPoints {
         for(int i = 0; i< divaTable.nrRows(); i++) {
 
 
-            //TODO remove
-            //check contributor field
-            listaMedCasForskningstid.ContributorFieldContainsCASDEBUGFUNCTION(divaTable,i);
 
+            //check contributor field - non author but is considered in, e.g., humfak pubbas we need to reconstruct the diva post if it is a book or a book chapter
+            boolean nonAuthorButInContribField = listaMedCasForskningstid.ContributorFieldContainsCASDEBUGFUNCTION(divaTable,i);
 
             //Innehåller posten minst ett CAS som specificerats i casForskningstid? om Nej, skapa ej posten.
             if( listaMedCasForskningstid.includeRawPostBasedOnCas(divaTable,i) ) {
@@ -125,6 +126,49 @@ public class CalculatePublicationPoints {
                 reducedPostList.add(post);
 
             }
+
+            /*
+
+            Create a new synthetic post
+
+             */
+
+            if(nonAuthorButInContribField && (divaTable.getRowInTable(i)[ReducedDiVAColumnIndices.PublicationType.getValue()].equalsIgnoreCase("Kapitel i bok, del av antologi") || divaTable.getRowInTable(i)[ReducedDiVAColumnIndices.PublicationType.getValue()].equalsIgnoreCase("Bok") )) {
+
+                String[] original = divaTable.getRowInTable(i);
+                String contribField = original[ReducedDiVAColumnIndices.ContributorString.getValue()];
+                String newAuthorField = newAuthorField(contribField);
+
+                String[] copy = Arrays.copyOf(original, original.length);
+                String newPubType = "Samlingsverk (redaktörskap)";
+
+                /*
+
+                new author field and pubtype
+
+                 */
+                copy[ReducedDiVAColumnIndices.PublicationType.getValue()] = newPubType;
+                copy[ReducedDiVAColumnIndices.Name.getValue()] = newAuthorField;
+                copy[ReducedDiVAColumnIndices.NumberOfAuthors.getValue()] = String.valueOf( contribField.split("\\[edt\\]", -1).length - 1); //number of "new authors"
+
+                //Innehåller posten minst ett CAS som specificerats i casForskningstid? om Nej, skapa ej posten.
+                if( listaMedCasForskningstid.includeRawPostBasedOnCas(copy) ) {
+
+
+                    Post post = new Post(copy);
+
+                    //Markera den eller de författare i posten som specificerats i casForskningstid
+                    listaMedCasForskningstid.markAuthorsForInclusion(post);
+
+                    reducedPostList.add(post);
+                    System.out.println("Generating synthetic Samlingsverk (redaktörskap) for: " + divaTable.getRowInTable(i)[ReducedDiVAColumnIndices.PID.getValue()]);
+                }
+
+
+
+            }
+
+
         }
 
         System.out.println("Antal poster efter filterering på CAS: " + reducedPostList.size());
