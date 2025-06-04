@@ -37,12 +37,13 @@ public class PublicationPointPerAuthor {
             Double publicationWeight = a.getEnclosingPost().getNorskNivå().getVikt();
             Integer year = a.getEnclosingPost().getYear();
 
-            double fraction = minAuthorFracOneTenth ?  a.getFractionIgnoreMultipleUmUAffilsMin01() : a.getFractionConsiderMultipleUmUAffils();
+            double fraction = minAuthorFracOneTenth ?  a.getFractionIgnoreMultipleUmUAffilsMin01() : a.getFractionIgnoreMultipleUmUAffils(); // was a.getFractionConsiderMultipleeUmUAffils() ! Changed 2025-06-04
             //double fraction = a.getFractionIgnoreMultipleUmUAffils();
 
             boolean nrAuthorsMoreThanOne = (a.getEnclosingPost().getNrAuthors() > 1);
 
             AggregatedAuthorInformation authorStatistics = aggregatedAuthorInformationTreeMap.get(cas);
+
 
 
             if (authorStatistics == null) {
