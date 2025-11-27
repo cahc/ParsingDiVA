@@ -30,6 +30,8 @@ public class Post implements Comparable<Post>{
     private List<Author> authorList = new ArrayList<>();
     private int PID;
 
+    private boolean hasUMUAuthors;
+
 
     public boolean isAheadOfPrint() {
         String status = this.rawData[ReducedDiVAColumnIndices.Status.getValue() ];
@@ -39,10 +41,22 @@ public class Post implements Comparable<Post>{
     }
 
 
+    public boolean isHasUMUAuthors() {
+        return hasUMUAuthors;
+    }
+
+    public void setHasUMUAuthors(boolean hasUMUAuthors) {
+        this.hasUMUAuthors = hasUMUAuthors;
+    }
+
     public void setDuplicate(boolean bool, int otherPID) {
 
         isDuplicate = bool;
         duplicateOfPID = otherPID;
+    }
+
+    public void setNrAuthors(int nrAuthors) {
+        this.nrAuthors = nrAuthors;
     }
 
     public int getDuplicateOfPID() {

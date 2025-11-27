@@ -1,9 +1,9 @@
 package org.cc.diva;
 
+import com.cc.PersonLevelAffil.DataLoader;
+import com.cc.PersonLevelAffil.Person;
 import com.googlecode.cqengine.query.simple.In;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
-import org.cc.PersonalData.DataLoader;
-import org.cc.PersonalData.Person;
 import org.cc.misc.DivaIDtoNames;
 import org.cc.misc.ReadAffiliationMappingFile;
 import org.cc.misc.SimilarAuthorSet;
@@ -36,6 +36,17 @@ public class AuthorDisambiguation {
         DataLoader personalData = new DataLoader( personalDataXML );
 
         this.allPersonObjects = personalData.getPersonData();
+
+
+    }
+
+    public AuthorDisambiguation(File affiliationMappingFileExcel, DataLoader dataLoader) throws IOException, ParseException, XMLStreamException {
+
+        ReadAffiliationMappingFile readAffiliationMappingFile = new ReadAffiliationMappingFile();
+        this.mappings = readAffiliationMappingFile.parseAffiliationMappingFile(affiliationMappingFileExcel );
+
+
+        this.allPersonObjects = dataLoader.getPersonData();
 
 
     }
@@ -316,7 +327,12 @@ public class AuthorDisambiguation {
 
                     //now test name similarity
 
-                    double sim = normalizedLevenshtein.similarity(normalizedAndSortedName, p.getNameForSearching());
+                    StringJoiner stringJoiner = new StringJoiner(", ");
+                    stringJoiner.add(p.getGivenName().toLowerCase());
+                    stringJoiner.add(p.getSurName().toLowerCase());
+                    String nameForSearching = Author.normalizeAndSortNames(stringJoiner.toString());
+
+                    double sim = normalizedLevenshtein.similarity(normalizedAndSortedName, nameForSearching );
 
                     if(sim >= 0.95) {
 

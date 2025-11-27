@@ -1,6 +1,6 @@
 package org.cc.NorskaModellen;
 
-import com.sun.org.apache.xpath.internal.operations.Div;
+
 import org.cc.diva.Post;
 import org.cc.diva.DivaPublicationTypes;
 

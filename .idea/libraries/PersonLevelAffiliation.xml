@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="PersonLevelAffiliation">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../../opt/PersonLevelAffiliation.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

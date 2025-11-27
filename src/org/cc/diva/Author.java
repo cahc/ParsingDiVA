@@ -1,5 +1,6 @@
 package org.cc.diva;
 
+import org.cc.applikationer.AuthorCredit;
 import org.cc.misc.DivaIDtoNames;
 import org.cc.wos.DiVAtoWoS;
 
@@ -23,6 +24,35 @@ public class Author implements Comparable<Author>{
     private double fractionIgnoreMultipleUmUAffils;
     private double fractionIgnoreMultipleUmUAffilsMin01;
 
+
+    //experimental u-shaped fraction, byline style
+    //*2025 11 24
+    private double ushapedFractions;
+    private double straightFractions;
+    private double straightFractionsMin01;
+    String authorBylineCategory = "UNDETERMINABLE"; //FIRST, LAST, MIDDLE, SINGLE_AUTHORSHIP, UNDETERMINABLE
+
+    //experimental befattning
+    String befattningAtPublicationDate;
+    String lastKnownBeffattning;
+
+    public String getBefattningAtPublicationDate() {
+        return befattningAtPublicationDate;
+    }
+
+    public void setBefattningAtPublicationDate(String befattningAtPublicationDate) {
+        this.befattningAtPublicationDate = befattningAtPublicationDate;
+    }
+
+    public String getLastKnownBeffattning() {
+        return lastKnownBeffattning;
+    }
+
+    public void setLastKnownBeffattning(String lastKnownBeffattning) {
+        this.lastKnownBeffattning = lastKnownBeffattning;
+    }
+
+
     //no frac use getNoFrac that just returns 1
 
     private List<String> umuDivaAddresses; // can be null
@@ -34,6 +64,22 @@ public class Author implements Comparable<Author>{
     String disambiguateID = "XA0";
     public int removedNonConsidered = 0; // 0= not altered, 1= altered, 2=non considered but could not alter affiliation
     String automaticAddedCas;
+
+    public String getAuthorBylineCategory() {
+        return authorBylineCategory;
+    }
+
+    public double getUshapedFractions() {
+        return ushapedFractions;
+    }
+
+    public double getStraightFractions() {
+        return straightFractions;
+    }
+
+    public double getStraightFractionsMin01() {
+        return straightFractionsMin01;
+    }
 
     private static boolean removeNonConsideredUmUaffiliationIfPossible(Author a, Map<Integer,DivaIDtoNames> mappings) {
 
@@ -360,6 +406,54 @@ public class Author implements Comparable<Author>{
         this.fractionIgnoreMultipleUmUAffilsMin01 = ( 1.0/nrAuthors < 0.1) ? 0.1 : 1.0/nrAuthors;
 }
 
+
+    public void calculateAndBylineAwareFraction(int trueNumberOfAuthors, int authorPosition, boolean orderInformationAvailable) {
+
+        //FIRST, LAST, MIDDLE, SINGLE_AUTHORSHIP, UNDETERMINABLE
+        String bylineCategory = "";
+
+        if(orderInformationAvailable) {
+            if (trueNumberOfAuthors == 1) { bylineCategory = "SINGLE_AUTHORSHIP"; }
+            else if (trueNumberOfAuthors > 1 && authorPosition == 1) { bylineCategory = "FIRST"; }
+            else if (trueNumberOfAuthors > 1 && authorPosition == trueNumberOfAuthors) { bylineCategory = "LAST"; }
+            else bylineCategory = "MIDDLE";
+
+        } else {
+
+            bylineCategory = "UNDETERMINABLE";
+        }
+
+        this.authorBylineCategory = bylineCategory;
+
+        double straightFraction = AuthorCredit.straightFractional(trueNumberOfAuthors, authorPosition);
+        //fallback to straight fraction if order not available
+        double orderAwareFraction = orderInformationAvailable ? AuthorCredit.uShapedFractional(trueNumberOfAuthors, authorPosition) : straightFraction;
+
+        /*
+
+        is it an UMU author so we need to split the fraction over multiple units?
+
+         */
+
+
+
+        if(!this.hasUmuDivaAddress) {
+
+            this.straightFractions = straightFraction;
+            this.ushapedFractions = orderAwareFraction;
+            this.straightFractionsMin01 = Math.max(straightFractions, 0.1);
+        }
+
+        if(this.hasUmuDivaAddress) {
+
+            this.straightFractions = straightFraction /  this.affilMappingsObjects.size();
+            this.ushapedFractions = orderAwareFraction /  this.affilMappingsObjects.size();
+
+            double min01 = Math.max(straightFractions, 0.1);
+            this.straightFractionsMin01 = min01 / this.affilMappingsObjects.size() ;
+        }
+
+    }
 
 
     public int getNrUmUaddresses() {

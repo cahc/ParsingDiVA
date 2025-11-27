@@ -1,9 +1,9 @@
 package org.cc.misc;
 
+import com.cc.PersonLevelAffil.DataLoader;
+import com.cc.PersonLevelAffil.Person;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import jsat.utils.IntList;
-import org.cc.PersonalData.DataLoader;
-import org.cc.PersonalData.Person;
 import org.cc.diva.CreateDivaTable;
 import org.cc.diva.DeduplicatePostsPerAuthor;
 import org.cc.diva.DivaHelpFunctions;
