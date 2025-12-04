@@ -205,6 +205,12 @@ public class SaveToExcel {
             WOS	                                    PUBLIKATIONSID, EXTERN
             PMID	                                PUBLIKATIONSID, EXTERN
             ANY_UMU_AUTHOR_ON_RECORD_LEVEL	        HAR DIVA-POSTEN MINST EN FÖRFATTARE REGISTRERAD MED EN UMU-ENHET
+            NORWEGIAN_POINTS_TIMES_FRACTION (STRAIGHT)  NORWEGIAN_POINTS * STRAIGHT FRACTIONS
+            NORWEGIAN_POINTS_TIMES_FRACTION (STRAIGHT, MIN 0.1)     NORWEGIAN_POINTS * STRAIGHT FRACTIONS (MINIMUM 0.1)
+            NORWEGIAN_POINTS_TIMES_FRACTION (WEIGHTED, U-SHAPED)    NORWEGIAN_POINTS * BYLINE WEIGHTED FRACTIONS (U-SHAPED)
+    
+            //Utfall i norska modellen ges genom att - för valda enheter - summera över NORWEGIAN_POINTS_TIMES_FRACTION (*) där * är vald fraktionalisering (MIN 0.1, i ursprunglig definition av norska modellen).
+            //För ytterligare information se: Norska modellen - implementering 2025.pdf
     """);
 
 
@@ -1775,6 +1781,20 @@ public class SaveToExcel {
         cell.setCellValue("ANY_UMU_AUTHOR_ON_RECORD_LEVEL");
         cell.setCellStyle(style);
 
+        //calculated points
+
+        cell = row.createCell(50);
+        cell.setCellValue("NORWEGIAN_POINTS_TIMES_FRACTION (STRAIGHT)");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(51);
+        cell.setCellValue("NORWEGIAN_POINTS_TIMES_FRACTION (STRAIGHT, MIN 0.1)");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(52);
+        cell.setCellValue("NORWEGIAN_POINTS_TIMES_FRACTION (WEIGHTED, U-SHAPED)");
+        cell.setCellStyle(style);
+
 
 
         // populate header cells...
@@ -2165,6 +2185,21 @@ public class SaveToExcel {
                     cell = row.createCell(++cellIndices);
                     cell.setCellValue(p.isHasUMUAuthors());
 
+                    //norwegian points, three different versions
+
+                    //STRAIGHT
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getStraightFractions() * p.getNorskNivå().getVikt() );
+
+                    //MIN 0.1
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue( author.getStraightFractionsMin01() * p.getNorskNivå().getVikt()  );
+
+                    //U-SHAPED
+                    cell = row.createCell(++cellIndices);
+                    cell.setCellValue(author.getUshapedFractions() * p.getNorskNivå().getVikt() );
+
+
                     indice++;
                 } while(indice < divaIDtoNames.size() );
 
@@ -2187,7 +2222,7 @@ public class SaveToExcel {
             SHEET 3, ABSTRACTS
             */
 
-            XSSFSheet sheet3 = workbook.createSheet("AUTHORS_YEARS_AT_UNITS");
+            XSSFSheet sheet3 = workbook.createSheet("FÖRFATTARE_ÅR_VID_UMU");
             XSSFFont font3 = workbook.createFont();
             XSSFCellStyle style3 = workbook.createCellStyle();
             font3.setBold(true);
