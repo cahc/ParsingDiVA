@@ -13,8 +13,8 @@
     <orderEntry type="library" name="Classy20200323" level="project" />
     <orderEntry type="library" name="mallet-deps" level="project" />
     <orderEntry type="library" name="org.apache.poi:poi-ooxml:4.1.2" level="project" />
-    <orderEntry type="library" name="isbntools-1.3" level="project" />
     <orderEntry type="library" name="PersonLevelAffiliation" level="project" />
     <orderEntry type="library" name="info.debatty.java.string.similarity" level="project" />
+    <orderEntry type="library" name="isbntools17" level="project" />
   </component>
 </module>

@@ -16,7 +16,19 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 
-public class StandardImplementationWithPersonnelData {
+public class StandardImplementationWithPersonnelDataWiP2026 {
+
+    /*
+
+
+    This version aims to do a new take on especially mapping w r t "Centrumliknande"
+    * The idea is to always include these, AND *not* do any internal fractionalisation, but insted mark them with variables: DOUBLE_COUNT_ON_CENTRUM (TRUE/FALSE) & CENTRUM_LIKE_UNIT (TRUE/FALSE).
+    * This should allow us to do correct author fractionalization and unit fractionalization, and ALSO if we want, study these centrumlike units
+
+
+     */
+
+
 
 
     public static HashMap<String, String> readColumnData(String filePath, String keyColumn, String valueColumn, String sep) throws IOException {
@@ -64,12 +76,12 @@ public class StandardImplementationWithPersonnelData {
         return map;
     }
 
-    public static void main(String[] args) throws IOException, XMLStreamException, ParseException {
+    public static void main(String[] args) throws Exception {
 
         //FILES
         String CSV = "E:\\2025\\MEDFAK GENOMLYSING\\2016-2024.csv";
         String EXTRA_INFO_CONTRIB = "E:\\2025\\MEDFAK GENOMLYSING\\PIDTOCONTRIB_EXTRA.txt";
-        String MAPPING_FILE = "E:\\2025\\MEDFAK GENOMLYSING\\Mappningsfil20251215.xlsx";
+        String MAPPING_FILE = "E:\\2025\\MEDFAK GENOMLYSING\\Mappningsfil20260203.xlsx"; //REQUIRES NEW READER!
         String NORSKA_LISTAN = "E:\\2025\\MEDFAK GENOMLYSING\\Norska listan 20260202.xlsx";
         String THESAURUS = "E:\\2025\\MEDFAK GENOMLYSING\\Thesaurus 2025-06-03.xlsx";
 
@@ -117,15 +129,15 @@ public class StandardImplementationWithPersonnelData {
          */
 
 
-        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new File(MAPPING_FILE),dataLoader,false); //use old style mapping file
+        AuthorDisambiguation authorDisambiguation = new AuthorDisambiguation(new File(MAPPING_FILE),dataLoader,true);
 
-        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList,true); //TODO keep all, but make centrum etc as not in model and no not remove fractions here!
+        authorDisambiguation.mapAffiliationsAndDisanbigueAuthors(postList,false); //NOTE, WE WILL NOT REMOVE Centrumliknande units!
 
 
         /*
 
 
-        When is the
+        When is the author byline not available?
 
          */
 
@@ -167,7 +179,7 @@ public class StandardImplementationWithPersonnelData {
             for(int i=0; i<authorList.size(); i++) {
 
                 Author author = authorList.get(i);
-                author.calculateAndBylineAwareFraction(authorCount,(i+1),orderInformationAvailiable); //u-shaped, and LiU-style
+                author.calculateAndBylineAwareFractionAffiliationUnawareWiP2026(authorCount,(i+1),orderInformationAvailiable); //straight, min 0.1, u-shaped, and LiU-style. We dont split or otherwise handel multiple umu-affiliations here!
 
                 if(author.getHasControlledAddresses() ) anyUMU = true; //If it is a author with registered UMU organization
 
@@ -294,7 +306,7 @@ public class StandardImplementationWithPersonnelData {
 
         System.out.println( umuidYearsAtUnits.UMUID_TO_YEARS_AT_UNITS.get("crco0001") );
 
-        //System.exit(0);
+
         /*
 
 
@@ -306,16 +318,13 @@ public class StandardImplementationWithPersonnelData {
 
         System.out.println("Saving to files..");
 
-        SaveToExcel saveToExcel = new SaveToExcel();
-        saveToExcel.saveNorwegianMatchingInfo(postList);
+        //SaveToExcel saveToExcel = new SaveToExcel();
+        //saveToExcel.saveNorwegianMatchingInfo(postList);
 
-        saveToExcel = new SaveToExcel();
-        saveToExcel.saveDisambiguatedAuthorFractionsBylineAware2025(postList,false,umuidYearsAtUnits);
+        //new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,false,umuidYearsAtUnits); //TODO we need new stuff here, w r t centrumlike and internal fractionalization
+        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,true,umuidYearsAtUnits); //TODO we need new stuff here, w r t centrumlike and internal fractionalization
 
-        saveToExcel = new SaveToExcel();
-        saveToExcel.saveDisambiguatedAuthorFractionsBylineAware2025(postList,true,umuidYearsAtUnits);
-
-        System.out.println("Resultat sparat i tre Excel-filer: Fractions och NorskMatchning..");
+        System.out.println("Resultat sparat i Två Excel-filer: ShowExternal och HideExternal..");
 
 
     }

@@ -98,5 +98,83 @@ public class ReadAffiliationMappingFile {
 
     }
 
+    public Map<Integer,DivaIDtoNames> parseAffiliationMappingFile2026Version(File file) throws IOException {
+
+        //this version expect the new format, with centrumLike units, and cleaned mappingfile, see 20260203
+        //this experimental, should replace the original down the road
+
+        DataFormatter formatter = new DataFormatter();
+        if (!file.exists()) {
+            System.out.println("divaID to AffilObject don't exist. Check file name / path.");
+            System.exit(1);
+        }
+
+
+        //Get the workbook instance for XLS file
+        XSSFWorkbook workbook = null;
+        try {
+            workbook = new XSSFWorkbook(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+
+        }
+
+        XSSFSheet mappings = workbook.getSheet("mappings");
+        if(mappings == null) {System.out.println("Excel-filen måste innehålla en flik med namn \"mappings\""); System.exit(0); }
+        System.out.println("# mappings from divaID to AffilObject : " + mappings.getLastRowNum()); // zero indexed
+
+        Iterator<Row> rowIterator = mappings.rowIterator();
+
+
+        if(! "DIVA.ID".equals( rowIterator.next().getCell(this.DIVA_ID).toString() ) ) {System.out.println("Wrong header in mapping file"); System.exit(0); }
+
+
+        Map<Integer,DivaIDtoNames> map = new TreeMap<>();
+
+        while(rowIterator.hasNext()) {
+
+            Row row = rowIterator.next();
+
+            DivaIDtoNames divaIDtoNames = new DivaIDtoNames();
+
+            divaIDtoNames.setDivaID( (int)(row.getCell(this.DIVA_ID).getNumericCellValue() ) );
+            divaIDtoNames.setStandard_SWE( row.getCell(this.STANDARD_SWE).toString() );
+            divaIDtoNames.setStandard_ENG( row.getCell(this.STANDARD_ENG).toString() );
+            divaIDtoNames.setAKTIV(  row.getCell(this.AKTIV).toString() );
+            divaIDtoNames.setTYP(row.getCell(this.TYP).toString() );
+            divaIDtoNames.setFAKULTET(row.getCell(this.FAKULTET).toString() );
+            divaIDtoNames.setINSTITUTION(row.getCell(this.INSTITUTION_MOTSVARANDE).toString() );
+            divaIDtoNames.setENHET(row.getCell(this.ENHET_MOTSVARANDE_ALT1).toString() );
+            divaIDtoNames.setENHET_ALT2(row.getCell(this.ENHET_MOTSVARANDE_ALT2).toString() );
+            divaIDtoNames.setINFO(row.getCell(this.INFO).toString() );
+            divaIDtoNames.setCONSIDER_WHEN_FRACTIONALISING( "Y".equals(row.getCell(this.ANVÄNDVIDFRAKTIONERING).toString()) ? true : false);
+            divaIDtoNames.setALTERNATIVE(  "UNUSED" );
+            divaIDtoNames.setKOD( row.getCell(11).toString()  );
+
+            map.put( divaIDtoNames.getDivaID(), divaIDtoNames );
+
+
+        }
+
+
+        workbook.close();
+        return map;
+
+    }
+
+
+
+    public static void main(String[] args) throws IOException {
+
+        ReadAffiliationMappingFile readAffiliationMappingFile = new ReadAffiliationMappingFile();
+        Map<Integer,DivaIDtoNames> original = readAffiliationMappingFile.parseAffiliationMappingFile( new File("E:\\2025\\MEDFAK GENOMLYSING\\Mappningsfil20251215.xlsx"));
+
+
+        Map<Integer,DivaIDtoNames> newFile = readAffiliationMappingFile.parseAffiliationMappingFile2026Version( new File("E:\\2025\\MEDFAK GENOMLYSING\\Mappningsfil20260203.xlsx"));
+
+        System.out.println( newFile.get(739).CONSIDER_WHEN_FRACTIONALISING );
+    }
 
 }

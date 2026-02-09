@@ -28,6 +28,7 @@ public class Author implements Comparable<Author>{
     //experimental u-shaped fraction, byline style
     //*2025 11 24
     private double ushapedFractions;
+    private double liuStyleFractions;
     private double straightFractions;
     private double straightFractionsMin01;
     String authorBylineCategory = "UNDETERMINABLE"; //FIRST, LAST, MIDDLE, SINGLE_AUTHORSHIP, UNDETERMINABLE
@@ -72,6 +73,8 @@ public class Author implements Comparable<Author>{
     public double getUshapedFractions() {
         return ushapedFractions;
     }
+
+    public double getLiuStyleFractions() {return liuStyleFractions;}
 
     public double getStraightFractions() {
         return straightFractions;
@@ -426,8 +429,11 @@ public class Author implements Comparable<Author>{
         this.authorBylineCategory = bylineCategory;
 
         double straightFraction = AuthorCredit.straightFractional(trueNumberOfAuthors, authorPosition);
-        //fallback to straight fraction if order not available
+        //1 U-SHAPED but fallback to straight fraction if order not available
         double orderAwareFraction = orderInformationAvailable ? AuthorCredit.uShapedFractional(trueNumberOfAuthors, authorPosition) : straightFraction;
+
+        //2 LiU-style but fallback to straight fraction if order not available
+        double orderAwareFraction2 = orderInformationAvailable ? AuthorCredit.liuBylineWeightedFractional(trueNumberOfAuthors, authorPosition) : straightFraction;
 
         /*
 
@@ -441,6 +447,7 @@ public class Author implements Comparable<Author>{
 
             this.straightFractions = straightFraction;
             this.ushapedFractions = orderAwareFraction;
+            this.liuStyleFractions = orderAwareFraction2;
             this.straightFractionsMin01 = Math.max(straightFractions, 0.1);
         }
 
@@ -448,11 +455,81 @@ public class Author implements Comparable<Author>{
 
             this.straightFractions = straightFraction /  this.affilMappingsObjects.size();
             this.ushapedFractions = orderAwareFraction /  this.affilMappingsObjects.size();
+            this.liuStyleFractions = orderAwareFraction2 /  this.affilMappingsObjects.size();
 
             double min01 = Math.max(straightFractions, 0.1);
             this.straightFractionsMin01 = min01 / this.affilMappingsObjects.size() ;
         }
 
+    }
+
+    public void calculateAndBylineAwareFractionAffiliationUnawareWiP2026(int trueNumberOfAuthors, int authorPosition, boolean orderInformationAvailable) {
+
+        /*
+
+
+        Pure author fractionalization - if it needs to be split over other units, or handled differently based on Centrumlike etc, handel that downstream
+
+         */
+
+        //FIRST, LAST, MIDDLE, SINGLE_AUTHORSHIP, UNDETERMINABLE
+        String bylineCategory = "";
+
+        if(orderInformationAvailable) {
+            if (trueNumberOfAuthors == 1) { bylineCategory = "SINGLE_AUTHORSHIP"; }
+            else if (trueNumberOfAuthors > 1 && authorPosition == 1) { bylineCategory = "FIRST"; }
+            else if (trueNumberOfAuthors > 1 && authorPosition == trueNumberOfAuthors) { bylineCategory = "LAST"; }
+            else bylineCategory = "MIDDLE";
+
+        } else {
+
+            bylineCategory = "UNDETERMINABLE";
+        }
+
+        this.authorBylineCategory = bylineCategory;
+
+        double straightFraction = AuthorCredit.straightFractional(trueNumberOfAuthors, authorPosition);
+        //1 U-SHAPED but fallback to straight fraction if order not available
+        double orderAwareFraction = orderInformationAvailable ? AuthorCredit.uShapedFractional(trueNumberOfAuthors, authorPosition) : straightFraction;
+
+        //2 LiU-style but fallback to straight fraction if order not available
+        double orderAwareFraction2 = orderInformationAvailable ? AuthorCredit.liuBylineWeightedFractional(trueNumberOfAuthors, authorPosition) : straightFraction;
+
+        /*
+
+        is it an UMU author so we need to split the fraction over multiple units?
+
+         */
+
+
+
+        this.straightFractions = straightFraction;
+        this.ushapedFractions = orderAwareFraction;
+        this.liuStyleFractions = orderAwareFraction2;
+        this.straightFractionsMin01 = Math.max(straightFractions, 0.1);
+
+        /*
+
+        if(!this.hasUmuDivaAddress) {
+
+            this.straightFractions = straightFraction;
+            this.ushapedFractions = orderAwareFraction;
+            this.liuStyleFractions = orderAwareFraction2;
+            this.straightFractionsMin01 = Math.max(straightFractions, 0.1);
+        }
+
+        if(this.hasUmuDivaAddress) {
+
+            this.straightFractions = straightFraction /  this.affilMappingsObjects.size();
+            this.ushapedFractions = orderAwareFraction /  this.affilMappingsObjects.size();
+            this.liuStyleFractions = orderAwareFraction2 /  this.affilMappingsObjects.size();
+
+            double min01 = Math.max(straightFractions, 0.1);
+            this.straightFractionsMin01 = min01 / this.affilMappingsObjects.size() ;
+        }
+
+
+         */
     }
 
 

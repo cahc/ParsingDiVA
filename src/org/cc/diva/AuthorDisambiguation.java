@@ -40,10 +40,19 @@ public class AuthorDisambiguation {
 
     }
 
-    public AuthorDisambiguation(File affiliationMappingFileExcel, DataLoader dataLoader) throws IOException, ParseException, XMLStreamException {
+    public AuthorDisambiguation(File affiliationMappingFileExcel, DataLoader dataLoader, boolean newVersion) throws IOException, ParseException, XMLStreamException {
 
         ReadAffiliationMappingFile readAffiliationMappingFile = new ReadAffiliationMappingFile();
-        this.mappings = readAffiliationMappingFile.parseAffiliationMappingFile(affiliationMappingFileExcel );
+
+        if(newVersion){
+
+            this.mappings = readAffiliationMappingFile.parseAffiliationMappingFile2026Version(affiliationMappingFileExcel);
+
+        } else {
+
+            this.mappings = readAffiliationMappingFile.parseAffiliationMappingFile(affiliationMappingFileExcel );
+        }
+
 
 
         this.allPersonObjects = dataLoader.getPersonData();

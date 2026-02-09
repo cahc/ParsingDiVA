@@ -223,17 +223,172 @@ public final class AuthorCredit {
     }
 
 
+    /**
+     * LiU-style ad-hoc "byline-aware" weighted fractionalization.
+     *
+     * <h2>What this method does</h2>
+     * This is a pragmatic positional credit scheme that:
+     * <ul>
+     *   <li>Rewards first and last authors equally and strongly.</li>
+     *   <li>Rewards second and second-last authors equally, but less than first/last.</li>
+     *   <li>Allocates the remaining credit equally among all other ("middle") authors.</li>
+     *   <li>Enforces two lower-bound ("floor") constraints:
+     *       <ul>
+     *         <li>First and last author never get less than 1/4 each.</li>
+     *         <li>Second and second-last never get less than 1/8 each.</li>
+     *       </ul>
+     *   </li>
+     * </ul>
+     *
+     * <h2>Why there is a two-regime algorithm</h2>
+     * The informal documentation describes "never less than" constraints, which by themselves
+     * would be underspecified. However, the accompanying example table is stated to be the
+     * "exact distribution". The simplest scheme that reproduces those examples is:
+     *
+     * <ol>
+     *   <li><b>Base (non-floor) rule:</b> Assign raw positional scores with a fixed 4:2:1 pattern
+     *       and normalize to sum to 1:
+     *       <ul>
+     *         <li>First and last position: raw score 4 each</li>
+     *         <li>Second and second-last: raw score 2 each (only when n >= 4)</li>
+     *         <li>All remaining middle positions: raw score 1 each</li>
+     *       </ul>
+     *       Then w_i = score_i / sum(scores).</li>
+     *   <li><b>Floor enforcement:</b> If the base rule would violate the floors for n >= 4,
+     *       clamp the edge positions to the floor values and split the remaining mass equally
+     *       among the middle authors.
+     *       <ul>
+     *         <li>w1 = wn = 1/4</li>
+     *         <li>w2 = w_{n-1} = 1/8</li>
+     *         <li>remaining = 1 - (2*(1/4) + 2*(1/8)) = 1/4</li>
+     *         <li>each middle author gets remaining/(n-4) = 1/(4n - 16)</li>
+     *       </ul>
+     *   </li>
+     * </ol>
+     *
+     * <h2>Closed-form summary (for intuition)</h2>
+     * <ul>
+     *   <li>n = 1: [1]</li>
+     *   <li>n = 2: [1/2, 1/2]</li>
+     *   <li>n = 3: [4/10, 2/10, 4/10]  (base 4:2:4 normalization)</li>
+     *   <li>4 <= n <= 8: normalize 4 (edges), 2 (near-edges), 1 (middle) i.e. denom = n + 8</li>
+     *   <li>n >= 9: floors bind and weights are exactly
+     *       w1=wn=1/4, w2=w_{n-1}=1/8, and middle=1/(4n-16)</li>
+     * </ul>
+     *
+     * <h2>Usage</h2>
+     * If your publication has a score S (e.g., JIF, citations, field-normalized score),
+     * then author i receives: credit_i = S * liuBylineWeightedFractional(n, i).
+     *
+     * @param n total number of authors (n >= 1)
+     * @param i 1-based index of the author in the byline (1 <= i <= n)
+     * @return fractional credit for author i according to the LiU byline-aware scheme
+     */
+    public static double liuBylineWeightedFractional(int n, int i) {
+        validateInputs(n, i);
 
+        // Trivial edge cases: explicitly stated in the documentation and/or obvious.
+        if (n == 1) {
+            return 1.0;
+        }
+        if (n == 2) {
+            return 0.5;
+        }
+
+        // n >= 3 from here
+        //
+        // STEP 1: Compute the "base" 4:2:1 normalized weights.
+        //
+        // For n == 3, the "second and second-last" position is the same author (i=2),
+        // and the simplest consistent interpretation used by the example table is the
+        // raw score pattern [4,2,4] (i.e., denom = 10).
+        //
+        // For n >= 4:
+        //   sumScores = 4 + 4 + 2 + 2 + (n-4)*1 = n + 8.
+        //
+        // This base rule yields:
+        //   w1 = wn = 4/(n+8)
+        //   w2 = w_{n-1} = 2/(n+8)
+        //   middle = 1/(n+8)
+        //
+        // STEP 2: Enforce floors for n >= 4:
+        //   If base weights for edges would drop below floors, set edges to the floors
+        //   and split the remainder equally among middle authors.
+        //
+        // The floors begin to bind at n >= 9 (because 4/(n+8) < 1/4 and 2/(n+8) < 1/8).
+        // We compute it algorithmically rather than hard-coding the threshold.
+        if (n == 3) {
+            // raw: 4,2,4 -> denom 10
+            if (i == 1 || i == 3) {
+                return 4.0 / 10.0;
+            }
+            return 2.0 / 10.0;
+        }
+
+        // n >= 4
+        final double baseDenom = n + 8.0;
+
+        final double baseEdge = 4.0 / baseDenom;      // positions 1 and n
+        final double baseNearEdge = 2.0 / baseDenom;  // positions 2 and n-1
+        final double baseMiddle = 1.0 / baseDenom;    // positions 3..n-2
+
+        final double edgeFloor = 0.25;   // 1/4
+        final double nearEdgeFloor = 0.125; // 1/8
+
+        // Check whether floors need to be enforced.
+        // (This will be true for n >= 9, false for n <= 8.)
+        final boolean floorsBind = (baseEdge < edgeFloor) || (baseNearEdge < nearEdgeFloor);
+
+        if (!floorsBind) {
+            // Base 4:2:1 normalized regime (n = 4..8).
+            if (i == 1 || i == n) {
+                return baseEdge;
+            }
+            if (i == 2 || i == n - 1) {
+                return baseNearEdge;
+            }
+            return baseMiddle;
+        }
+
+        // Floor regime (typically n >= 9):
+        //
+        // Fix edges to floors, then distribute the remainder equally among middle authors.
+        // Edges occupy 4 positions total: 1,2,n-1,n (since n >= 4 here).
+        final double w1 = edgeFloor;
+        final double wn = edgeFloor;
+        final double w2 = nearEdgeFloor;
+        final double wn1 = nearEdgeFloor;
+
+        final double remainder = 1.0 - (w1 + wn + w2 + wn1); // = 0.25
+        final int middleCount = n - 4;
+
+        // Safety (should never happen for n >= 4)
+        if (middleCount <= 0) {
+            // This would only occur if n == 4, but floors don't bind at n == 4.
+            // Still, guard against division by zero just in case.
+            throw new IllegalStateException("Unexpected middleCount=" + middleCount + " for n=" + n);
+        }
+
+        final double middle = remainder / middleCount; // = 1/(4n-16)
+
+        if (i == 1 || i == n) {
+            return edgeFloor;
+        }
+        if (i == 2 || i == n - 1) {
+            return nearEdgeFloor;
+        }
+        return middle;
+    }
 
 
     public static void main(String[] args) {
 
         //test
 
-        int N = 15;
+        int N = 3;
         for(int i=1; i<=N; i++) {
 
-            System.out.println(straightFractional(N, i) + " " + uShapedFractional(N, i) + " " + edgeBiasedNormalized(N,i,2,1.0,1) + "\t" + edgeBiasedUShapedNormalized(N,i,1,1,0.5) );
+            System.out.println(straightFractional(N, i) + " " + uShapedFractional(N, i) + " " + liuBylineWeightedFractional(N,i) );
         }
 
 

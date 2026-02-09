@@ -83,10 +83,10 @@ import java.util.regex.Pattern;
 
             //978-93-5547-458-2
             List<String> publisherPrefix = isbnPrefix.getPrefixes("1788742894;9781788742900 ;9781788742917;9781788742924 978-93-5547-458-2,11111111111;;9355474582.\\t978-9527076-50-7;9798886978155\"");
-            System.out.println(publisherPrefix); //978-93-5547
+            System.out.println(publisherPrefix); //[978-1-78874, 978-93-5547, 978-952-7076, 979-8-88697]
 
             String publisherPrefix2 = isbnPrefix.getFull("9798886978155");
-            System.out.println(publisherPrefix2); //978-1-78874-292-4
+            System.out.println(publisherPrefix2); //979-8-88697-815-5
         }
 
 }
