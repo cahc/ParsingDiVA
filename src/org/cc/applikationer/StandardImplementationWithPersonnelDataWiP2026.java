@@ -7,13 +7,10 @@ import org.cc.NorskaModellen.*;
 import org.cc.diva.*;
 import org.cc.misc.SaveToExcel;
 import org.cc.misc.Thesaurus;
-
-import javax.xml.stream.XMLStreamException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.*;
 
 public class StandardImplementationWithPersonnelDataWiP2026 {
@@ -321,7 +318,7 @@ public class StandardImplementationWithPersonnelDataWiP2026 {
         //SaveToExcel saveToExcel = new SaveToExcel();
         //saveToExcel.saveNorwegianMatchingInfo(postList);
 
-        //new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,false,umuidYearsAtUnits); //TODO we need new stuff here, w r t centrumlike and internal fractionalization
+        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,false,umuidYearsAtUnits); //TODO we need new stuff here, w r t centrumlike and internal fractionalization
         new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,true,umuidYearsAtUnits); //TODO we need new stuff here, w r t centrumlike and internal fractionalization
 
         System.out.println("Resultat sparat i Två Excel-filer: ShowExternal och HideExternal..");

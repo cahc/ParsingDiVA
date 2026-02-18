@@ -225,7 +225,7 @@ public class SaveToExcel {
     
             //Utfall i norska modellen ges genom att - för valda enheter - summera över NORWEGIAN_POINTS_TIMES_FRACTION (*) där * är vald fraktionalisering (MIN 0.1, i ursprunglig definition av norska modellen).
             //DOUBLE COUNTING INDUCED BY CENTRUM-INSTITUTION COMBINATION samt CENTRUM LIKE UNIT måste explicit hanteras utifrån syfte med analysen.
-            //För ytterligare information se: Norska modellen - implementering 2026.pdf
+            //För ytterligare information se: Norska modellen - implementering vid UMU (version feb. 2026).pdf
     """);
 
 
