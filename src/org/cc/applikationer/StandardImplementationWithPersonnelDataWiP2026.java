@@ -76,7 +76,8 @@ public class StandardImplementationWithPersonnelDataWiP2026 {
     public static void main(String[] args) throws Exception {
 
         //FILES
-        String CSV = "E:\\2025\\MEDFAK GENOMLYSING\\2016-2024.csv";
+        //String CSV = "E:\\2025\\MEDFAK GENOMLYSING\\2016-2024.csv";
+        String CSV = "E:\\2026\\AVHANDLINGAR\\all_fak_export.csv";
         String EXTRA_INFO_CONTRIB = "E:\\2025\\MEDFAK GENOMLYSING\\PIDTOCONTRIB_EXTRA.txt";
         String MAPPING_FILE = "E:\\2025\\MEDFAK GENOMLYSING\\Mappningsfil20260203.xlsx"; //REQUIRES NEW READER!
         String NORSKA_LISTAN = "E:\\2025\\MEDFAK GENOMLYSING\\Norska listan 20260202.xlsx";
