@@ -340,8 +340,11 @@ public class StandardImplementationWithPersonnelDataWiP2026 {
         //SaveToExcel saveToExcel = new SaveToExcel();
         //saveToExcel.saveNorwegianMatchingInfo(postList);
 
-        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,false,umuidYearsAtUnits,OUTPUT_DIR);
-        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,true,umuidYearsAtUnits,OUTPUT_DIR);
+        //new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,false,umuidYearsAtUnits,OUTPUT_DIR);
+        //new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,true,umuidYearsAtUnits,OUTPUT_DIR);
+
+        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026Streaming(postList,false,umuidYearsAtUnits,OUTPUT_DIR);
+        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026Streaming(postList,true,umuidYearsAtUnits,OUTPUT_DIR);
 
         System.out.println("Resultat sparat i Två Excel-filer: ShowExternal och HideExternal..");
 

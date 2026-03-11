@@ -4,15 +4,17 @@ package org.cc.misc;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+addedimport org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.*;
 import org.cc.NorskaModellen.AggregatedAuthorInformation;
 import org.cc.NorskaModellen.NorwegianMatchInfo;
 import org.cc.NorskaModellen.PublicationPointPerAuthor;
-import org.cc.applikationer.StandardImplementationWithPersonnelData;
 import org.cc.applikationer.UMUID_YEARS_AT_UNITS;
 import org.cc.diva.Author;
 import org.cc.diva.Post;
 import org.cc.diva.ReducedDiVAColumnIndices;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 
 import java.io.FileOutputStream;
@@ -237,7 +239,7 @@ public class SaveToExcel {
     public SaveToExcel() {}
 
 
-    public int addFractionForConsistency(XSSFSheet sheet, Post p, int rowIndices, double fractionToAdd) {
+    public int addFractionForConsistency(Sheet sheet, Post p, int rowIndices, double fractionToAdd) {
 
         NorwegianMatchInfo norskNivå = p.getNorskNivå();
 
@@ -4456,6 +4458,669 @@ public class SaveToExcel {
     }
 
 
+    public void saveDisambiguatedAuthorFractionsBylineAwareWiP2026Streaming(List<Post> recordList,
+                                                                   boolean includeExternalAuthors,
+                                                                   UMUID_YEARS_AT_UNITS yearsAtUnits,
+                                                                   String outputDir) throws Exception {
+
+    /*
+      Here we take author fractions, not split over internal units, and handle that here instead:
+      no internal fraction on centrumlika units, but add info w.r.t.
+      DOUBLE_COUNTING_INDUCED_BY_CENTRUM and CENTRUM_LIKE_UNIT
+     */
+
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm");
+
+        // Use a tiny XSSF template workbook for XSSF-only features like text boxes/drawings.
+        XSSFWorkbook templateWorkbook = new XSSFWorkbook();
+
+        // 1. Create documentation sheet on the XSSF template workbook
+        XSSFSheet docSheet = templateWorkbook.createSheet("VARIABELDEFINITIONER");
+        docSheet.setDisplayGridlines(false);
+
+        XSSFDrawing drawing = docSheet.createDrawingPatriarch();
+
+        XSSFClientAnchor anchor = new XSSFClientAnchor();
+        anchor.setCol1(1);   // column B
+        anchor.setRow1(1);   // row 2
+        anchor.setCol2(50);
+        anchor.setRow2(70);
+
+        XSSFTextBox textBox = drawing.createTextbox(anchor);
+
+        String formattedDate = dateFormat.format(date);
+        String docsForThisRun = String.format(documentationTextTemplate, formattedDate);
+        fillDocumentationTextBox(textBox, docsForThisRun);
+
+        // Wrap the template workbook in SXSSF for streaming row-heavy sheets
+        // window size 100 is a reasonable default
+        SXSSFWorkbook workbook = new SXSSFWorkbook(templateWorkbook, 100, true, false);
+
+        try {
+            /*
+             * SHEET 1
+             */
+            SXSSFSheet sheet = workbook.createSheet("FÖRFATTARFRAKTIONER");
+            XSSFFont font = (XSSFFont) workbook.createFont();
+            XSSFCellStyle style = (XSSFCellStyle) workbook.createCellStyle();
+            font.setBold(true);
+            style.setFont(font);
+
+            sheet.createFreezePane(0, 1);
+            int cellIndices = 0;
+            int rowIndices = 0;
+
+            /*
+             * SHEET 2, ABSTRACTS
+             */
+            SXSSFSheet sheet2 = workbook.createSheet("ABSTRACTS");
+            XSSFFont font2 = (XSSFFont) workbook.createFont();
+            XSSFCellStyle style2 = (XSSFCellStyle) workbook.createCellStyle();
+            font2.setBold(true);
+            style2.setFont(font2);
+
+            sheet2.createFreezePane(0, 1);
+            int cellIndices2 = -1;
+            int rowIndices2 = 0;
+
+            // Header row for ABSTRACTS
+            Row row2 = sheet2.createRow(rowIndices2);
+            Cell cell2 = row2.createCell(0);
+            cell2.setCellValue("PID");
+            cell2.setCellStyle(style2);
+            cell2 = row2.createCell(1);
+            cell2.setCellValue("ABSTRACTS");
+            cell2.setCellStyle(style2);
+
+            // Header row for main sheet
+            Row row = sheet.createRow(rowIndices);
+
+            Cell cell = row.createCell(++cellIndices2);
+            cell.setCellValue("PID");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("AUTHOR_ID");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NAME");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("UMUID");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("UMUID (FIX MISSING IF POSSIBLE)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("STRAIGHT FRACTIONS");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("STRAIGHT FRACTIONS (MINIMUM 0.1)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("BYLINE WEIGHTED FRACTIONS (U-SHAPED)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("BYLINE WEIGHTED FRACTIONS (LiU/UMU-MODEL)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("AUTHOR BYLINE CATEGORY");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DOUBLE COUNTING INDUCED BY CENTRUM-INSTITUTION COMBINATION");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("CENTRUM LIKE UNIT");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("TOTAL NUMBER OF AUTHORS");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("POSITION CLOSEST TO PUBLICATION YEAR");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("LAST KNOWN POSITION @ UMU");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("FACULTY");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("INSTITUTION");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("UNIT (IF AVAILABLE OTHERWISE INST.)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_TYPE");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_YEAR");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_CONTENT");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_SUBTYPE");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_STATUS");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_AFFILIATIONS");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_URN");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_POTENTIAL_CHANNELS");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_TITLE");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_JOURNAL");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_JOURNAL_ISSN");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_SERIES");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_SERIES_ISSN");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_PUBLISHER");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_ISBN");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_LANGUAGE");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_LAST_CHANGED");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_IS_DUPLICATED");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DIVA_DUPLICATED_PID");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_ID");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_TYPE");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_MATCH");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_NAME");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_LEVEL");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_LEVEL (OMKODAD)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_LEVEL (HISTORICAL MAXIMUM)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_MODEL_INFO");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("PUBLICATION_MODEL_INFO");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_POINTS");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("LOCAL_ID");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("DOI");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("EID");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("WOS");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("PMID");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("ANY_UMU_AUTHOR_ON_RECORD_LEVEL");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_POINTS_TIMES_FRACTION (STRAIGHT)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_POINTS_TIMES_FRACTION (STRAIGHT, MIN 0.1)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_POINTS_TIMES_FRACTION (WEIGHTED, U-SHAPED)");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(++cellIndices2);
+            cell.setCellValue("NORWEGIAN_POINTS_TIMES_FRACTION (WEIGHTED, LiU/UMU-MODEL)");
+            cell.setCellStyle(style);
+
+            for (Post p : recordList) {
+
+                String summary2 = p.getRawDataRow()[ReducedDiVAColumnIndices.Abstract.getValue()];
+                if (summary2.length() > 32700) {
+                    summary2 = summary2.substring(0, 32000) + "[TRUNCATED!!]";
+                }
+
+                row2 = sheet2.createRow(++rowIndices2);
+                cellIndices2 = -1;
+
+                cell2 = row2.createCell(++cellIndices2);
+                cell2.setCellValue(p.getPID());
+
+                cell2 = row2.createCell(++cellIndices2);
+                cell2.setCellValue(summary2);
+
+                double checkSumOfStraightFractions = 0.0;
+                for (Author a : p.getAuthorList()) {
+                    checkSumOfStraightFractions += a.getStraightFractions();
+                }
+
+                for (Author author : p.getAuthorList()) {
+
+                    List<DivaIDtoNames> divaIDtoNames = author.getAffilMappingsObjects();
+                    boolean isUmuAuthor = !divaIDtoNames.isEmpty();
+
+                    if (!includeExternalAuthors && !isUmuAuthor) {
+                        continue;
+                    }
+
+                    int totalUmUnits = divaIDtoNames.size();
+                    int nrCentrumLikeUnits = 0;
+                    for (DivaIDtoNames divaAdr : divaIDtoNames) {
+                        if (!divaAdr.CONSIDER_WHEN_FRACTIONALISING) {
+                            nrCentrumLikeUnits++;
+                        }
+                    }
+
+                    int nrStandardUnits = totalUmUnits - nrCentrumLikeUnits;
+                    NorwegianMatchInfo norskNivå = p.getNorskNivå();
+
+                    int indice = 0;
+                    do {
+                        boolean isNormalUmUUnit =
+                                isUmuAuthor && divaIDtoNames.get(indice).isCONSIDER_WHEN_FRACTIONALISING();
+                        boolean isUmUCentrum =
+                                isUmuAuthor && !divaIDtoNames.get(indice).isCONSIDER_WHEN_FRACTIONALISING();
+                        boolean isDualCounting = isUmUCentrum && (nrStandardUnits > 0);
+
+                        double straightFraction;
+                        double min01;
+                        double uShaped;
+                        double liuStyle;
+
+                        if (isUmuAuthor) {
+                            straightFraction = isNormalUmUUnit
+                                    ? author.getStraightFractions() / nrStandardUnits
+                                    : author.getStraightFractions() / nrCentrumLikeUnits;
+                            min01 = isNormalUmUUnit
+                                    ? author.getStraightFractionsMin01() / nrStandardUnits
+                                    : author.getStraightFractionsMin01() / nrCentrumLikeUnits;
+                            uShaped = isNormalUmUUnit
+                                    ? author.getUshapedFractions() / nrStandardUnits
+                                    : author.getUshapedFractions() / nrCentrumLikeUnits;
+                            liuStyle = isNormalUmUUnit
+                                    ? author.getLiuStyleFractions() / nrStandardUnits
+                                    : author.getLiuStyleFractions() / nrCentrumLikeUnits;
+                        } else {
+                            straightFraction = author.getStraightFractions();
+                            min01 = author.getStraightFractionsMin01();
+                            uShaped = author.getUshapedFractions();
+                            liuStyle = author.getLiuStyleFractions();
+                        }
+
+                        row = sheet.createRow(++rowIndices);
+                        cellIndices = -1;
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getPID());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(author.getDisambiguateID());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(author.getAuthorName());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(author.getCas());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(author.getAutomaticAddedCass());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(straightFraction);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(min01);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(uShaped);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(liuStyle);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(author.getAuthorBylineCategory());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(isDualCounting);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(isUmUCentrum);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getNrAuthors());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(author.getBefattningAtPublicationDate());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(author.getLastKnownBeffattning());
+
+                        String faculty = isUmuAuthor ? divaIDtoNames.get(indice).getFAKULTET() : "external";
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(faculty);
+
+                        String inst = isUmuAuthor ? divaIDtoNames.get(indice).getINSTITUTION() : "external";
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(inst);
+
+                        String unit = isUmuAuthor ? divaIDtoNames.get(indice).getENHET() : "external";
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(unit);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getDivaPublicationType());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getYear());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getDivaContentType());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getDivaPublicationSubtype());
+
+                        cell = row.createCell(++cellIndices);
+                        String status = p.getDivaStatus();
+                        if ("".equals(status)) {
+                            status = "published";
+                        }
+                        cell.setCellValue(status);
+
+                        cell = row.createCell(++cellIndices);
+                        String name = p.getRawDataRow()[ReducedDiVAColumnIndices.Name.getValue()];
+                        if (name.length() > 32700) {
+                            name = name.substring(0, 32000) + "[TRUNCATED!!]";
+                        }
+                        cell.setCellValue(name);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getNBN());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getDivaChannels());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getTitle());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getJournal());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getJournalISSN());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getSeriesName());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getSeriesISSN());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getPublisher());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getISBN());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getRawDataRow()[ReducedDiVAColumnIndices.Language.getValue()]);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getRawDataRow()[ReducedDiVAColumnIndices.LastUpdated.getValue()]);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.isDuplicate());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getDuplicateOfPID());
+
+                        cell = row.createCell(++cellIndices);
+                        Integer nid = norskNivå.getNorsk_id();
+                        if (nid.equals(-99)) {
+                            cell.setCellValue("not available");
+                        } else {
+                            cell.setCellValue(nid);
+                        }
+
+                        cell = row.createCell(++cellIndices);
+                        String type = norskNivå.getType();
+                        cell.setCellValue((type == null) ? "not available" : type);
+
+                        cell = row.createCell(++cellIndices);
+                        String how = norskNivå.getHow();
+                        cell.setCellValue((how == null) ? "not available" : how);
+
+                        cell = row.createCell(++cellIndices);
+                        String namn = norskNivå.getNorsk_namn();
+                        cell.setCellValue((namn == null) ? "not available" : namn);
+
+                        cell = row.createCell(++cellIndices);
+                        Integer nivåStandard = norskNivå.getNivå();
+                        cell.setCellValue((nivåStandard == null) ? "not available" : nivåStandard.toString());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(((nivåStandard == null) || nivåStandard.equals(0))
+                                ? "0 (ink. ej bedömd kanal)"
+                                : nivåStandard.toString());
+
+                        cell = row.createCell(++cellIndices);
+                        Integer nivåMax = norskNivå.getMax_nivå();
+                        cell.setCellValue((nivåMax == null) ? "not available" : nivåMax.toString());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(norskNivå.getModelSpecificInfo());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getStatusInModel().getStatusInModel());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(norskNivå.getVikt());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getRawDataRow()[ReducedDiVAColumnIndices.LocalId.getValue()]);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getRawDataRow()[ReducedDiVAColumnIndices.DOI.getValue()]);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getRawDataRow()[ReducedDiVAColumnIndices.ScopusId.getValue()]);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getRawDataRow()[ReducedDiVAColumnIndices.ISI.getValue()]);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.getRawDataRow()[ReducedDiVAColumnIndices.PMID.getValue()]);
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(p.isHasUMUAuthors());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(straightFraction * p.getNorskNivå().getVikt());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(min01 * p.getNorskNivå().getVikt());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(uShaped * p.getNorskNivå().getVikt());
+
+                        cell = row.createCell(++cellIndices);
+                        cell.setCellValue(liuStyle * p.getNorskNivå().getVikt());
+
+                        indice++;
+                    } while (indice < divaIDtoNames.size());
+
+                } // for each author
+
+                // If indeterminable / incomplete author registration means fractions do not sum to 1.0
+                if (Math.abs(checkSumOfStraightFractions - 1.0) > 0.00001 && includeExternalAuthors) {
+                    System.out.println(p.getPID() + " added fake row here, as missing fractions induced by bad registration " + checkSumOfStraightFractions);
+                    rowIndices = addFractionForConsistency(sheet, p, rowIndices, (1.0 - checkSumOfStraightFractions));
+                }
+
+            } // for each post
+
+            // SHEET 3, YEARS AT UMU
+            if (yearsAtUnits != null) {
+                SXSSFSheet sheet3 = workbook.createSheet("FÖRFATTARE_ÅR_VID_UMU");
+                XSSFFont font3 = (XSSFFont) workbook.createFont();
+                XSSFCellStyle style3 = (XSSFCellStyle) workbook.createCellStyle();
+                font3.setBold(true);
+                style3.setFont(font3);
+
+                sheet3.createFreezePane(0, 1);
+                int cellIndices3 = 0;
+                int rowIndices3 = 0;
+
+                Row row3 = sheet3.createRow(rowIndices3);
+                Cell cell3 = row3.createCell(0);
+                cell3.setCellValue("UMUID");
+                cell3.setCellStyle(style3);
+                cell3 = row3.createCell(1);
+                cell3.setCellValue("YEARS @ UMU (IN INTERVAL " + yearsAtUnits.minYears + "-" + yearsAtUnits.maxYears + ")");
+                cell3.setCellStyle(style3);
+                cell3 = row3.createCell(2);
+                cell3.setCellValue("YEARS @ MEDFAK (IN INTERVAL " + yearsAtUnits.minYears + "-" + yearsAtUnits.maxYears + ")");
+                cell3.setCellStyle(style3);
+                cell3 = row3.createCell(3);
+                cell3.setCellValue("YEARS @ TEKNAT (IN INTERVAL " + yearsAtUnits.minYears + "-" + yearsAtUnits.maxYears + ")");
+                cell3.setCellStyle(style3);
+                cell3 = row3.createCell(4);
+                cell3.setCellValue("YEARS @ SAMFAK (IN INTERVAL " + yearsAtUnits.minYears + "-" + yearsAtUnits.maxYears + ")");
+                cell3.setCellStyle(style3);
+                cell3 = row3.createCell(5);
+                cell3.setCellValue("YEARS @ HUMFAK (IN INTERVAL " + yearsAtUnits.minYears + "-" + yearsAtUnits.maxYears + ")");
+                cell3.setCellStyle(style3);
+
+                String[] UNITS = new String[]{"UMU", "MEDFAK", "SAMFAK", "TEKNAT", "HUMFAK"};
+
+                for (Map.Entry<String, HashMap<String, TreeSet<Integer>>> entry : yearsAtUnits.UMUID_TO_YEARS_AT_UNITS.entrySet()) {
+                    row3 = sheet3.createRow(++rowIndices3);
+                    cellIndices3 = -1;
+
+                    cell3 = row3.createCell(++cellIndices3);
+                    cell3.setCellValue(entry.getKey());
+
+                    for (String unit : UNITS) {
+                        cell3 = row3.createCell(++cellIndices3);
+                        cell3.setCellValue(entry.getValue().get(unit).size());
+                    }
+                }
+            }
+
+            System.out.println("Record list: " + recordList.size());
+            for (Post p : recordList) {
+                if (p.getPID() == 1951580) {
+                    System.out.println(p.getPID() + " SEEN IN RECORDLIST");
+                }
+            }
+
+            String fileName = includeExternalAuthors
+                    ? "Norwegian model (including external authors)"
+                    : "Norwegian model (only internal authors)";
+
+            Path outputPath = Path.of(outputDir, fileName + "_" + dateFormat.format(date) + ".xlsx");
+
+            try (FileOutputStream outputStream = new FileOutputStream(outputPath.toFile())) {
+                workbook.setActiveSheet(0);
+                workbook.setSelectedTab(0);
+                workbook.write(outputStream);
+            }
+
+        } finally {
+            // Important for SXSSF: deletes temp files
+            workbook.dispose();
+            workbook.close();
+        }
+    }
 
 
     public void saveToFile(String m) {
