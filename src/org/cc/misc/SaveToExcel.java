@@ -3560,9 +3560,9 @@ public class SaveToExcel {
 
         String fileName;
 
-        if(includeExternalAuthors) {fileName = "ShowExternalAuthors"; } else {fileName = "HideExternalAuthors";}
+        if(includeExternalAuthors) {fileName = "Norwegian model (including external authors)"; } else {fileName = "Norwegian model (only internal authors)";}
 
-        Path outputPath = Path.of(outputDir, fileName + "." + dateFormat.format(date) + ".xlsx");
+        Path outputPath = Path.of(outputDir, fileName + "_" + dateFormat.format(date) + ".xlsx");
 
         try (FileOutputStream outputStream = new FileOutputStream(outputPath.toFile())) {
             workbook.setActiveSheet(0);
