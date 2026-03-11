@@ -17,6 +17,7 @@ import org.cc.diva.ReducedDiVAColumnIndices;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -2688,7 +2689,7 @@ public class SaveToExcel {
     }
 
 
-    public void saveDisambiguatedAuthorFractionsBylineAwareWiP2026(List<Post> recordList, boolean includeExternalAuthors, UMUID_YEARS_AT_UNITS yearsAtUnits) throws Exception {
+    public void saveDisambiguatedAuthorFractionsBylineAwareWiP2026(List<Post> recordList, boolean includeExternalAuthors, UMUID_YEARS_AT_UNITS yearsAtUnits, String outputDir) throws Exception {
 
         /*
 
@@ -3561,8 +3562,9 @@ public class SaveToExcel {
 
         if(includeExternalAuthors) {fileName = "ShowExternalAuthors"; } else {fileName = "HideExternalAuthors";}
 
+        Path outputPath = Path.of(outputDir, fileName + "." + dateFormat.format(date) + ".xlsx");
 
-        try (FileOutputStream outputStream = new FileOutputStream(fileName + "." + dateFormat.format(date)  +".xlsx")) {
+        try (FileOutputStream outputStream = new FileOutputStream(outputPath.toFile())) {
             workbook.setActiveSheet(0);
             workbook.setSelectedTab(0);
             workbook.write(outputStream);

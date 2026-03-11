@@ -75,13 +75,34 @@ public class StandardImplementationWithPersonnelDataWiP2026 {
 
     public static void main(String[] args) throws Exception {
 
-        //FILES
-        //String CSV = "E:\\2025\\MEDFAK GENOMLYSING\\2016-2024.csv";
-        String CSV = "E:\\2026\\AVHANDLINGAR\\all_fak_export.csv";
-        String EXTRA_INFO_CONTRIB = "E:\\2025\\MEDFAK GENOMLYSING\\PIDTOCONTRIB_EXTRA.txt";
-        String MAPPING_FILE = "E:\\2025\\MEDFAK GENOMLYSING\\Mappningsfil20260203.xlsx"; //REQUIRES NEW READER!
-        String NORSKA_LISTAN = "E:\\2025\\MEDFAK GENOMLYSING\\Norska listan 20260202.xlsx";
-        String THESAURUS = "E:\\2025\\MEDFAK GENOMLYSING\\Thesaurus 2025-06-03.xlsx";
+
+        String CSV = "";
+        String EXTRA_INFO_CONTRIB = "";
+        String MAPPING_FILE = "";
+        String NORSKA_LISTAN = "";
+        String THESAURUS = "";
+        String OUTPUT_DIR = "";
+
+        if (args.length == 6) {
+            CSV = args[0];
+            EXTRA_INFO_CONTRIB = args[1];
+            MAPPING_FILE = args[2];
+            NORSKA_LISTAN = args[3];
+            THESAURUS = args[4];
+            OUTPUT_DIR = args[5];
+
+        } else {
+
+            //Hard coded for local runs/usage
+            CSV = "E:\\2026\\AVHANDLINGAR\\all_fak_export.csv";
+            EXTRA_INFO_CONTRIB = "E:\\2025\\MEDFAK GENOMLYSING\\PIDTOCONTRIB_EXTRA.txt";
+            MAPPING_FILE = "E:\\2025\\MEDFAK GENOMLYSING\\Mappningsfil20260203.xlsx"; //REQUIRES NEW READER!
+            NORSKA_LISTAN = "E:\\2025\\MEDFAK GENOMLYSING\\Norska listan 20260202.xlsx";
+            THESAURUS = "E:\\2025\\MEDFAK GENOMLYSING\\Thesaurus 2025-06-03.xlsx";
+            OUTPUT_DIR = System.getProperty("user.dir");
+        }
+
+
 
         //DATALOADER, built in xml or specify newer version
         DataLoader dataLoader = new DataLoader();
@@ -319,8 +340,8 @@ public class StandardImplementationWithPersonnelDataWiP2026 {
         //SaveToExcel saveToExcel = new SaveToExcel();
         //saveToExcel.saveNorwegianMatchingInfo(postList);
 
-        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,false,umuidYearsAtUnits); //TODO we need new stuff here, w r t centrumlike and internal fractionalization
-        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,true,umuidYearsAtUnits); //TODO we need new stuff here, w r t centrumlike and internal fractionalization
+        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,false,umuidYearsAtUnits,OUTPUT_DIR);
+        new SaveToExcel().saveDisambiguatedAuthorFractionsBylineAwareWiP2026(postList,true,umuidYearsAtUnits,OUTPUT_DIR);
 
         System.out.println("Resultat sparat i Två Excel-filer: ShowExternal och HideExternal..");
 
