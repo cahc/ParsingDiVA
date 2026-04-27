@@ -230,4 +230,17 @@ public class CAStoTime {
         return noPubs;
     }
 
+
+    public static void main(String[] arg) throws IOException {
+
+        //DONT WORK Fails with an exeption: Exception in thread "main" java.lang.NullPointerException: Cannot invoke "Object.toString()" because the return value of "org.apache.poi.ss.usermodel.Row.getCell(int)" is null
+        CAStoTime listaMedCasForskningstid = new CAStoTime(new File("E:\\2026\\PUBBAS\\Humfak Sökande Pubbas_2026.xlsx"));
+        System.out.println("Antal inlästa CAS med forskningstid: " +  listaMedCasForskningstid.antalCas() );
+
+        //WORKS AND PRINTS: Antal inlästa CAS med forskningstid: 27
+        CAStoTime alt = new CAStoTime( new File("E:\\2025\\PUBBAS 2026-2027\\Sökande pubbas humfak 2025.xlsx"));
+        System.out.println("Antal inlästa CAS med forskningstid: " +  alt.antalCas() );
+
+    }
+
 }

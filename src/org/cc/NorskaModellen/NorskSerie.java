@@ -22,6 +22,7 @@ public class NorskSerie {
     private String utgivare; //can be null
     private String språk; //can be null
 
+    private Integer nivå2027;
     private Integer nivå2026;
     private Integer nivå2025; //can be null
     private Integer nivå2024; //can be null
@@ -52,7 +53,6 @@ public class NorskSerie {
     public Integer getLevel(Integer year) { //can return null for two reasons, no level for the specified year or the specified year is null or outside of 2004-2016
 
             if(year == null) return null;
-
             if(year.equals(2004)) return getNivå2004();
             if(year.equals(2005)) return getNivå2005();
             if(year.equals(2006)) return getNivå2006();
@@ -76,6 +76,7 @@ public class NorskSerie {
             if(year.equals(2024)) return getNivå2024();
             if(year.equals(2025)) return getNivå2025();
             if(year.equals(2026)) return getNivå2026();
+            if(year.equals(2027)) return getNivå2027();
             return null; //obs!!
 
         }
@@ -83,6 +84,7 @@ public class NorskSerie {
     public Integer getHistoricalMaxLevel() {
 
         Integer max = 0;
+        if(getNivå2027() != null && (max.compareTo( getNivå2027() ) < 0) ) max = getNivå2027();
         if(getNivå2026() != null && (max.compareTo( getNivå2026() ) < 0) ) max = getNivå2026();
         if(getNivå2025() != null && (max.compareTo( getNivå2025() ) < 0) ) max = getNivå2025();
         if(getNivå2024() != null && (max.compareTo( getNivå2024() ) < 0) ) max = getNivå2024();
@@ -229,6 +231,10 @@ public class NorskSerie {
         this.språk = språk;
     }
 
+
+    public void setNivå2027(Integer nivå2027) {this.nivå2027 = nivå2027; }
+
+    public Integer getNivå2027() { return  nivå2027; }
 
     public void setNivå2026(Integer nivå2026) {this.nivå2026 = nivå2026; }
 
