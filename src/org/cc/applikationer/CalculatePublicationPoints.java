@@ -233,7 +233,7 @@ public class CalculatePublicationPoints {
             if(model.equals("LH")) {
 
                 //viktning Lärarhögskolan
-                Viktning.LHWeighting(p);
+                Viktning.LHWeighting(p); //2026-06-02, added redaktör för proceedings
             }
 
             if(model.equals("HF")) {

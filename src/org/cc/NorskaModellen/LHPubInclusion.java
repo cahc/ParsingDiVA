@@ -67,7 +67,7 @@ public class LHPubInclusion implements ConsideredPublications {
 
         } else
 
-        if("Bok".equals(p.getDivaPublicationType()) || "Kapitel i bok, del av antologi".equals(p.getDivaPublicationType()) || "Samlingsverk (redaktörskap)".equals(p.getDivaPublicationType()) ) {
+        if("Bok".equals(p.getDivaPublicationType()) || "Kapitel i bok, del av antologi".equals(p.getDivaPublicationType()) || "Samlingsverk (redaktörskap)".equals(p.getDivaPublicationType()) || "Proceedings (redaktörskap)".equals(p.getDivaPublicationType()) ) {
 
             if(p.getDivaContentType().equals("Refereegranskat") || p.getDivaContentType().equals("Övrigt vetenskapligt")) { statusInModel.setStatusInModel(StatusInModelConstants.BEAKTAD_ÄNNU_EJ_MATCHAD_MOT_NORSKA_LISTAN); statusInModel.setIgnorerad(false); } else { statusInModel.setStatusInModel(StatusInModelConstants.IGNORERAD_EJ_VETENSKAPLIGT); statusInModel.setIgnorerad(true);}
 

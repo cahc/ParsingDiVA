@@ -367,7 +367,7 @@ public class Viktning {
                 }
 
 
-            } else if (p.getDivaPublicationType().equals(DivaPublicationTypes.redaktörskapSamlingsverk)) {
+            } else if (p.getDivaPublicationType().equals(DivaPublicationTypes.redaktörskapSamlingsverk) || p.getDivaPublicationType().equals(DivaPublicationTypes.redaktörskapProceeding)) {
 
 
                 if (matchInfo.getNivå() == null) {
