@@ -26,7 +26,7 @@ public class ReadNorwegianLists {
         DataFormatter formatter = new DataFormatter();
         if (!file.exists()) {
             System.out.println("norwegianList don't exist. Check file name / path.");
-            System.exit(1);
+            throw new FileNotFoundException("norwegianList don't exist.");
         }
 
 
@@ -43,7 +43,7 @@ public class ReadNorwegianLists {
         }
 
         XSSFSheet tidskrifter = workbook.getSheet("Alle tidsskrift");
-        if(tidskrifter == null) {System.out.println("Excel-filen måste innehålla en flik med namn \"Alle tidsskrift\""); System.exit(0); }
+        if(tidskrifter == null) {System.out.println("Excel-filen måste innehålla en flik med namn \"Alle tidsskrift\""); throw new FileNotFoundException("Alle tidsskrift"); }
        // System.out.println("# tidskrifter/serier: " + tidskrifter.getLastRowNum()); // zero indexed
 
         Iterator<Row> rowIterator = tidskrifter.iterator();
@@ -56,7 +56,7 @@ public class ReadNorwegianLists {
             System.out.println( row.getCell(NorskSerieIndex.tidsskrift_id.getValue()).toString() );
             System.out.println( row.getCell(NorskSerieIndex.Nivå_2004.getValue()).toString() );
             System.out.println( row.getCell(NorskSerieIndex.Nivå_2025.getValue()).toString() );
-            System.exit(1);
+            throw new IOException("Not a valid header in norwegian authority file!");
         }
 
 
@@ -246,7 +246,7 @@ public class ReadNorwegianLists {
         DataFormatter formatter = new DataFormatter();
         if (!file.exists()) {
             System.out.println("File don't exist!");
-            System.exit(1);
+            throw new IOException("File don't exist!");
         }
 
 
@@ -263,7 +263,7 @@ public class ReadNorwegianLists {
         }
 
         XSSFSheet förlag = workbook.getSheet("Alle forlag");
-        if(förlag == null) {System.out.println("Excel-filen måste innehålla en flik med namn\"Alle förlag\""); System.exit(0); }
+        if(förlag == null) {System.out.println("Excel-filen måste innehålla en flik med namn\"Alle förlag\""); throw new IOException("Ingen flik Alle förlag"); }
        // System.out.println("# förlag: " + förlag.getLastRowNum()); // zero indexed
 
 
@@ -273,7 +273,7 @@ public class ReadNorwegianLists {
 
         if (!row.getCell(NorskFörlagIndex.forlag_id.getValue()).toString().equals("publisher_id") || !row.getCell(NorskFörlagIndex.Nivå2004.getValue()).toString().equals("Level 2004") || !row.getCell(NorskFörlagIndex.Nivå2025.getValue()).toString().equals("Level 2025")  ) {
             System.out.println("Not a valid header in norwegian authority file! (förlag)");
-            System.exit(1);
+            throw new IOException("Not a valid header in norwegian authority file!");
         }
 
         // now iterate over the rows and create Series objects

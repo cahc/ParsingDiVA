@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="duckdb.duckdb_jdbc" type="repository">
+    <properties maven-id="org.duckdb:duckdb_jdbc:1.5.5.1" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/duckdb/duckdb_jdbc/1.5.5.1/duckdb_jdbc-1.5.5.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

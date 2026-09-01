@@ -308,7 +308,7 @@ public class StandardImplementationWithPersonnelDataWiP2026 {
 
         Integer minYearInSet = yearsInCurrentData.stream().min(Comparator.naturalOrder()).orElse(-1);
         Integer maxYearInSet = yearsInCurrentData.stream().max(Comparator.naturalOrder()).orElse(-1);
-        if(minYearInSet.equals(-1) || maxYearInSet.equals(-1)) {System.out.println("Somthing is wrong with the publications years..aborting"); System.exit(0);}
+        if(minYearInSet.equals(-1) || maxYearInSet.equals(-1)) {System.out.println("Somthing is wrong with the publications years..aborting"); throw new RuntimeException(); }
         System.out.println("Years in current data: " + yearsInCurrentData + " min " + minYearInSet + " max " + maxYearInSet );
         System.out.println("Valid unique UMUID in data: " + uniqueAndValidUMUID.size());
 

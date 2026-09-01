@@ -2,7 +2,6 @@ package org.cc.diva;
 
 import com.cc.PersonLevelAffil.DataLoader;
 import com.cc.PersonLevelAffil.Person;
-import com.googlecode.cqengine.query.simple.In;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import org.cc.misc.DivaIDtoNames;
 import org.cc.misc.ReadAffiliationMappingFile;
@@ -12,7 +11,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.Normalizer;
 import java.text.ParseException;
 import java.util.*;
 

@@ -27,6 +27,7 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/info/debatty/java-string-similarity/0.23/java-string-similarity-0.23.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/net/jcip/jcip-annotations/1.0/jcip-annotations-1.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/OneDrive - Umeå universitet/Desktop/Java Libs/isbntools-master/src/isbntools17.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/duckdb/duckdb_jdbc/1.5.5.1/duckdb_jdbc-1.5.5.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

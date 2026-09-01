@@ -1,16 +1,7 @@
 package org.cc.diva;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import org.cc.NorskaModellen.StatusInModel;
 import org.cc.NorskaModellen.NorwegianMatchInfo;
-import org.cc.NorskaModellen.Viktning;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -246,6 +237,11 @@ public class Post implements Comparable<Post>{
 
     }
 
+    public String getEID() {
+
+        return this.rawData[ReducedDiVAColumnIndices.ScopusId.getValue()];
+    }
+
     public int getPID() {
         return  this.PID;
     }
@@ -285,102 +281,7 @@ public class Post implements Comparable<Post>{
         return this.rawData[ReducedDiVAColumnIndices.Status.getValue()];
     }
 
-/*
 
-    //2023-01-17, not used, might remove later
-
-    public String printMultipleAuthorPerRow() {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < authorList.size(); i++){
-
-            Author author = authorList.get(i);
-
-
-            if(!author.getPrintAuthor()) continue; //don't print non considered author
-
-
-            int nrUmUaddresses = author.getNrUmUaddresses();
-            if(nrUmUaddresses == 0) {
-
-                stringBuilder.append(author.printSeveralRowPerAuthorFracMethod1(0)).append("\t").append(getTitle()).append("\t").append(getDivaPublicationType()).append("\n");
-            } else {
-
-                for (int j = 0; j < nrUmUaddresses; j++) {
-
-                    stringBuilder.append(author.printSeveralRowPerAuthorFracMethod1(j)).append("\t").append(getTitle()).append("\t").append(getDivaPublicationType()).append("\n");
-                }
-
-            }
-        }
-
-        return stringBuilder.toString();
-    }
-
-    public String printOneAuthorPerRow() {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < authorList.size(); i++){
-            Author author = authorList.get(i);
-            if(author.getPrintAuthor()) stringBuilder.append( author.printOneRowPerAuthorFracMethod2() ).append("\t").append(getTitle()).append("\t").append(getDivaPublicationType()).append("\t").append(getStatusInModel().getStatusInModel()).append("\t").append(getNorskNivå()).append("\n");
-
-        }
-
-
-        return stringBuilder.toString();
-    }
-
-    public static void savePostsToExcel(List<Post> postList) {
-
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet("Publikationsdata");
-        XSSFFont font = workbook.createFont();
-        XSSFCellStyle style = workbook.createCellStyle();
-        font.setBold(true);
-        style.setFont(font);
-
-        sheet.createFreezePane(0,1);
-        int cellIndices = 0;
-        int rowIndices = 0;
-
-        //SKAPA EN LÅST HEADER-RAD
-        Row row = sheet.createRow(rowIndices);
-        for( ReducedDiVAColumnIndices indices : ReducedDiVAColumnIndices.values()) {
-
-            Cell cell = row.createCell(cellIndices);
-            cell.setCellValue(indices.toString());
-            cell.setCellStyle(style);
-            cellIndices++;
-
-        }
-
-
-        for(Post p : postList) {
-
-            row = sheet.createRow(++rowIndices);
-            cellIndices = -1;
-
-           String[] rawRow =  p.getRawDataRow();
-
-            for(int i=0; i<rawRow.length; i++) {
-                Cell cell = row.createCell(++cellIndices);
-                cell.setCellValue(rawRow[i]);
-
-            }
-
-        }
-
-
-        try (FileOutputStream outputStream = new FileOutputStream("Result" + ".xlsx")) {
-            workbook.write(outputStream);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-*/
 
 
     @Override

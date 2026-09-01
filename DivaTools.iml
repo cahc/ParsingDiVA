@@ -10,11 +10,12 @@
     <orderEntry type="library" name="com.opencsv:opencsv:3.7" level="project" />
     <orderEntry type="library" name="org.jsoup:jsoup:1.9.1" level="project" />
     <orderEntry type="library" name="org.apache.httpcomponents:httpclient:4.5" level="project" />
-    <orderEntry type="library" name="Classy20200323" level="project" />
     <orderEntry type="library" name="mallet-deps" level="project" />
     <orderEntry type="library" name="org.apache.poi:poi-ooxml:4.1.2" level="project" />
     <orderEntry type="library" name="PersonLevelAffiliation" level="project" />
-    <orderEntry type="library" name="info.debatty.java.string.similarity" level="project" />
     <orderEntry type="library" name="isbntools17" level="project" />
+    <orderEntry type="library" name="ScopusTools" level="project" />
+    <orderEntry type="library" name="commons.cli" level="project" />
+    <orderEntry type="library" name="duckdb.duckdb_jdbc" level="project" />
   </component>
 </module>

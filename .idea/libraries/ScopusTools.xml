@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ScopusTools">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../../opt/ScopusTools.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
