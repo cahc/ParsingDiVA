@@ -4,8 +4,9 @@ import cc.FilePathConstants;
 import cc.analysis.scival.SciValParser;
 import cc.analysis.scival.SciValSampleBenchmarkRecords;
 import org.roaringbitmap.RoaringBitmap;
-import java.io.File;
-import java.io.IOException;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
 
@@ -62,8 +63,9 @@ import static org.cc.divaToSciVal.MatchDiVAToSciVal.validateAfids;
  * proportions, not the proportion calculated from one pooled set of unique reference
  * publications.</p>
  *
- * <p>The present class only constructs the reference-set memberships. Calculation and
- * storage of the actual {@code p_i} reference values will be added in a later step.</p>
+ * <p>The class constructs the reference-set memberships and calculates the observed
+ * and expected values for each focal publication. The per-publication output can then
+ * be aggregated for arbitrary groups of UMU publications.</p>
  */
 public class CitationDataWithBenchmark {
 
@@ -166,7 +168,7 @@ public class CitationDataWithBenchmark {
             System.out.println("Record missmatch count, sources from different timestamps? UMU RECORDS=" + umuRecords.size() + " INITIAL UMU RECORDS=" + UMU_EIDs.size()); throw  new RuntimeException("Record missmatch count!");
         }
 
-        System.out.println("UMU records" + umuRecords.size() + " potential benchmark records: " + potentialBenchMarkRecords.size());
+        System.out.println("UMU records " + umuRecords.size() + " potential benchmark records: " + potentialBenchMarkRecords.size());
 
         /*
 
@@ -287,18 +289,19 @@ public class CitationDataWithBenchmark {
 
 
         /*
-
-        TODO
-        We must construct some fallback expected values for a focal publication that have an empty reference set (for example, rare cases when the focal publication dont have either ASJC codes or is in a Topic Cluster (or is the onlu such record in the swedish subset of SciVal)
-
-        For internationalization, calculate one value per focal year using a centered
-        +/- one-year publication window.
-
+        Construct Swedish fallback values for focal publications without usable
+        subject-similar benchmark records. Internationalization fallbacks are specific
+        to a centered +/- one-year publication window.
          */
 
 
+        if(potentialBenchMarkRecords.isEmpty()) {
+            throw new IllegalStateException("Cannot calculate benchmarks without Swedish non-UMU records");
+        }
+
         double fallbackTop10 = 0;
         double fallbackTop50 = 0;
+        int fallbackInternationalAllYearsCount = 0;
         TreeMap<Integer,Integer> yearToInternationalPublications = new TreeMap<>();
         TreeMap<Integer,Integer> yearToAllPublications = new TreeMap<>();
         for(SciValParser.SciValRecord record : potentialBenchMarkRecords) {
@@ -310,11 +313,14 @@ public class CitationDataWithBenchmark {
             yearToAllPublications.merge(year, 1, Integer::sum);
             if(record.getCountries().size() > 1) {
                 yearToInternationalPublications.merge(year, 1, Integer::sum);
+                fallbackInternationalAllYearsCount++;
             }
         }
 
         fallbackTop10 /= potentialBenchMarkRecords.size();
         fallbackTop50 /= potentialBenchMarkRecords.size();
+        double fallbackInternationalAllYears =
+                (double) fallbackInternationalAllYearsCount / potentialBenchMarkRecords.size();
 
         TreeMap<Integer,Double> yearToInternationalizationShare = new TreeMap<>();
         for(Integer year : yearToAllPublications.keySet()) {
@@ -359,30 +365,135 @@ public class CitationDataWithBenchmark {
 
         String focal = "2-s2.0-85193354598";
         SciValSampleBenchmarkRecords.ReferenceSet referenceSet = umuEIDsToReferenceSets.get(focal);
-        System.out.println("Focal publication: " + umuRecords.get(focal).getTitle() + " " + umuRecords.get(focal).getASJC() + " " + umuRecords.get(focal).getTopicCluster());
-        System.out.println("Reference set size: " + referenceSet.referenceCount());
-        System.out.println("Reference titles:");
-        for(String EID: referenceSet.getReferenceEIDs() ) {
-
-            System.out.println( sciValRecordMap.get(EID).getTitle() + "\t" + sciValRecordMap.get(EID).getASJC() + "\t" + sciValRecordMap.get(EID).getTopicCluster() );
+        SciValParser.SciValRecord focalRecord = umuRecords.get(focal);
+        if(focalRecord != null && referenceSet != null) {
+            System.out.println("Focal publication: " + focalRecord.getTitle() + " "
+                    + focalRecord.getASJC() + " " + focalRecord.getTopicCluster());
+            System.out.println("Reference set size: " + referenceSet.referenceCount());
+            System.out.println("Reference titles:");
+            for(String EID: referenceSet.getReferenceEIDs() ) {
+                SciValParser.SciValRecord benchmarkRecord = sciValRecordMap.get(EID);
+                if(benchmarkRecord != null) {
+                    System.out.println(benchmarkRecord.getTitle() + "\t"
+                            + benchmarkRecord.getASJC() + "\t"
+                            + benchmarkRecord.getTopicCluster());
+                }
+            }
         }
 
 
 
         /*
-
-        TODO:
-
-        Now we are ready to calculate expected top 10% and expected top 50%, and also expected internationalization for each "UMU" record
-
-        We shall print someting like:
-
-        FOCAL_EID   OBSERVED_TOP10  OBSERVED_TOP50 OBSERVED_IS_INTERNATIONAL    EXPECTED_TOP10  EXPECTED_TOP50  EXPECTED_INTERNATIONAL
-        ...         binary          binary          binary                      double (p_i)    double (p_i)    double_pi
-
-         SUCH DATA CAN THEN BE READILY USED TO AVERAGE OVER DOWNSTREAM TO GET INDICATORS AND EXPECTED VALUES FOR THE INDICATORS
+        Calculate observed and expected values for every focal publication. Citation
+        percentile expectations use the full subject reference set. Internationalization
+        expectations use only subject references published within +/- one year.
          */
 
+        PrintWriter pw = new PrintWriter( new File("citationDataTemporary.txt"),StandardCharsets.UTF_8);
+
+
+        pw.println(
+                "FOCAL_EID\tOBSERVED_TOP10\tOBSERVED_TOP50\tOBSERVED_IS_INTERNATIONAL"
+                        + "\tEXPECTED_TOP10\tEXPECTED_TOP50\tEXPECTED_INTERNATIONAL"
+                        + "\tREFERENCE_SET_SIZE\tINTERNATIONAL_REFERENCE_SET_SIZE"
+                        + "\tUSED_CITATION_FALLBACK\tUSED_INTERNATIONAL_FALLBACK");
+
+        List<String> focalEIDs = new ArrayList<>(umuRecords.keySet());
+        Collections.sort(focalEIDs);
+
+        for(String focalEID : focalEIDs) {
+            SciValParser.SciValRecord record = umuRecords.get(focalEID);
+            SciValSampleBenchmarkRecords.ReferenceSet publicationReferenceSet =
+                    umuEIDsToReferenceSets.get(focalEID);
+
+            int observedTop10 = record.getTopPercentile() <= 10 ? 1 : 0;
+            int observedTop50 = record.getTopPercentile() <= 50 ? 1 : 0;
+            int observedInternational = record.getCountries().size() > 1 ? 1 : 0;
+
+            int validReferenceRecords = 0;
+            int top10ReferenceRecords = 0;
+            int top50ReferenceRecords = 0;
+            int internationalWindowReferenceRecords = 0;
+            int internationalReferenceRecords = 0;
+
+            if(publicationReferenceSet != null) {
+                for(String referenceEID : publicationReferenceSet.getReferenceEIDs()) {
+                    SciValParser.SciValRecord benchmarkRecord = sciValRecordMap.get(referenceEID);
+                    if(benchmarkRecord == null) continue;
+
+                    validReferenceRecords++;
+                    if(benchmarkRecord.getTopPercentile() <= 10) top10ReferenceRecords++;
+                    if(benchmarkRecord.getTopPercentile() <= 50) top50ReferenceRecords++;
+
+                    Integer focalYear = record.getYear();
+                    Integer benchmarkYear = benchmarkRecord.getYear();
+                    if(focalYear != null && benchmarkYear != null
+                            && Math.abs(benchmarkYear - focalYear) <= 1) {
+                        internationalWindowReferenceRecords++;
+                        if(benchmarkRecord.getCountries().size() > 1) {
+                            internationalReferenceRecords++;
+                        }
+                    }
+                }
+            }
+
+            boolean usedCitationFallback = validReferenceRecords == 0;
+            double expectedTop10 = usedCitationFallback
+                    ? fallbackTop10
+                    : (double) top10ReferenceRecords / validReferenceRecords;
+            double expectedTop50 = usedCitationFallback
+                    ? fallbackTop50
+                    : (double) top50ReferenceRecords / validReferenceRecords;
+
+            boolean usedInternationalFallback = internationalWindowReferenceRecords == 0;
+            double expectedInternational;
+            if(!usedInternationalFallback) {
+                expectedInternational =
+                        (double) internationalReferenceRecords / internationalWindowReferenceRecords;
+            } else {
+                Integer focalYear = record.getYear();
+                Double yearSpecificFallback = focalYear == null
+                        ? null
+                        : yearToInternationalizationShare.get(focalYear);
+
+                if(yearSpecificFallback != null) {
+                    expectedInternational = yearSpecificFallback;
+                } else if(focalYear != null) {
+                    int internationalPublications = 0;
+                    int allPublications = 0;
+                    for(int comparisonYear = focalYear - 1;
+                        comparisonYear <= focalYear + 1;
+                        comparisonYear++) {
+                        internationalPublications +=
+                                yearToInternationalPublications.getOrDefault(comparisonYear, 0);
+                        allPublications +=
+                                yearToAllPublications.getOrDefault(comparisonYear, 0);
+                    }
+                    expectedInternational = allPublications == 0
+                            ? fallbackInternationalAllYears
+                            : (double) internationalPublications / allPublications;
+                } else {
+                    expectedInternational = fallbackInternationalAllYears;
+                }
+            }
+
+            pw.printf(Locale.ROOT,
+                    "%s\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\t%d\t%d\t%b\t%b%n",
+                    focalEID,
+                    observedTop10,
+                    observedTop50,
+                    observedInternational,
+                    expectedTop10,
+                    expectedTop50,
+                    expectedInternational,
+                    validReferenceRecords,
+                    internationalWindowReferenceRecords,
+                    usedCitationFallback,
+                    usedInternationalFallback);
+        }
+
+        pw.flush();
+        pw.close();
 
     } //main ends
 
