@@ -11,10 +11,16 @@ import java.util.*;
 
 import static cc.analysis.TopicsAndTopicClusters.RecordToTopicsAndCitationIndicators.getSciValExcelFiles;
 import static cc.analysis.scival.SciValParser.getSciValRecords;
-import static cc.analysis.scival.SciValSampleBenchmarkRecords.intersectAllBitSets;
 import static org.cc.divaToSciVal.MatchDiVAToSciVal.validateAfids;
 
 public class CitationDataWithBenchmark {
+
+
+    private static List<Integer> asjcPartitionKey(Set<Integer> codes) {
+        List<Integer> key = new ArrayList<>(codes);
+        Collections.sort(key);
+        return Collections.unmodifiableList(key);
+    }
 
 
     /*
@@ -23,7 +29,7 @@ public class CitationDataWithBenchmark {
 
     This should then be used as a comparison to the observed Top 10% citation indicator for ad-hoc groups of UMU records, i.e.,
 
-    p_i = P(Top10 = 1 | subject context of i, excluding external organizations )
+    p_i = P(Top10 = 1 | subject context of i, external organizations )
 
     Then we can have PP_top10 = (sum_i Y_i) / N  and compare with sum_i(p_i) /N = E(PP_top10)
 
@@ -36,6 +42,9 @@ public class CitationDataWithBenchmark {
      Then the audience can simply see, e.g.,:
      Focal publications: 12.2%
      Comparable reference publications: 13.5%
+
+
+     NOTE THE TOP 10% INDICATOR ON PUBLICATION LEVEL IS ALREADY SUBJECT AND YEAR NORMALIZED W R T TO THE WHOLE WORLD/DATABASE.
 
      */
 
@@ -110,7 +119,7 @@ public class CitationDataWithBenchmark {
         while(sciValRecordListIterator.hasNext()) {
 
             SciValParser.SciValRecord record = sciValRecordListIterator.next();
-            if(UMU_EIDs.contains(record.getEID())) {
+            if(UMU_EIDs.contains(record.getEID()) || record.getInstitutions().contains("Umeå University")) {
 
                 umuRecords.put(record.getEID(),record);
                 sciValRecordListIterator.remove();
@@ -159,13 +168,12 @@ public class CitationDataWithBenchmark {
 
         /*
 
-        Index Topic Clusters and AJSC journal codes for non-UMU records.
+        Index Topic Clusters and exact ASJC journal-code combinations for non-UMU records.
 
          */
 
         HashMap<Integer, RoaringBitmap> topicClusterToBitmapMap = new HashMap<>();
-        HashMap<Integer, RoaringBitmap> ASJCToBitmapMap = new HashMap<>();
-        HashMap<Integer, RoaringBitmap> singletonASJCToBitmapMap = new HashMap<>();
+        HashMap<List<Integer>, RoaringBitmap> asjcPartitionToBitmapMap = new HashMap<>();
 
         for(int i=0; i<potentialBenchMarkRecords.size(); i++) {
 
@@ -183,24 +191,13 @@ public class CitationDataWithBenchmark {
             }
 
 
-            //this is needed for partition-based category reference sets
+            // A partition cell consists of records with exactly the same complete
+            // combination of ASJC codes, not merely records sharing all focal codes.
             if(ASJC != null && !ASJC.isEmpty() && !ASJC.contains(-99)) {
-
-                if(ASJC.size() == 1) {
-
-                    RoaringBitmap bs = singletonASJCToBitmapMap.computeIfAbsent(ASJC.iterator().next(), k -> new RoaringBitmap());
-                    bs.add(i);
-
-                } else {
-
-
-                    for (Integer ASJCID : ASJC) {
-                        RoaringBitmap bs = ASJCToBitmapMap.computeIfAbsent(ASJCID, k -> new RoaringBitmap());
-                        bs.add(i);
-                    }
-
-                }
-
+                List<Integer> partitionKey = asjcPartitionKey(ASJC);
+                RoaringBitmap bs = asjcPartitionToBitmapMap.computeIfAbsent(
+                        partitionKey, k -> new RoaringBitmap());
+                bs.add(i);
             }
 
 
@@ -230,25 +227,13 @@ public class CitationDataWithBenchmark {
             HashSet<Integer> asjc = record.getASJC();
             if(asjc != null && !asjc.isEmpty() && !asjc.contains(-99)) {
 
-                if(asjc.size() == 1) {
+                List<Integer> partitionKey = asjcPartitionKey(asjc);
+                RoaringBitmap asjcPartition = asjcPartitionToBitmapMap.getOrDefault(
+                        partitionKey, new RoaringBitmap());
+                referenceSet.or(asjcPartition);
+                asjcSetSize = asjcPartition.getCardinality();
 
-                    RoaringBitmap bs = singletonASJCToBitmapMap.getOrDefault(asjc.iterator().next(), new RoaringBitmap());
-                    referenceSet.or(bs);
-                    asjcSetSize = bs.getCardinality();
-                } else {
 
-
-                    ArrayList<RoaringBitmap> asjcToIntersect = new ArrayList<>();
-                    for(Integer code : record.getASJC() ) {
-
-                        asjcToIntersect.add( ASJCToBitmapMap.getOrDefault(code, new RoaringBitmap()) );
-
-                    }
-
-                    RoaringBitmap intersected = intersectAllBitSets(asjcToIntersect);
-                    referenceSet.or(intersected);
-                    asjcSetSize = intersected.getCardinality();
-                }
 
 
             }
@@ -283,7 +268,7 @@ public class CitationDataWithBenchmark {
             sciValRecordMap.put(sciValRecord.getEID(), sciValRecord);
         }
 
-        String focal = "2-s2.0-85117788535";
+        String focal = "2-s2.0-85193354598";
         SciValSampleBenchmarkRecords.ReferenceSet referenceSet = umuEIDsToReferenceSets.get(focal);
         System.out.println("Focal publication: " + umuRecords.get(focal).getTitle() + " " + umuRecords.get(focal).getASJC() + " " + umuRecords.get(focal).getTopicCluster());
         System.out.println("Reference set size: " + referenceSet.referenceCount());
