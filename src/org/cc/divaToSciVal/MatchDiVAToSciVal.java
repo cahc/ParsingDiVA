@@ -647,7 +647,7 @@ public class MatchDiVAToSciVal {
         analyzer.close();
     }
 
-    private static void validateAfids(List<SciValParser.SciValRecord> records) {
+    public static void validateAfids(List<SciValParser.SciValRecord> records) {
         for (SciValParser.SciValRecord record : records) {
             List<Integer> afids = record.getAfids();
             if (afids != null && new HashSet<>(afids).size() != afids.size()) {
