@@ -35,7 +35,7 @@ import static org.cc.divaToSciVal.MatchDiVAToSciVal.validateAfids;
  * </ol>
  *
  * <p>A publication satisfying both criteria occurs only once in the resulting reference
- * set because the sets are combined using a bitmap union. Conceptually, the later
+ * set because the sets are combined using a bitmap union. Conceptually, the
  * reference-value calculation will estimate, for every focal publication:</p>
  *
  * <pre>
@@ -43,6 +43,11 @@ import static org.cc.divaToSciVal.MatchDiVAToSciVal.validateAfids;
  *         Swedish publication, non-UMU,
  *         exact ASJC partition of i OR topic cluster of i)
  * </pre>
+ *
+ * <p>Small reference sets are treated as too sparse for stable publication-specific
+ * expectations. The Swedish fallback is therefore used when the citation reference
+ * set contains fewer than 25 publications, or when the +/- one-year
+ * internationalization reference set contains fewer than 20 publications.</p>
  *
  * We also introduce a notion of Top 50%.
  *
@@ -68,6 +73,9 @@ import static org.cc.divaToSciVal.MatchDiVAToSciVal.validateAfids;
  * be aggregated for arbitrary groups of UMU publications.</p>
  */
 public class CitationDataWithBenchmark {
+
+    private static final int MIN_CITATION_REFERENCE_SET_SIZE = 25;
+    private static final int MIN_INTERNATIONAL_REFERENCE_SET_SIZE = 20;
 
 
     private static List<Integer> asjcPartitionKey(Set<Integer> codes) {
@@ -289,9 +297,9 @@ public class CitationDataWithBenchmark {
 
 
         /*
-        Construct Swedish fallback values for focal publications without usable
-        subject-similar benchmark records. Internationalization fallbacks are specific
-        to a centered +/- one-year publication window.
+        Construct Swedish fallback values for focal publications whose subject-similar
+        reference sets are too small. Internationalization fallbacks are specific to a
+        centered +/- one-year publication window.
          */
 
 
@@ -437,7 +445,8 @@ public class CitationDataWithBenchmark {
                 }
             }
 
-            boolean usedCitationFallback = validReferenceRecords == 0;
+            boolean usedCitationFallback =
+                    validReferenceRecords < MIN_CITATION_REFERENCE_SET_SIZE;
             double expectedTop10 = usedCitationFallback
                     ? fallbackTop10
                     : (double) top10ReferenceRecords / validReferenceRecords;
@@ -445,7 +454,8 @@ public class CitationDataWithBenchmark {
                     ? fallbackTop50
                     : (double) top50ReferenceRecords / validReferenceRecords;
 
-            boolean usedInternationalFallback = internationalWindowReferenceRecords == 0;
+            boolean usedInternationalFallback =
+                    internationalWindowReferenceRecords < MIN_INTERNATIONAL_REFERENCE_SET_SIZE;
             double expectedInternational;
             if(!usedInternationalFallback) {
                 expectedInternational =
