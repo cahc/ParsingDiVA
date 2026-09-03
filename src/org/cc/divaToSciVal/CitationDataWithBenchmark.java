@@ -344,7 +344,7 @@ public class CitationDataWithBenchmark {
         }
 
 
-        System.exit(0);
+
 
         /*
 
@@ -367,6 +367,21 @@ public class CitationDataWithBenchmark {
             System.out.println( sciValRecordMap.get(EID).getTitle() + "\t" + sciValRecordMap.get(EID).getASJC() + "\t" + sciValRecordMap.get(EID).getTopicCluster() );
         }
 
+
+
+        /*
+
+        TODO:
+
+        Now we are ready to calculate expected top 10% and expected top 50%, and also expected internationalization for each "UMU" record
+
+        We shall print someting like:
+
+        FOCAL_EID   OBSERVED_TOP10  OBSERVED_TOP50 OBSERVED_IS_INTERNATIONAL    EXPECTED_TOP10  EXPECTED_TOP50  EXPECTED_INTERNATIONAL
+        ...         binary          binary          binary                      double (p_i)    double (p_i)    double_pi
+
+         SUCH DATA CAN THEN BE READILY USED TO AVERAGE OVER DOWNSTREAM TO GET INDICATORS AND EXPECTED VALUES FOR THE INDICATORS
+         */
 
 
     } //main ends
