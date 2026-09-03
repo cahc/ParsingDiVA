@@ -13,6 +13,58 @@ import static cc.analysis.TopicsAndTopicClusters.RecordToTopicsAndCitationIndica
 import static cc.analysis.scival.SciValParser.getSciValRecords;
 import static org.cc.divaToSciVal.MatchDiVAToSciVal.validateAfids;
 
+/**
+ * Constructs publication-specific Swedish reference sets for focal publications
+ * from Umeå University (UMU).
+ *
+ * <p>The restriction to Sweden is deliberate. This class does not replace SciVal's
+ * global field normalization or reconstruct which publications belong to the Top 10%.
+ * The publication-level SciVal Top-10 indicator is already normalized by subject and
+ * publication year with respect to the worldwide database. The purpose here is instead
+ * to create an alternative Swedish baseline for that already normalized binary outcome.</p>
+ *
+ * <p>Publications associated with UMU are removed from the Swedish benchmark pool.
+ * For each focal publication {@code i}, subject-similar benchmark publications are
+ * identified by the inclusive union of:</p>
+ *
+ * <ol>
+ *     <li>the Rons-style ASJC partition cell: publications whose journals have exactly
+ *     the same complete combination of ASJC codes as the focal publication; and</li>
+ *     <li>the SciVal topic cluster to which the focal publication belongs.</li>
+ * </ol>
+ *
+ * <p>A publication satisfying both criteria occurs only once in the resulting reference
+ * set because the sets are combined using a bitmap union. Conceptually, the later
+ * reference-value calculation will estimate, for every focal publication:</p>
+ *
+ * <pre>
+ * p_i = P(SciVal Top 10% = 1 |
+ *         Swedish publication, non-UMU,
+ *         exact ASJC partition of i OR topic cluster of i)
+ * </pre>
+ *
+ * We also introduce a notion of Top 50%.
+ *
+ *
+ * Additionally, we are interested in the share of papers with international
+ * collaboration, defined as publications involving at least two countries. This must
+ * be treated somewhat differently because it is not year normalized and generally
+ * changes over time. We therefore use the same notion of subject-similar records, but
+ * restrict the expected internationalization rate to a centered +/- one-year window
+ * around the focal publication year.
+ *
+ *
+ *
+ * <p>For an ad-hoc group of {@code N} focal publications, the observed value
+ * {@code sum(Y_i) / N}, where {@code Y_i} is the focal publication's SciVal Top-10
+ * indicator, can then be compared with the Swedish reference-set value
+ * {@code sum(p_i) / N}. The latter is the mean of the publication-specific reference-set
+ * proportions, not the proportion calculated from one pooled set of unique reference
+ * publications.</p>
+ *
+ * <p>The present class only constructs the reference-set memberships. Calculation and
+ * storage of the actual {@code p_i} reference values will be added in a later step.</p>
+ */
 public class CitationDataWithBenchmark {
 
 
@@ -21,32 +73,6 @@ public class CitationDataWithBenchmark {
         Collections.sort(key);
         return Collections.unmodifiableList(key);
     }
-
-
-    /*
-
-    For focal publication i, we are essentially constructing a comparison set conditional on two different notions of subject similarity: citation-cluster membership and the exact combination of journal classifications. Then you remove publications belonging to the focal organizational unit. So
-
-    This should then be used as a comparison to the observed Top 10% citation indicator for ad-hoc groups of UMU records, i.e.,
-
-    p_i = P(Top10 = 1 | subject context of i, external organizations )
-
-    Then we can have PP_top10 = (sum_i Y_i) / N  and compare with sum_i(p_i) /N = E(PP_top10)
-
-    Y_i is a binary variable that is 1 if the record is in top 10%, 0 otherwise
-
-    The goul is to have a descriptive indicator, that can be described like like this:
-
-     “The reference-set Top-10 value is the mean Top-10 proportion among the subject-specific reference sets corresponding to the focal publications.”
-
-     Then the audience can simply see, e.g.,:
-     Focal publications: 12.2%
-     Comparable reference publications: 13.5%
-
-
-     NOTE THE TOP 10% INDICATOR ON PUBLICATION LEVEL IS ALREADY SUBJECT AND YEAR NORMALIZED W R T TO THE WHOLE WORLD/DATABASE.
-
-     */
 
 
     public static void main(String[] args) throws SQLException, IOException {
@@ -114,20 +140,23 @@ public class CitationDataWithBenchmark {
          */
 
         Map<String,SciValParser.SciValRecord> umuRecords = new HashMap<>(10_000);
-
+        Map<String, SciValParser.SciValRecord> ignored_umuRecords = new HashMap<>();
         ListIterator<SciValParser.SciValRecord> sciValRecordListIterator = potentialBenchMarkRecords.listIterator();
         while(sciValRecordListIterator.hasNext()) {
 
             SciValParser.SciValRecord record = sciValRecordListIterator.next();
-            if(UMU_EIDs.contains(record.getEID()) || record.getInstitutions().contains("Umeå University")) {
+            if(UMU_EIDs.contains(record.getEID()) ) {
 
                 umuRecords.put(record.getEID(),record);
+                sciValRecordListIterator.remove();
+            } else if(record.getInstitutions().contains("Umeå University")) {
+                ignored_umuRecords.put(record.getEID(),record);
                 sciValRecordListIterator.remove();
             }
 
         }
 
-        if((umuRecords.size() + potentialBenchMarkRecords.size()) !=  initialTotalRecords) {
+        if((umuRecords.size() + ignored_umuRecords.size() + potentialBenchMarkRecords.size() ) !=  initialTotalRecords) {
             System.out.println("Record missmatch count!"); throw  new RuntimeException("Record missmatch count!");
         }
 
@@ -256,6 +285,66 @@ public class CitationDataWithBenchmark {
 
         } //for each UMU record
 
+
+        /*
+
+        TODO
+        We must construct some fallback expected values for a focal publication that have an empty reference set (for example, rare cases when the focal publication dont have either ASJC codes or is in a Topic Cluster (or is the onlu such record in the swedish subset of SciVal)
+
+        For internationalization, calculate one value per focal year using a centered
+        +/- one-year publication window.
+
+         */
+
+
+        double fallbackTop10 = 0;
+        double fallbackTop50 = 0;
+        TreeMap<Integer,Integer> yearToInternationalPublications = new TreeMap<>();
+        TreeMap<Integer,Integer> yearToAllPublications = new TreeMap<>();
+        for(SciValParser.SciValRecord record : potentialBenchMarkRecords) {
+
+            fallbackTop10 += record.getTopPercentile() <= 10 ? 1 :0;
+            fallbackTop50 += record.getTopPercentile() <= 50 ? 1 :0;
+
+            int year = record.getYear();
+            yearToAllPublications.merge(year, 1, Integer::sum);
+            if(record.getCountries().size() > 1) {
+                yearToInternationalPublications.merge(year, 1, Integer::sum);
+            }
+        }
+
+        fallbackTop10 /= potentialBenchMarkRecords.size();
+        fallbackTop50 /= potentialBenchMarkRecords.size();
+
+        TreeMap<Integer,Double> yearToInternationalizationShare = new TreeMap<>();
+        for(Integer year : yearToAllPublications.keySet()) {
+            int internationalPublications = 0;
+            int allPublications = 0;
+
+            for(int comparisonYear = year - 1; comparisonYear <= year + 1; comparisonYear++) {
+                internationalPublications += yearToInternationalPublications.getOrDefault(comparisonYear, 0);
+                allPublications += yearToAllPublications.getOrDefault(comparisonYear, 0);
+            }
+
+            if(allPublications > 0) {
+                yearToInternationalizationShare.put(
+                        year, (double) internationalPublications / allPublications);
+            }
+        }
+
+        Set<Integer> years = yearToInternationalizationShare.keySet();
+
+
+
+        System.out.println("Fallback top 10%: " + fallbackTop10 + " fallback top 50%: " + fallbackTop50 );
+        System.out.println("Fallback internationalization rates:");
+        for(Integer year : years) {
+
+            System.out.println(year + " " +yearToInternationalizationShare.get(year));
+        }
+
+
+        System.exit(0);
 
         /*
 
