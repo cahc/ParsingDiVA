@@ -90,6 +90,9 @@ import static cc.analysis.scival.SciValParser.getSciValRecords;
  *     sent to {@code AMBIGUOUS}. This is not a strict one-to-one constraint: genuinely
  *     duplicated DiVA registrations may still link to the same EID when their titles
  *     provide near-identity evidence.</li>
+ *     <li><b>Reference indicators.</b> Accepted SciVal matches are enriched with
+ *     observed citation/collaboration indicators and publication-specific expected
+ *     values from a Swedish, non-UMU subject reference population.</li>
  * </ol>
  *
  * <p>Final statuses are {@code IGNORED}, {@code EXACT}, {@code EXACT_SUSPECT},
@@ -120,8 +123,6 @@ public class MatchDiVAToSciVal {
     private static final double SOURCE_WEIGHT = 0.15;
     private static final double YEAR_WEIGHT = 0.05;
     private static final double DOCUMENT_TYPE_WEIGHT = 0.10;
-    private static final String TSV_OUTPUT_FILE = "divaToScival.txt";
-    private static final String XLSX_OUTPUT_FILE = "divaToScival.xlsx";
     private static final int EXCEL_ROW_WINDOW = 100;
     private static final int EXCEL_MAX_CELL_TEXT_LENGTH = 32767;
     private static final String[] OUTPUT_HEADERS = {
@@ -129,7 +130,11 @@ public class MatchDiVAToSciVal {
             "SOURCE_SCORE", "YEAR_SCORE", "TYPE_COMPATIBILITY", "RELATED_WORK_CONFLICT",
             "RUNNER_UP_EID", "TARGET_COLLISION", "DIVA_TITLE", "SCIVAL_TITLE", "DIVA_SOURCE",
             "SCIVAL_SOURCE", "DIVA_PUBLICATION_TYPE", "SCIVAL_DOCUMENT_TYPE",
-            "SCIVAL_SOURCE_TYPE", "NOTE"
+            "SCIVAL_SOURCE_TYPE", "NOTE",
+            "OBSERVED_TOP10", "OBSERVED_TOP50", "OBSERVED_IS_INTERNATIONAL",
+            "EXPECTED_TOP10", "EXPECTED_TOP50", "EXPECTED_INTERNATIONAL",
+            "REFERENCE_SET_SIZE", "INTERNATIONAL_REFERENCE_SET_SIZE",
+            "USED_CITATION_FALLBACK", "USED_INTERNATIONAL_FALLBACK"
     };
 
     private static final Set<String> SCIVAL_ARTICLE_DOCUMENT_TYPES = new HashSet<>(Arrays.asList(
@@ -468,6 +473,15 @@ public class MatchDiVAToSciVal {
             this.targetCollision = targetCollision;
         }
 
+        SciValParser.SciValRecord acceptedRecord() {
+            if(status == MatchStatus.EXACT
+                    || status == MatchStatus.EXACT_SUSPECT
+                    || status == MatchStatus.TEXT_AUTO_MATCH) {
+                return diagnosticRecord;
+            }
+            return null;
+        }
+
         MatchResult withStatus(MatchStatus replacementStatus, String extraNote,
                                String replacementCollision) {
             String combinedNote = note.isEmpty() ? extraNote : note + "; " + extraNote;
@@ -625,6 +639,25 @@ public class MatchDiVAToSciVal {
 
         markSharedTextTargets(posts, results);
 
+        Map<String, SciValParser.SciValRecord> focalRecordsByEid = new LinkedHashMap<>();
+        for(MatchResult result : results) {
+            SciValParser.SciValRecord acceptedRecord = result.acceptedRecord();
+            if(acceptedRecord == null) continue;
+            String normalizedEid = normalizeEid(acceptedRecord.getEID());
+            if(!normalizedEid.isEmpty()) {
+                focalRecordsByEid.putIfAbsent(normalizedEid, acceptedRecord);
+            }
+        }
+
+        Map<String, ReferenceIndicators> referenceIndicatorsByEid = Collections.emptyMap();
+        if(!focalRecordsByEid.isEmpty()) {
+            SwedishReferenceIndicatorCalculator indicatorCalculator =
+                    new SwedishReferenceIndicatorCalculator(
+                            sciValRecords, focalRecordsByEid.keySet(), "Umeå University");
+            referenceIndicatorsByEid =
+                    indicatorCalculator.calculateAll(focalRecordsByEid.values());
+        }
+
         Map<MatchStatus, Integer> counts = new EnumMap<>(MatchStatus.class);
         for (MatchStatus status : MatchStatus.values()) counts.put(status, 0);
         try (PrintWriter output = new PrintWriter(new OutputStreamWriter(
@@ -633,10 +666,12 @@ public class MatchDiVAToSciVal {
             for (int i = 0; i < posts.size(); i++) {
                 MatchResult result = results.get(i);
                 counts.put(result.status, counts.get(result.status) + 1);
-                saveMatchToFile(posts.get(i), result, output);
+                saveMatchToFile(posts.get(i), result,
+                        referenceIndicatorsFor(result, referenceIndicatorsByEid), output);
             }
         }
-        saveMatchesToExcel(posts, results, new File(XLSX_OUTPUT_FILE));
+        saveMatchesToExcel(
+                posts, results, referenceIndicatorsByEid, new File(XLSX_OUTPUT_FILE));
 
         System.out.println("Match summary:");
         for (MatchStatus status : MatchStatus.values()) {
@@ -1222,12 +1257,20 @@ public class MatchDiVAToSciVal {
                 cleanForOutput(result.note));
     }
 
-    private static void saveMatchToFile(Post post, MatchResult result, PrintWriter writer) {
+    private static ReferenceIndicators referenceIndicatorsFor(
+            MatchResult result, Map<String, ReferenceIndicators> indicatorsByEid) {
+        SciValParser.SciValRecord acceptedRecord = result.acceptedRecord();
+        if(acceptedRecord == null) return null;
+        return indicatorsByEid.get(normalizeEid(acceptedRecord.getEID()));
+    }
+
+    private static void saveMatchToFile(Post post, MatchResult result,
+                                        ReferenceIndicators indicators, PrintWriter writer) {
         CandidateFeatures f = result.features;
         SciValParser.SciValRecord record = result.diagnosticRecord;
         writer.printf(Locale.ROOT,
                 "%d\t%s\t%s\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%s\t%s\t%s\t%s"
-                        + "\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s%n",
+                        + "\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
                 post.getPID(), result.status, cleanForOutput(result.eid), f == null ? 0 : f.total,
                 result.margin, f == null ? -1 : f.title, f == null ? -1 : f.authors,
                 f == null ? -1 : f.source, f == null ? -1 : f.year,
@@ -1242,10 +1285,33 @@ public class MatchDiVAToSciVal {
                 cleanForOutput(record == null ? "" : record.getScivalDocType()),
                 cleanForOutput(record == null ? "" : record.getSciValSourceType()),
                 cleanForOutput(result.note));
+        writeReferenceIndicators(writer, indicators);
+    }
+
+    private static void writeReferenceIndicators(
+            PrintWriter writer, ReferenceIndicators indicators) {
+        if(indicators == null) {
+            for(int column = 0; column < 10; column++) writer.print('\t');
+            writer.println();
+            return;
+        }
+        writer.printf(Locale.ROOT,
+                "\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\t%d\t%d\t%b\t%b%n",
+                indicators.observedTop10(),
+                indicators.observedTop50(),
+                indicators.observedInternational(),
+                indicators.expectedTop10(),
+                indicators.expectedTop50(),
+                indicators.expectedInternational(),
+                indicators.referenceSetSize(),
+                indicators.internationalReferenceSetSize(),
+                indicators.usedCitationFallback(),
+                indicators.usedInternationalFallback());
     }
 
     private static void saveMatchesToExcel(List<Post> posts, List<MatchResult> results,
-                                           File outputFile) throws IOException {
+                                            Map<String, ReferenceIndicators> indicatorsByEid,
+                                            File outputFile) throws IOException {
         if (posts.size() != results.size()) {
             throw new IllegalArgumentException("Every DiVA post must have exactly one match result");
         }
@@ -1273,8 +1339,10 @@ public class MatchDiVAToSciVal {
             }
 
             for (int i = 0; i < posts.size(); i++) {
-                writeExcelMatchRow(posts.get(i), results.get(i), sheet.createRow(i + 1),
-                        scoreStyle);
+                MatchResult result = results.get(i);
+                writeExcelMatchRow(posts.get(i), result,
+                        referenceIndicatorsFor(result, indicatorsByEid),
+                        sheet.createRow(i + 1), scoreStyle);
             }
 
             sheet.setAutoFilter(new CellRangeAddress(0, posts.size(), 0,
@@ -1288,7 +1356,8 @@ public class MatchDiVAToSciVal {
         }
     }
 
-    private static void writeExcelMatchRow(Post post, MatchResult result, Row row,
+    private static void writeExcelMatchRow(Post post, MatchResult result,
+                                           ReferenceIndicators indicators, Row row,
                                            CellStyle scoreStyle) {
         CandidateFeatures features = result.features;
         SciValParser.SciValRecord record = result.diagnosticRecord;
@@ -1319,7 +1388,27 @@ public class MatchDiVAToSciVal {
                 record == null ? "" : record.getScivalDocType()));
         row.createCell(column++).setCellValue(cleanForExcel(
                 record == null ? "" : record.getSciValSourceType()));
-        row.createCell(column).setCellValue(cleanForExcel(result.note));
+        row.createCell(column++).setCellValue(cleanForExcel(result.note));
+        writeReferenceIndicatorCells(row, column, indicators, scoreStyle);
+    }
+
+    private static void writeReferenceIndicatorCells(
+            Row row, int column, ReferenceIndicators indicators, CellStyle scoreStyle) {
+        if(indicators == null) {
+            for(int offset = 0; offset < 10; offset++) row.createCell(column + offset);
+            return;
+        }
+
+        row.createCell(column++).setCellValue(indicators.observedTop10());
+        row.createCell(column++).setCellValue(indicators.observedTop50());
+        row.createCell(column++).setCellValue(indicators.observedInternational());
+        setNumericCell(row, column++, indicators.expectedTop10(), scoreStyle);
+        setNumericCell(row, column++, indicators.expectedTop50(), scoreStyle);
+        setNumericCell(row, column++, indicators.expectedInternational(), scoreStyle);
+        row.createCell(column++).setCellValue(indicators.referenceSetSize());
+        row.createCell(column++).setCellValue(indicators.internationalReferenceSetSize());
+        row.createCell(column++).setCellValue(indicators.usedCitationFallback());
+        row.createCell(column).setCellValue(indicators.usedInternationalFallback());
     }
 
     private static void setNumericCell(Row row, int column, double value, CellStyle style) {
