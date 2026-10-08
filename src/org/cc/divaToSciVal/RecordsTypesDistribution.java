@@ -1,5 +1,6 @@
 package org.cc.divaToSciVal;
 
+import cc.FilePathConstants;
 import cc.analysis.scival.SciValParser;
 import org.cc.diva.CreateDivaTable;
 import org.cc.diva.Post;
@@ -17,7 +18,7 @@ public class RecordsTypesDistribution {
     public static void main(String[] args) throws IOException {
 
 
-        String csvFile = "E:\\2026\\divaToSciVal\\Raw_DiVA_export_20260819_115425.csv";
+        String csvFile = "C:\\opt\\bibliometric_gui_static_data_files\\Raw_DiVA_export_20260930_102140.csv";
         CreateDivaTable divaTable = new CreateDivaTable(new File(csvFile));
         divaTable.parse();
         List<Post> posts = new ArrayList<>(divaTable.nrRows());
@@ -56,7 +57,7 @@ public class RecordsTypesDistribution {
        // "Editorial"
 
 
-        File[] files = getSciValExcelFiles("C:\\opt\\SCIVALEXPORT\\SWEDEN20260217");
+        File[] files = getSciValExcelFiles(FilePathConstants.SCIVAL_RAW_XLSX_LATEST);
         List<SciValParser.SciValRecord> sciValRecords = new ArrayList<>(10000);
         for (File file : files) {
             List<SciValParser.SciValRecord> parsed = getSciValRecords(file.getAbsolutePath(), Collections.emptySet());
@@ -64,20 +65,54 @@ public class RecordsTypesDistribution {
         }
         System.out.println("Total SciVal records parsed: " + sciValRecords.size());
 
-        HashSet<String> scivalTypes = new HashSet<>(10000);
-        HashSet<String> scivalSourceTypes = new HashSet<>(10000);
+
+        HashMap<String,HashMap<String,Integer>> scivalSourceTypesAndDocTypes = new HashMap<>(10000);
+
         for(SciValParser.SciValRecord record : sciValRecords) {
 
-            scivalTypes.add(record.getScivalDocType());
-            scivalSourceTypes.add( record.getSciValSourceType() );
-        }
+            String sourcetype = record.getSciValSourceType();
+            String recordType = record.getScivalDocType();
 
-        System.out.println("Total SciVal types parsed: " + scivalTypes.size());
-        for(String s: scivalTypes) System.out.println(s);
+            HashMap<String,Integer> map =  scivalSourceTypesAndDocTypes.get(sourcetype);
+            if(map == null) {
+
+                map = new HashMap<>();
+                map.put(recordType, 1);
+                scivalSourceTypesAndDocTypes.put(sourcetype, map);
+            } else {
+
+                map.merge(recordType, 1, Integer::sum);
+
+
+            }
+
+
+        }
+        System.out.println();
+        HashSet<String> allTypes = new HashSet<>();
+        scivalSourceTypesAndDocTypes.forEach((k,v)->{
+
+            allTypes.addAll( v.keySet() );
+
+        });
+
+        System.out.println("Total SciVal types parsed: " + allTypes.size());
+        for(String s: allTypes) System.out.println(s);
 
         System.out.println();
-        System.out.println("SciVal Source types parsed: " + scivalSourceTypes.size());
-        for(String s: scivalSourceTypes) System.out.println(s);
+        System.out.println("SciVal Source types parsed: " + scivalSourceTypesAndDocTypes.size());
+        for(String s: scivalSourceTypesAndDocTypes.keySet()) System.out.println(s);
+
+
+        for(Map.Entry<String,HashMap<String,Integer>> entry: scivalSourceTypesAndDocTypes.entrySet()) {
+
+            System.out.println("## " + entry.getKey());
+                for(Map.Entry<String,Integer> entry2: entry.getValue().entrySet()) {
+                    System.out.println(entry2.getKey() + "\t" + entry2.getValue());
+                }
+
+
+        }
 
     }
 

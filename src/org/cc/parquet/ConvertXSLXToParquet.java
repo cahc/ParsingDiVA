@@ -92,7 +92,7 @@ public class ConvertXSLXToParquet {
         DiVAMatchingXLSXToParquet(xlsxDivaMappingToSciVal, parquetDivaMappingToSciVal);
 
 
-        String xlsxDivaNorwegian = "E:\\Norwegian model (including external authors)_2026-08-28 12-24.xlsx";
+        String xlsxDivaNorwegian = "C:\\opt\\bibliometric_gui_static_data_files\\Norwegian model (including external authors)_2026-09-30 10-25.xlsx";
         String parquetDivaNorwegian = "divaNorwegian.parquet";
 
         NorwegianXLSXToParquet(xlsxDivaNorwegian, parquetDivaNorwegian);

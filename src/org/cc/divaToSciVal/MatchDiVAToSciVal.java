@@ -35,7 +35,6 @@ import java.text.Normalizer;
 import java.util.*;
 
 import static cc.analysis.TopicsAndTopicClusters.RecordToTopicsAndCitationIndicators.getSciValExcelFiles;
-import static cc.analysis.scival.SciValParser.getSciValRecords;
 
 /**
  * Links bibliographic records from DiVA to records exported from SciVal. Candidate
@@ -134,7 +133,9 @@ public class MatchDiVAToSciVal {
             "OBSERVED_TOP10", "OBSERVED_TOP50", "OBSERVED_IS_INTERNATIONAL",
             "EXPECTED_TOP10", "EXPECTED_TOP50", "EXPECTED_INTERNATIONAL",
             "REFERENCE_SET_SIZE", "INTERNATIONAL_REFERENCE_SET_SIZE",
-            "USED_CITATION_FALLBACK", "USED_INTERNATIONAL_FALLBACK"
+            "USED_CITATION_FALLBACK", "USED_INTERNATIONAL_FALLBACK",
+            "NORMALIZATION_ARTIFACT_GROUP", "CITATION_REFERENCE_SCOPE", "INTERNATIONAL_REFERENCE_SCOPE",
+            "CITATION_REFERENCE_POPULATION_SIZE", "INTERNATIONAL_REFERENCE_POPULATION_SIZE"
     };
 
     private static final Set<String> SCIVAL_ARTICLE_DOCUMENT_TYPES = new HashSet<>(Arrays.asList(
@@ -497,22 +498,17 @@ public class MatchDiVAToSciVal {
 
     public static void main(String[] args) throws IOException {
 
-        runMatchingPipeline("E:\\2026\\divaToSciVal\\Raw_DiVA_export_20260819_115425.csv",FilePathConstants.SCIVAL_RAW_XLSX_LATEST,"DIVA_PID_TO_SCIVAL_EID.xlsx","DIVA_PID_TO_SCIVAL_EID.txt");
+        runMatchingPipeline("C:\\opt\\bibliometric_gui_static_data_files\\Raw_DiVA_export_20260930_102140.csv",FilePathConstants.SCIVAL_RAW_XLSX_LATEST,"DIVA_PID_TO_SCIVAL_EID.xlsx","DIVA_PID_TO_SCIVAL_EID.txt");
     }
 
     public static void runMatchingPipeline(String CSVFile, String PathToSciValData, String XLSX_OUTPUT_FILE, String TSV_OUTPUT_FILE) throws IOException {
-        Set<String> ignoreDocTypes = new HashSet<>();
-        // Editorial, Note, Letter, and Erratum are useful candidates, especially for
-        // generic DiVA titles. Only types outside the intended publication corpus are
-        // omitted before identifier matching and retrieval.
-        //TODO select something reasonable here..
-        Collections.addAll(ignoreDocTypes, "Retracted", "Abstract Report");
+        // Apply the shared analytical exclusions before matching and reference calculations.
 
         File[] files = getSciValExcelFiles(PathToSciValData);
 
         List<SciValParser.SciValRecord> sciValRecords = new ArrayList<>(10000);
         for (File file : files) {
-            List<SciValParser.SciValRecord> parsed = getSciValRecords(file.getAbsolutePath(), ignoreDocTypes);
+            List<SciValParser.SciValRecord> parsed = SciValDocumentTypePolicy.readEligibleRecords(file.getAbsolutePath());
             sciValRecords.addAll(parsed);
             validateAfids(parsed);
         }
@@ -1291,12 +1287,12 @@ public class MatchDiVAToSciVal {
     private static void writeReferenceIndicators(
             PrintWriter writer, ReferenceIndicators indicators) {
         if(indicators == null) {
-            for(int column = 0; column < 10; column++) writer.print('\t');
+            for(int column = 0; column < 15; column++) writer.print('\t');
             writer.println();
             return;
         }
         writer.printf(Locale.ROOT,
-                "\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\t%d\t%d\t%b\t%b%n",
+                "\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\t%d\t%d\t%b\t%b\t%s\t%s\t%s\t%d\t%d%n",
                 indicators.observedTop10(),
                 indicators.observedTop50(),
                 indicators.observedInternational(),
@@ -1306,7 +1302,12 @@ public class MatchDiVAToSciVal {
                 indicators.referenceSetSize(),
                 indicators.internationalReferenceSetSize(),
                 indicators.usedCitationFallback(),
-                indicators.usedInternationalFallback());
+                indicators.usedInternationalFallback(),
+                indicators.normalizationArtifactGroup(),
+                indicators.citationReferenceScope(),
+                indicators.internationalReferenceScope(),
+                indicators.citationReferencePopulationSize(),
+                indicators.internationalReferencePopulationSize());
     }
 
     private static void saveMatchesToExcel(List<Post> posts, List<MatchResult> results,
@@ -1395,7 +1396,7 @@ public class MatchDiVAToSciVal {
     private static void writeReferenceIndicatorCells(
             Row row, int column, ReferenceIndicators indicators, CellStyle scoreStyle) {
         if(indicators == null) {
-            for(int offset = 0; offset < 10; offset++) row.createCell(column + offset);
+            for(int offset = 0; offset < 15; offset++) row.createCell(column + offset);
             return;
         }
 
@@ -1408,7 +1409,12 @@ public class MatchDiVAToSciVal {
         row.createCell(column++).setCellValue(indicators.referenceSetSize());
         row.createCell(column++).setCellValue(indicators.internationalReferenceSetSize());
         row.createCell(column++).setCellValue(indicators.usedCitationFallback());
-        row.createCell(column).setCellValue(indicators.usedInternationalFallback());
+        row.createCell(column++).setCellValue(indicators.usedInternationalFallback());
+        row.createCell(column++).setCellValue(indicators.normalizationArtifactGroup());
+        row.createCell(column++).setCellValue(indicators.citationReferenceScope().name());
+        row.createCell(column++).setCellValue(indicators.internationalReferenceScope().name());
+        row.createCell(column++).setCellValue(indicators.citationReferencePopulationSize());
+        row.createCell(column).setCellValue(indicators.internationalReferencePopulationSize());
     }
 
     private static void setNumericCell(Row row, int column, double value, CellStyle style) {

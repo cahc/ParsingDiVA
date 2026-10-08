@@ -78,9 +78,10 @@ The current executable has these hard-coded paths:
 | TSV output | DIVA_PID_TO_SCIVAL_EID.txt in the process working directory |
 | XLSX output | DIVA_PID_TO_SCIVAL_EID.xlsx in the process working directory |
 
-SciVal records whose document type is exactly Retracted or Abstract Report are
-excluded by the parser before identifier indexing and text retrieval. Editorial,
-Note, Letter, and Erratum records are retained.
+SciVal records of type Retracted, Abstract Report, Erratum, Editorial, or Conference
+Review are excluded before identifier indexing, text retrieval, and calculations.
+`SciValDocumentTypePolicy` normalizes type labels for case and whitespace. Unknown,
+blank, and missing document types remain eligible and receive generic references.
 
 Every parsed SciVal batch is checked for repeated AFIDs within a record. A repeated
 AFID causes the run to terminate with an exception.
@@ -997,7 +998,7 @@ related-work diagnostics conflict.
 ## 18. Audit outputs
 
 The program writes a TSV and an XLSX file at the paths supplied to
-`runMatchingPipeline`. Both contain the same 31 columns, in the same order, with one
+`runMatchingPipeline`. Both contain the same 36 columns, in the same order, with one
 header row and one data row per parsed DiVA
 record. Embedded tabs, line feeds, and carriage returns in text values are replaced
 with spaces in both formats.
@@ -1060,10 +1061,29 @@ ends with ` [TRUNCATED]`; the TSV value is not subject to this Excel-specific li
 | EXPECTED_TOP10 | Top-10 proportion in the publication-specific Swedish subject reference, or its fallback |
 | EXPECTED_TOP50 | Top-50 proportion in the publication-specific Swedish subject reference, or its fallback |
 | EXPECTED_INTERNATIONAL | International-collaboration proportion in the subject- and year-restricted Swedish reference, or its fallback |
-| REFERENCE_SET_SIZE | Number of unique Swedish non-UMU publications in the inclusive ASJC/topic-cluster reference set |
+| REFERENCE_SET_SIZE | Number of unique Swedish non-UMU publications of the same document group in the inclusive ASJC/topic-cluster reference set; zero for unknown groups |
 | INTERNATIONAL_REFERENCE_SET_SIZE | Number of those reference publications within publication year ±1 |
 | USED_CITATION_FALLBACK | true when REFERENCE_SET_SIZE is below 25 |
 | USED_INTERNATIONAL_FALLBACK | true when INTERNATIONAL_REFERENCE_SET_SIZE is below 20 |
+| NORMALIZATION_ARTIFACT_GROUP | JOURNAL_ARTIFACT_TYPE, CONFERENCE_ARTIFACT_TYPE, BOOK_AND_CHAPTER_ARTIFACT_TYPE, or UNKNOWN |
+| CITATION_REFERENCE_SCOPE | SUBJECT_REFERENCE, GROUP_FALLBACK, or SWEDISH_FALLBACK |
+| INTERNATIONAL_REFERENCE_SCOPE | SUBJECT_REFERENCE, GROUP_YEAR_FALLBACK, SWEDISH_YEAR_FALLBACK, or SWEDISH_ALL_YEARS_FALLBACK |
+| CITATION_REFERENCE_POPULATION_SIZE | Actual denominator used for citation expectations |
+| INTERNATIONAL_REFERENCE_POPULATION_SIZE | Actual denominator used for the international expectation |
+
+The journal group comprises Article in Press, Letter, Data Paper, Short Survey,
+Note, Article, and Review. Conference Paper forms the conference group. Book,
+Chapter, and Book Chapter form the book/chapter group. Groups use document type.
+
+Citation selection proceeds from the group-restricted subject union (minimum 25),
+to the whole external group (minimum 25), then the generic external Swedish
+benchmark. International selection proceeds from that subject union in SciVal year
+±1 (minimum 20), to the whole group in the same window (minimum 20), to the generic
+Swedish window (minimum 20), then the generic benchmark across all years. Final
+fallbacks accept any nonempty benchmark. Unknown groups use generic references
+directly; missing years use the all-years international fallback. An empty eligible
+external Swedish benchmark is a run-level error. All stages exclude UMU and every
+accepted focal EID and deduplicate normalized EIDs.
 
 Indicator columns are populated only for `EXACT`, `EXACT_SUSPECT`, and
 `TEXT_AUTO_MATCH`. They are blank for `IGNORED`, `IDENTIFIER_CONFLICT`,
@@ -1078,7 +1098,7 @@ The diagnostic SciVal record is:
 
 ## 19. Reference pseudocode
 
-    load SciVal records, excluding Retracted and Abstract Report
+    load SciVal records, excluding Retracted, Abstract Report, Erratum, Editorial, Conference Review
     abort if a SciVal record repeats an AFID
     load DiVA records
 

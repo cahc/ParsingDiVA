@@ -13,5 +13,10 @@ public record ReferenceIndicators(
         int referenceSetSize,
         int internationalReferenceSetSize,
         boolean usedCitationFallback,
-        boolean usedInternationalFallback) {
+        boolean usedInternationalFallback,
+        String normalizationArtifactGroup,
+        ReferenceScope citationReferenceScope,
+        ReferenceScope internationalReferenceScope,
+        int citationReferencePopulationSize,
+        int internationalReferencePopulationSize) {
 }

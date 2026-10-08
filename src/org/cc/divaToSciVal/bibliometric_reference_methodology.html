@@ -217,7 +217,7 @@
   <h2>2. Construction of publication-specific reference sets</h2>
 
   <h3>2.1 External Swedish benchmark population</h3>
-  <p>The benchmark universe consists of Swedish publications that are not associated with the focal organizational unit. Publications belonging to the focal organization are excluded before subject-specific reference sets are constructed. This prevents the evaluated organization from contributing to its own benchmark.</p>
+  <p>The benchmark universe consists of Swedish publications that are not associated with the focal organizational unit. Publications belonging to the focal organization, accepted focal EIDs, and excluded document types (Retracted, Abstract Report, Erratum, Editorial, Conference Review) are removed before reference sets are constructed. EIDs are normalized and deduplicated. This prevents the evaluated organization from contributing to its own benchmark.</p>
 
   <h3>2.2 Subject similarity</h3>
   <p>For each focal publication <em>i</em>, subject-related benchmark publications are identified using two complementary classification systems:</p>
@@ -228,12 +228,12 @@
 
   <p>The final reference set is the inclusive union of these two sets:</p>
   <div class="formula">
-    R<sub>i</sub> = R<sub>ASJC,i</sub> &cup; R<sub>TC,i</sub>
+    R<sub>i</sub> = G<sub>i</sub> &cap; (R<sub>ASJC,i</sub> &cup; R<sub>TC,i</sub>)
   </div>
-  <p>A publication satisfying both criteria occurs only once in the reference set.</p>
+  <p>A publication satisfying both subject criteria occurs only once. G<sub>i</sub> is the focal publication's document-type group: journal (Article in Press, Letter, Data Paper, Short Survey, Note, Article, Review), conference (Conference Paper), or book/chapter (Book, Chapter, Book Chapter). Grouping uses document type, independently of source type. Unknown and missing document types remain eligible and receive generic Swedish expectations directly.</p>
 
   <div class="methodbox">
-    The operational meaning of <em>subject-related</em> is therefore: a Swedish, non-focal-organization publication that shares either the focal publication's exact ASJC partition cell or its citation-based topic cluster.
+    The operational meaning of <em>subject-related</em> is therefore: a Swedish, non-focal-organization publication in the same document group that shares either the focal publication's exact ASJC partition cell or its citation-based topic cluster.
   </div>
 
   <h3>2.3 Minimum reference-set sizes and fallback</h3>
@@ -241,8 +241,8 @@
   <table>
     <thead><tr><th>Indicator family</th><th class="num">Minimum subject reference size</th><th>Fallback</th></tr></thead>
     <tbody>
-      <tr><td>Top 10% / Top 50%</td><td class="num">25</td><td>Overall Swedish non-focal-organization value</td></tr>
-      <tr><td>International collaboration</td><td class="num">20</td><td>Swedish non-focal-organization value in the focal publication year &plusmn;1 year</td></tr>
+      <tr><td>Top 10% / Top 50%</td><td class="num">25</td><td>Whole document group (minimum 25), then generic external Swedish benchmark</td></tr>
+      <tr><td>International collaboration</td><td class="num">20</td><td>Whole group in year &plusmn;1 (minimum 20), then generic Swedish year window (minimum 20), then generic Swedish benchmark across all years</td></tr>
     </tbody>
   </table>
 
@@ -280,7 +280,7 @@
     p<sub>50,i</sub> = (number of publications j in R<sub>i</sub> with P<sub>j</sub> &le; 50) / |R<sub>i</sub>|
   </div>
 
-  <p>If |R<sub>i</sub>| &lt; 25, the corresponding Swedish fallback proportions are used.</p>
+  <p>If |R<sub>i</sub>| &lt; 25, use the entire external document group when it contains at least 25 publications; otherwise use the generic external Swedish benchmark.</p>
 
   <h3>4.2 International collaboration</h3>
   <p>For international collaboration, the subject reference set is first restricted to publications within a centered three-year window around the focal publication:</p>
@@ -294,7 +294,7 @@
     p<sub>INT,i</sub> = (number of international publications in R<sub>INT,i</sub>) / |R<sub>INT,i</sub>|
   </div>
 
-  <p>If |R<sub>INT,i</sub>| &lt; 20, the fallback is the international-collaboration proportion among all Swedish non-focal-organization publications in the same &plusmn;1-year window.</p>
+  <p>If |R<sub>INT,i</sub>| &lt; 20, use the entire external document group in the same year window when it contains at least 20 publications; otherwise use the generic Swedish window when it contains at least 20. If that too is insufficient, use the generic Swedish benchmark across all years. Missing focal years use the all-years fallback directly. Final fallbacks accept any nonempty benchmark, so every eligible focal publication receives an expectation. An entirely empty eligible external benchmark is a run-level error.</p>
 </section>
 
 <section id="aggregation">
@@ -417,13 +417,13 @@
   <h2>8. Implementation and output</h2>
   <p><code>SwedishReferenceIndicatorCalculator</code> is the single implementation of the reference methodology. It receives the Swedish SciVal records and the accepted focal EIDs in memory, constructs the benchmark indexes once, and returns one immutable <code>ReferenceIndicators</code> value per unique focal EID.</p>
 
-  <p><code>MatchDiVAToSciVal</code> invokes the calculator after matching and shared-target post-processing are complete, then appends the observed values, expected values, reference-set sizes, and fallback flags to both its TSV and XLSX rows. Several DiVA PIDs linked to the same EID receive the same EID-level indicator values.</p>
+  <p><code>MatchDiVAToSciVal</code> invokes the calculator after matching and shared-target post-processing are complete, then appends the observed values, expected values, reference-set sizes, fallback flags, normalization group, reference scopes, and actual denominator sizes to both its TSV and XLSX rows. Several DiVA PIDs linked to the same EID receive the same EID-level indicator values.</p>
 
   <div class="methodbox">
     Indicator values are produced only for accepted statuses: <code>EXACT</code>, <code>EXACT_SUSPECT</code>, and <code>TEXT_AUTO_MATCH</code>. Indicator cells remain blank for <code>IGNORED</code>, <code>IDENTIFIER_CONFLICT</code>, <code>AMBIGUOUS</code>, and <code>NO_MATCH</code>. A diagnostic SciVal candidate is never treated as an accepted focal publication.
   </div>
 
-  <p><code>CitationDataWithBenchmark</code> is retained only as a compatibility runner for previously materialized match files; it delegates all calculations to the same calculator.</p>
+  <p><code>RunCitationIndicatorPipelineOnAlreadyMaterializedParquetFile</code> is retained only as a compatibility runner for previously materialized match files; it delegates all calculations to the same calculator.</p>
 </section>
 
 <section id="interpretation">
@@ -448,7 +448,7 @@
 </article>
 
 <footer>
-  Documentation reflects the implemented methodology: Swedish non-focal-organization benchmark population; subject matching by inclusive union of exact ASJC partition and citation-based topic cluster; minimum reference sizes of 25 for citation indicators and 20 for international collaboration; and publication-level averaging of expected values.
+  Documentation reflects the implemented methodology: Swedish non-focal-organization benchmark population; subject matching by same document group intersected with the inclusive union of exact ASJC partition and citation-based topic cluster; group and generic Swedish fallbacks; minimum reference sizes of 25 for citation indicators and 20 for international collaboration; and publication-level averaging of expected values.
 </footer>
 </main>
 </body>

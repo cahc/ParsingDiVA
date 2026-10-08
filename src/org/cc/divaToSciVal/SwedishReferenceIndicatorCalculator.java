@@ -1,216 +1,236 @@
 package org.cc.divaToSciVal;
 
 import cc.analysis.scival.SciValParser;
+import org.cc.divaToSciVal.SciValDocumentTypePolicy.Group;
 import org.roaringbitmap.RoaringBitmap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
- * Calculates publication-specific observed values and subject-matched Swedish
- * expectations. The reference set is the inclusive union of the exact ASJC
- * partition and the SciVal topic cluster.
+ * Swedish non-UMU expectations from the union of exact ASJC partition and topic
+ * cluster, restricted to document group. Small sets broaden to group and then
+ * Swedish benchmarks; every eligible focal record receives finite expectations.
  */
 public final class SwedishReferenceIndicatorCalculator {
-
     public static final int MIN_CITATION_REFERENCE_SET_SIZE = 25;
     public static final int MIN_INTERNATIONAL_REFERENCE_SET_SIZE = 20;
     public static final int INTERNATIONAL_YEAR_RADIUS = 1;
 
+    // Explicit comparison modes keep the pre-check's historical CURRENT scenario stable.
+    enum ReferencePolicy { LEGACY_MIXED, EXCLUSIONS_ONLY, GROUPED }
+
+    private final ReferencePolicy policy;
     private final List<SciValParser.SciValRecord> benchmarkRecords;
     private final Map<Integer, RoaringBitmap> topicClusterIndex = new HashMap<>();
     private final Map<List<Integer>, RoaringBitmap> asjcPartitionIndex = new HashMap<>();
-    private final Map<Integer, Integer> internationalPublicationsByYear = new TreeMap<>();
-    private final Map<Integer, Integer> allPublicationsByYear = new TreeMap<>();
-    private final double fallbackTop10;
-    private final double fallbackTop50;
-    private final double fallbackInternationalAllYears;
+    private final Map<Group, RoaringBitmap> groupIndex = new EnumMap<>(Group.class);
+    private final Map<Group, PopulationCounts> groupCounts = new EnumMap<>(Group.class);
+    private final PopulationCounts swedishCounts = new PopulationCounts();
 
-    /**
-     * @param allSwedishRecords all SciVal records in the Swedish comparison universe
-     * @param focalEids EIDs selected as focal publications; these can never benchmark themselves
-     * @param focalInstitutionName institution name excluded from the Swedish benchmark population
-     */
     public SwedishReferenceIndicatorCalculator(
             Collection<SciValParser.SciValRecord> allSwedishRecords,
-            Collection<String> focalEids,
-            String focalInstitutionName) {
-
-        if(allSwedishRecords == null || allSwedishRecords.isEmpty()) {
-            throw new IllegalArgumentException("Swedish SciVal records must not be empty");
-        }
-
-        Set<String> normalizedFocalEids = new HashSet<>();
-        if(focalEids != null) {
-            for(String eid : focalEids) {
-                String normalized = normalizeEid(eid);
-                if(!normalized.isEmpty()) normalizedFocalEids.add(normalized);
-            }
-        }
-
-        // Deduplicate by EID so repeated export rows cannot weight the reference values.
-        Map<String, SciValParser.SciValRecord> uniqueBenchmarkRecords = new LinkedHashMap<>();
-        for(SciValParser.SciValRecord record : allSwedishRecords) {
-            if(record == null) continue;
-            String normalizedEid = normalizeEid(record.getEID());
-            if(normalizedEid.isEmpty() || normalizedFocalEids.contains(normalizedEid)) continue;
-            if(hasInstitution(record, focalInstitutionName)) continue;
-            uniqueBenchmarkRecords.putIfAbsent(normalizedEid, record);
-        }
-
-        benchmarkRecords = new ArrayList<>(uniqueBenchmarkRecords.values());
-        if(benchmarkRecords.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "No Swedish non-focal-organization benchmark records remain");
-        }
-
-        int top10Count = 0;
-        int top50Count = 0;
-        int internationalCount = 0;
-
-        for(int index = 0; index < benchmarkRecords.size(); index++) {
-            SciValParser.SciValRecord record = benchmarkRecords.get(index);
-
-            Integer topicCluster = record.getTopicCluster();
-            if(topicCluster != null && topicCluster != -99) {
-                topicClusterIndex.computeIfAbsent(
-                        topicCluster, ignored -> new RoaringBitmap()).add(index);
-            }
-
-            Set<Integer> asjc = record.getASJC();
-            if(hasValidAsjc(asjc)) {
-                asjcPartitionIndex.computeIfAbsent(
-                        asjcPartitionKey(asjc), ignored -> new RoaringBitmap()).add(index);
-            }
-
-            if(isTop(record, 10)) top10Count++;
-            if(isTop(record, 50)) top50Count++;
-
-            Integer year = record.getYear();
-            if(year != null) {
-                allPublicationsByYear.merge(year, 1, Integer::sum);
-                if(isInternational(record)) {
-                    internationalPublicationsByYear.merge(year, 1, Integer::sum);
-                }
-            }
-            if(isInternational(record)) internationalCount++;
-        }
-
-        fallbackTop10 = (double) top10Count / benchmarkRecords.size();
-        fallbackTop50 = (double) top50Count / benchmarkRecords.size();
-        fallbackInternationalAllYears = (double) internationalCount / benchmarkRecords.size();
+            Collection<String> focalEids, String focalInstitutionName) {
+        this(allSwedishRecords, focalEids, focalInstitutionName, ReferencePolicy.GROUPED);
     }
 
-    public Map<String, ReferenceIndicators> calculateAll(
-            Collection<SciValParser.SciValRecord> focalRecords) {
-
-        List<SciValParser.SciValRecord> sortedFocalRecords = new ArrayList<>();
-        if(focalRecords != null) {
-            for(SciValParser.SciValRecord record : focalRecords) {
-                if(record != null && !normalizeEid(record.getEID()).isEmpty()) {
-                    sortedFocalRecords.add(record);
-                }
+    SwedishReferenceIndicatorCalculator(
+            Collection<SciValParser.SciValRecord> allSwedishRecords,
+            Collection<String> focalEids, String focalInstitutionName, ReferencePolicy policy) {
+        this.policy = Objects.requireNonNull(policy);
+        if (allSwedishRecords == null || allSwedishRecords.isEmpty()) {
+            throw new IllegalArgumentException("Swedish SciVal records must not be empty");
+        }
+        Set<String> normalizedFocalEids = new HashSet<>();
+        if (focalEids != null) {
+            for (String eid : focalEids) {
+                String normalized = normalizeEid(eid);
+                if (!normalized.isEmpty()) normalizedFocalEids.add(normalized);
             }
         }
-        sortedFocalRecords.sort(Comparator.comparing(
-                record -> normalizeEid(record.getEID())));
+        Map<String, SciValParser.SciValRecord> unique = new LinkedHashMap<>();
+        for (SciValParser.SciValRecord record : allSwedishRecords) {
+            if (record == null || excluded(record.getScivalDocType())) continue;
+            String eid = normalizeEid(record.getEID());
+            if (eid.isEmpty() || normalizedFocalEids.contains(eid)) continue;
+            if (hasInstitution(record, focalInstitutionName)) continue;
+            unique.putIfAbsent(eid, record);
+        }
+        benchmarkRecords = new ArrayList<>(unique.values());
+        if (benchmarkRecords.isEmpty()) {
+            throw new IllegalArgumentException("No eligible Swedish non-focal-organization benchmark records remain");
+        }
+        for (int index = 0; index < benchmarkRecords.size(); index++) {
+            SciValParser.SciValRecord record = benchmarkRecords.get(index);
+            Integer cluster = record.getTopicCluster();
+            if (cluster != null && cluster != -99) {
+                topicClusterIndex.computeIfAbsent(cluster, ignored -> new RoaringBitmap()).add(index);
+            }
+            if (hasValidAsjc(record.getASJC())) {
+                asjcPartitionIndex.computeIfAbsent(asjcPartitionKey(record.getASJC()),
+                        ignored -> new RoaringBitmap()).add(index);
+            }
+            swedishCounts.add(record);
+            Group group = SciValDocumentTypePolicy.group(record.getScivalDocType());
+            if (group != null) {
+                groupIndex.computeIfAbsent(group, ignored -> new RoaringBitmap()).add(index);
+                groupCounts.computeIfAbsent(group, ignored -> new PopulationCounts()).add(record);
+            }
+        }
+    }
 
+    public Map<String, ReferenceIndicators> calculateAll(Collection<SciValParser.SciValRecord> focalRecords) {
+        List<SciValParser.SciValRecord> sorted = new ArrayList<>();
+        if (focalRecords != null) {
+            for (SciValParser.SciValRecord record : focalRecords) {
+                if (record != null && !normalizeEid(record.getEID()).isEmpty()
+                        && !excluded(record.getScivalDocType())) sorted.add(record);
+            }
+        }
+        sorted.sort(Comparator.comparing(record -> normalizeEid(record.getEID())));
         Map<String, ReferenceIndicators> result = new LinkedHashMap<>();
-        for(SciValParser.SciValRecord focalRecord : sortedFocalRecords) {
-            String normalizedEid = normalizeEid(focalRecord.getEID());
-            result.putIfAbsent(normalizedEid, calculate(focalRecord));
+        for (SciValParser.SciValRecord record : sorted) {
+            result.putIfAbsent(normalizeEid(record.getEID()), calculate(record));
         }
         return result;
     }
 
     public ReferenceIndicators calculate(SciValParser.SciValRecord focalRecord) {
-        if(focalRecord == null) throw new IllegalArgumentException("Focal record must not be null");
-
+        if (focalRecord == null) throw new IllegalArgumentException("Focal record must not be null");
+        if (excluded(focalRecord.getScivalDocType())) {
+            throw new IllegalArgumentException("Excluded focal document type: " + focalRecord.getScivalDocType());
+        }
+        Group group = SciValDocumentTypePolicy.group(focalRecord.getScivalDocType());
         RoaringBitmap referenceSet = new RoaringBitmap();
-
-        Integer topicCluster = focalRecord.getTopicCluster();
-        if(topicCluster != null && topicCluster != -99) {
-            referenceSet.or(topicClusterIndex.getOrDefault(topicCluster, new RoaringBitmap()));
-        }
-
-        Set<Integer> asjc = focalRecord.getASJC();
-        if(hasValidAsjc(asjc)) {
-            referenceSet.or(asjcPartitionIndex.getOrDefault(
-                    asjcPartitionKey(asjc), new RoaringBitmap()));
-        }
-
-        int top10ReferenceRecords = 0;
-        int top50ReferenceRecords = 0;
-        int internationalWindowReferenceRecords = 0;
-        int internationalReferenceRecords = 0;
-        Integer focalYear = focalRecord.getYear();
-
-        for(int index : referenceSet) {
-            SciValParser.SciValRecord benchmarkRecord = benchmarkRecords.get(index);
-            if(isTop(benchmarkRecord, 10)) top10ReferenceRecords++;
-            if(isTop(benchmarkRecord, 50)) top50ReferenceRecords++;
-
-            Integer benchmarkYear = benchmarkRecord.getYear();
-            if(focalYear != null && benchmarkYear != null
-                    && Math.abs(benchmarkYear - focalYear) <= INTERNATIONAL_YEAR_RADIUS) {
-                internationalWindowReferenceRecords++;
-                if(isInternational(benchmarkRecord)) internationalReferenceRecords++;
+        // Unknown groups use generic references directly, even when subject metadata exists.
+        if (policy != ReferencePolicy.GROUPED || group != null) {
+            Integer cluster = focalRecord.getTopicCluster();
+            if (cluster != null && cluster != -99) {
+                referenceSet.or(topicClusterIndex.getOrDefault(cluster, new RoaringBitmap()));
+            }
+            if (hasValidAsjc(focalRecord.getASJC())) {
+                referenceSet.or(asjcPartitionIndex.getOrDefault(
+                        asjcPartitionKey(focalRecord.getASJC()), new RoaringBitmap()));
+            }
+            if (policy == ReferencePolicy.GROUPED) {
+                referenceSet.and(groupIndex.getOrDefault(group, new RoaringBitmap()));
             }
         }
 
-        int referenceSetSize = referenceSet.getCardinality();
-        boolean usedCitationFallback =
-                referenceSetSize < MIN_CITATION_REFERENCE_SET_SIZE;
-        double expectedTop10 = usedCitationFallback
-                ? fallbackTop10
-                : (double) top10ReferenceRecords / referenceSetSize;
-        double expectedTop50 = usedCitationFallback
-                ? fallbackTop50
-                : (double) top50ReferenceRecords / referenceSetSize;
+        int top10 = 0, top50 = 0, windowSize = 0, international = 0;
+        Integer focalYear = focalRecord.getYear();
+        for (int index : referenceSet) {
+            SciValParser.SciValRecord record = benchmarkRecords.get(index);
+            if (isTop(record, 10)) top10++;
+            if (isTop(record, 50)) top50++;
+            if (inWindow(record.getYear(), focalYear)) {
+                windowSize++;
+                if (isInternational(record)) international++;
+            }
+        }
+        int subjectSize = referenceSet.getCardinality();
+        boolean citationFallback = subjectSize < MIN_CITATION_REFERENCE_SET_SIZE;
+        boolean internationalFallback = windowSize < MIN_INTERNATIONAL_REFERENCE_SET_SIZE;
 
-        boolean usedInternationalFallback =
-                internationalWindowReferenceRecords < MIN_INTERNATIONAL_REFERENCE_SET_SIZE;
-        double expectedInternational = usedInternationalFallback
-                ? fallbackInternationalForYear(focalYear)
-                : (double) internationalReferenceRecords / internationalWindowReferenceRecords;
+        int citationPopulationSize = subjectSize;
+        ReferenceScope citationScope = ReferenceScope.SUBJECT_REFERENCE;
+        if (citationFallback) {
+            PopulationCounts chosen = swedishCounts;
+            citationScope = ReferenceScope.SWEDISH_FALLBACK;
+            PopulationCounts grouped = groupCounts.get(group);
+            if (policy == ReferencePolicy.GROUPED && grouped != null
+                    && grouped.size >= MIN_CITATION_REFERENCE_SET_SIZE) {
+                chosen = grouped;
+                citationScope = ReferenceScope.GROUP_FALLBACK;
+            }
+            top10 = chosen.top10;
+            top50 = chosen.top50;
+            citationPopulationSize = chosen.size;
+        }
 
-        return new ReferenceIndicators(
-                isTop(focalRecord, 10) ? 1 : 0,
-                isTop(focalRecord, 50) ? 1 : 0,
-                isInternational(focalRecord) ? 1 : 0,
-                expectedTop10,
-                expectedTop50,
-                expectedInternational,
-                referenceSetSize,
-                internationalWindowReferenceRecords,
-                usedCitationFallback,
-                usedInternationalFallback);
+        WindowCounts internationalPopulation = new WindowCounts(windowSize, international);
+        ReferenceScope internationalScope = ReferenceScope.SUBJECT_REFERENCE;
+        if (internationalFallback) {
+            WindowCounts grouped = groupWindow(group, focalYear);
+            WindowCounts generic = swedishCounts.window(focalYear);
+            if (policy == ReferencePolicy.GROUPED && grouped.size() >= MIN_INTERNATIONAL_REFERENCE_SET_SIZE) {
+                internationalPopulation = grouped;
+                internationalScope = ReferenceScope.GROUP_YEAR_FALLBACK;
+            } else if (generic.size() >= (policy == ReferencePolicy.GROUPED
+                    ? MIN_INTERNATIONAL_REFERENCE_SET_SIZE : 1)) {
+                internationalPopulation = generic;
+                internationalScope = ReferenceScope.SWEDISH_YEAR_FALLBACK;
+            } else {
+                internationalPopulation = new WindowCounts(swedishCounts.size, swedishCounts.international);
+                internationalScope = ReferenceScope.SWEDISH_ALL_YEARS_FALLBACK;
+            }
+        }
+
+        return new ReferenceIndicators(isTop(focalRecord, 10) ? 1 : 0,
+                isTop(focalRecord, 50) ? 1 : 0, isInternational(focalRecord) ? 1 : 0,
+                (double) top10 / citationPopulationSize, (double) top50 / citationPopulationSize,
+                (double) internationalPopulation.international() / internationalPopulation.size(),
+                subjectSize, windowSize, citationFallback, internationalFallback,
+                group == null ? "UNKNOWN" : group.name(), citationScope, internationalScope,
+                citationPopulationSize, internationalPopulation.size());
     }
 
-    private double fallbackInternationalForYear(Integer focalYear) {
-        if(focalYear == null) return fallbackInternationalAllYears;
+    int groupPopulationSize(Group group) {
+        PopulationCounts counts = groupCounts.get(group);
+        return counts == null ? 0 : counts.size;
+    }
 
-        int internationalPublications = 0;
-        int allPublications = 0;
-        for(int year = focalYear - INTERNATIONAL_YEAR_RADIUS;
-            year <= focalYear + INTERNATIONAL_YEAR_RADIUS;
-            year++) {
-            internationalPublications += internationalPublicationsByYear.getOrDefault(year, 0);
-            allPublications += allPublicationsByYear.getOrDefault(year, 0);
+    int groupInternationalPopulationSize(Group group, Integer year) {
+        return groupWindow(group, year).size();
+    }
+
+    private WindowCounts groupWindow(Group group, Integer year) {
+        PopulationCounts counts = groupCounts.get(group);
+        return counts == null ? new WindowCounts(0, 0) : counts.window(year);
+    }
+
+    private boolean excluded(String type) {
+        return policy == ReferencePolicy.LEGACY_MIXED
+                ? SciValDocumentTypePolicy.legacyExcluded(type) : SciValDocumentTypePolicy.excluded(type);
+    }
+
+    private record WindowCounts(int size, int international) {
+        WindowCounts plus(WindowCounts other) {
+            return new WindowCounts(size + other.size, international + other.international);
         }
-        return allPublications == 0
-                ? fallbackInternationalAllYears
-                : (double) internationalPublications / allPublications;
+    }
+
+    private static final class PopulationCounts {
+        int size, top10, top50, international;
+        final Map<Integer, WindowCounts> byYear = new HashMap<>();
+
+        void add(SciValParser.SciValRecord record) {
+            size++;
+            if (isTop(record, 10)) top10++;
+            if (isTop(record, 50)) top50++;
+            int isInternational = isInternational(record) ? 1 : 0;
+            international += isInternational;
+            if (record.getYear() != null && record.getYear() > 0) {
+                byYear.merge(record.getYear(), new WindowCounts(1, isInternational), WindowCounts::plus);
+            }
+        }
+
+        WindowCounts window(Integer year) {
+            WindowCounts counts = new WindowCounts(0, 0);
+            if (year != null && year > 0) {
+                for (long candidate = (long) year - INTERNATIONAL_YEAR_RADIUS;
+                     candidate <= (long) year + INTERNATIONAL_YEAR_RADIUS; candidate++) {
+                    if (candidate > 0 && candidate <= Integer.MAX_VALUE) {
+                        counts = counts.plus(byYear.getOrDefault((int) candidate, new WindowCounts(0, 0)));
+                    }
+                }
+            }
+            return counts;
+        }
+    }
+
+    private static boolean inWindow(Integer year, Integer focalYear) {
+        return year != null && focalYear != null && year > 0 && focalYear > 0
+                && Math.abs((long) year - focalYear) <= INTERNATIONAL_YEAR_RADIUS;
     }
 
     private static boolean hasValidAsjc(Set<Integer> asjc) {
@@ -224,29 +244,20 @@ public final class SwedishReferenceIndicatorCalculator {
     }
 
     private static boolean isTop(SciValParser.SciValRecord record, int percentile) {
-        Integer topPercentile = record.getTopPercentile();
-        return topPercentile != null && topPercentile <= percentile;
+        Integer value = record.getTopPercentile();
+        return value != null && value <= percentile;
     }
 
     private static boolean isInternational(SciValParser.SciValRecord record) {
         return record.getCountries() != null && record.getCountries().size() > 1;
     }
 
-    private static boolean hasInstitution(
-            SciValParser.SciValRecord record, String institutionName) {
-        if(institutionName == null || institutionName.isBlank()
-                || record.getInstitutions() == null) {
-            return false;
-        }
-        for(String institution : record.getInstitutions()) {
-            if(institutionName.equals(institution)) return true;
-        }
-        return false;
+    private static boolean hasInstitution(SciValParser.SciValRecord record, String institution) {
+        return institution != null && !institution.isBlank() && record.getInstitutions() != null
+                && record.getInstitutions().contains(institution);
     }
 
     static String normalizeEid(String eid) {
-        return eid == null
-                ? ""
-                : eid.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
+        return eid == null ? "" : eid.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
     }
 }

@@ -40,26 +40,38 @@ public class RunCitationIndicatorPipelineOnAlreadyMaterializedParquetFile {
 
     public static void main(String[] args) throws SQLException, IOException {
         Set<String> focalEids = readAcceptedFocalEids("divaToScival.parquet");
-        List<SciValParser.SciValRecord> swedishRecords =
+        List<SciValParser.SciValRecord> rawRecords =
                 readSciValRecords(FilePathConstants.SCIVAL_RAW_XLSX_LATEST);
 
         Map<String, SciValParser.SciValRecord> recordsByEid = new HashMap<>();
-        for(SciValParser.SciValRecord record : swedishRecords) {
+        for(SciValParser.SciValRecord record : rawRecords) {
             String normalizedEid =
                     SwedishReferenceIndicatorCalculator.normalizeEid(record.getEID());
             if(!normalizedEid.isEmpty()) recordsByEid.putIfAbsent(normalizedEid, record);
         }
 
         Map<String, SciValParser.SciValRecord> focalRecordsByEid = new HashMap<>();
+        int excludedFocalRecords = 0;
         for(String focalEid : focalEids) {
             SciValParser.SciValRecord record = recordsByEid.get(focalEid);
             if(record == null) {
                 throw new IllegalStateException(
                         "Matched focal EID is absent from the SciVal export: " + focalEid);
             }
-            focalRecordsByEid.put(focalEid, record);
+            if (SciValDocumentTypePolicy.excluded(record.getScivalDocType())) {
+                excludedFocalRecords++;
+            } else {
+                focalRecordsByEid.put(focalEid, record);
+            }
         }
 
+        System.out.println("Previously accepted EIDs excluded by document-type policy: " + excludedFocalRecords);
+        List<SciValParser.SciValRecord> swedishRecords = rawRecords.stream()
+                .filter(record -> !SciValDocumentTypePolicy.excluded(record.getScivalDocType())).toList();
+        if (focalRecordsByEid.isEmpty()) {
+            writeIndicators(Map.of(), new File("citationDataTemporary.txt"));
+            return;
+        }
         SwedishReferenceIndicatorCalculator calculator =
                 new SwedishReferenceIndicatorCalculator(
                         swedishRecords, focalRecordsByEid.keySet(), "Umeå University");
@@ -91,13 +103,11 @@ public class RunCitationIndicatorPipelineOnAlreadyMaterializedParquetFile {
 
     private static List<SciValParser.SciValRecord> readSciValRecords(String directory)
             throws IOException {
-        Set<String> ignoredDocumentTypes =
-                new HashSet<>(Set.of("Retracted", "Abstract Report"));
         List<SciValParser.SciValRecord> records = new ArrayList<>(10_000);
         for(File file : getSciValExcelFiles(directory)) {
             List<SciValParser.SciValRecord> parsed =
-                    getSciValRecords(file.getAbsolutePath(), ignoredDocumentTypes);
-            validateAfids(parsed);
+                    getSciValRecords(file.getAbsolutePath(), java.util.Collections.emptySet());
+            validateAfids(parsed.stream().filter(record -> !SciValDocumentTypePolicy.excluded(record.getScivalDocType())).toList());
             records.addAll(parsed);
         }
         return records;
@@ -112,12 +122,15 @@ public class RunCitationIndicatorPipelineOnAlreadyMaterializedParquetFile {
                             + "\tOBSERVED_IS_INTERNATIONAL\tEXPECTED_TOP10"
                             + "\tEXPECTED_TOP50\tEXPECTED_INTERNATIONAL"
                             + "\tREFERENCE_SET_SIZE\tINTERNATIONAL_REFERENCE_SET_SIZE"
-                            + "\tUSED_CITATION_FALLBACK\tUSED_INTERNATIONAL_FALLBACK");
+                            + "\tUSED_CITATION_FALLBACK\tUSED_INTERNATIONAL_FALLBACK"
+                            + "\tNORMALIZATION_ARTIFACT_GROUP\tCITATION_REFERENCE_SCOPE"
+                            + "\tINTERNATIONAL_REFERENCE_SCOPE\tCITATION_REFERENCE_POPULATION_SIZE"
+                            + "\tINTERNATIONAL_REFERENCE_POPULATION_SIZE");
 
             for(Map.Entry<String, ReferenceIndicators> entry : indicatorsByEid.entrySet()) {
                 ReferenceIndicators indicators = entry.getValue();
                 output.printf(Locale.ROOT,
-                        "%s\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\t%d\t%d\t%b\t%b%n",
+                        "%s\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\t%d\t%d\t%b\t%b\t%s\t%s\t%s\t%d\t%d%n",
                         entry.getKey(),
                         indicators.observedTop10(),
                         indicators.observedTop50(),
@@ -128,7 +141,12 @@ public class RunCitationIndicatorPipelineOnAlreadyMaterializedParquetFile {
                         indicators.referenceSetSize(),
                         indicators.internationalReferenceSetSize(),
                         indicators.usedCitationFallback(),
-                        indicators.usedInternationalFallback());
+                        indicators.usedInternationalFallback(),
+                        indicators.normalizationArtifactGroup(),
+                        indicators.citationReferenceScope(),
+                        indicators.internationalReferenceScope(),
+                        indicators.citationReferencePopulationSize(),
+                        indicators.internationalReferencePopulationSize());
             }
         }
     }
