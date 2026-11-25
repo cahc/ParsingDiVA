@@ -46,7 +46,7 @@ public class ConvertXSLXToParquet {
 
     public static void NorwegianXLSXToParquet(String inputXLSX, String outputParquet) throws SQLException {
 
-
+        System.out.println("Converting norwegian author fractions to paraquet");
         try (Connection conn = DriverManager.getConnection("jdbc:duckdb:");
              Statement stmt = conn.createStatement()) {
 
@@ -82,7 +82,43 @@ public class ConvertXSLXToParquet {
 
     }
 
+    public static void DiVAMatchingEXTRADATAXLSXToParquet(String inputXLSX, String outputParquet) throws SQLException {
 
+
+        System.out.println("Converting abstracts, keywords and classification to paraquet");
+        try (Connection conn =
+                     DriverManager.getConnection("jdbc:duckdb:")) {
+
+            try (Statement stmt = conn.createStatement()) {
+
+                stmt.execute("INSTALL excel");
+                stmt.execute("LOAD excel");
+
+                stmt.execute("""
+                    
+                    
+                    COPY (
+                        SELECT *
+                        FROM read_xlsx(
+                            '%s',
+                            sheet = 'ABSTRACTS',
+                            header = true
+                        )
+                    )
+                    TO '%s'
+                    (
+                        FORMAT PARQUET,
+                        COMPRESSION ZSTD
+                    )
+                    """.formatted(
+                        inputXLSX.replace("\\", "/"),
+                        outputParquet.replace("\\", "/")
+                ));
+            }
+        }
+
+
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -92,11 +128,16 @@ public class ConvertXSLXToParquet {
         DiVAMatchingXLSXToParquet(xlsxDivaMappingToSciVal, parquetDivaMappingToSciVal);
 
 
-        String xlsxDivaNorwegian = "C:\\opt\\bibliometric_gui_static_data_files\\Norwegian model (including external authors)_2026-09-30 10-25.xlsx";
+        String xlsxDivaNorwegian = "Norwegian model (including external authors)_2026-11-25 11-26.xlsx";
         String parquetDivaNorwegian = "divaNorwegian.parquet";
 
         NorwegianXLSXToParquet(xlsxDivaNorwegian, parquetDivaNorwegian);
 
+        String extra = "Norwegian model (including external authors)_2026-11-25 11-26.xlsx";
+        String parquetExtra = "divaExtraNorwegian.parquet";
+
+        //also save a abstract_keyword_subject parquet
+        DiVAMatchingEXTRADATAXLSXToParquet(extra, parquetExtra);
 
 
     }

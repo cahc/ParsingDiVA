@@ -4532,6 +4532,13 @@ public class SaveToExcel {
             cell2 = row2.createCell(1);
             cell2.setCellValue("ABSTRACTS");
             cell2.setCellStyle(style2);
+            cell2 = row2.createCell(2);
+            cell2.setCellValue("KEYWORDS");
+            cell2.setCellStyle(style2);
+            cell2 = row2.createCell(3);
+            cell2.setCellValue("SCB");
+            cell2.setCellStyle(style2);
+
 
             // Header row for main sheet
             Row row = sheet.createRow(rowIndices);
@@ -4766,7 +4773,12 @@ public class SaveToExcel {
 
             for (Post p : recordList) {
 
+                //we put these on a separat tab, not fractionalized
                 String summary2 = p.getRawDataRow()[ReducedDiVAColumnIndices.Abstract.getValue()];
+                String keywords = p.getRawDataRow()[ReducedDiVAColumnIndices.Keywords.getValue()];
+                String categories = p.getRawDataRow()[ReducedDiVAColumnIndices.Categories.getValue()]; //SCB - UKÄ
+
+
                 if (summary2.length() > 32700) {
                     summary2 = summary2.substring(0, 32000) + "[TRUNCATED!!]";
                 }
@@ -4779,6 +4791,13 @@ public class SaveToExcel {
 
                 cell2 = row2.createCell(++cellIndices2);
                 cell2.setCellValue(summary2);
+
+                cell2 = row2.createCell(++cellIndices2);
+                cell2.setCellValue(keywords);
+
+                cell2 = row2.createCell(++cellIndices2);
+                cell2.setCellValue(categories);
+
 
                 double checkSumOfStraightFractions = 0.0;
                 for (Author a : p.getAuthorList()) {

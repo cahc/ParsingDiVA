@@ -97,7 +97,7 @@ public class StandardImplementationWithPersonnelDataWiP2026 {
             CSV = "E:\\2026\\AVHANDLINGAR\\all_fak_export.csv";
             EXTRA_INFO_CONTRIB = "E:\\2025\\MEDFAK GENOMLYSING\\PIDTOCONTRIB_EXTRA.txt";
             MAPPING_FILE = "E:\\2025\\MEDFAK GENOMLYSING\\Mappningsfil20260203.xlsx"; //REQUIRES NEW READER!
-            NORSKA_LISTAN = "E:\\2025\\MEDFAK GENOMLYSING\\Norska listan 20260202.xlsx";
+            NORSKA_LISTAN = "C:\\opt\\divaexporter_support_files\\norskalistan20261125.xlsx";
             THESAURUS = "E:\\2025\\MEDFAK GENOMLYSING\\Thesaurus 2025-06-03.xlsx";
             OUTPUT_DIR = System.getProperty("user.dir");
         }
