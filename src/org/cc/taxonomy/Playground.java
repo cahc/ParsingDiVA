@@ -1,6 +1,7 @@
 package org.cc.taxonomy;
 
 import cc.FilePathConstants;
+import cc.TextUtils.CleanAndCompare;
 import cc.database.BerkeleyStorage;
 import cc.database.ScopusRecord;
 import com.sleepycat.persist.EntityCursor;
@@ -31,13 +32,14 @@ public class Playground {
 
     An accepted match establishes membership in the subset. To contribute to the **citation indicators**, a PID also needs all four observed and expected Top 10% and Top 50% values. International collaboration requires its own observed and expected pair. The dashboard’s displayed **citation coverage** divides the number of PIDs with complete citation indicators by the total number of eligible DiVA PIDs. [CitationMetricsRepository.java](/Users/cc/BibliometricGUI/src/main/java/se/crco/bibliometricgui/CitationMetricsRepository.java:41) · [Dashboard coverage calculation](/Users/cc/BibliometricGUI/src/main/webapp/assets/app.js:611)
 
-    Upstream  SciValDocumentTypePolicy.readEligibleRecords() skips Retracted, Abstract Report, Erratum, Editorial, and Conference Review as excluded, so they enter potential matched. The repository uses the exported match status as its SciVal-side filter. In the locally available September exports, that rule retained **89 Editorial and 5 Erratum PIDs** among **22,433 accepted DiVA PIDs**, linked to **22,413 distinct EIDs**. Those figures describe the September exports. [Citation methodology](/Users/cc/BibliometricGUI/src/main/webapp/citation-methodology.html:39) · [Implemented join and status filter](/Users/cc/BibliometricGUI/src/main/java/se/crco/bibliometricgui/CitationMetricsRepository.java:23)
+    Upstream  SciValDocumentTypePolicy.readEligibleRecords() skips Retracted, Abstract Report, Erratum, Editorial, and Conference Review.
+
 
 
      */
 
 
-    public static List<Long> NorwegianEligiblePids(Path parquetPath) throws SQLException {
+    public static List<Long> getNorwegianEligiblePids(Path parquetPath) throws SQLException {
         String sql =
                 "SELECT DISTINCT \"PID\" FROM read_parquet(?) "
                         + "WHERE \"NORWEGIAN_MODEL_INFO\" NOT IN ("
@@ -62,7 +64,7 @@ public class Playground {
 
     }
 
-    public static Map<String, String> EligibleSciValMatches(Path norwegianParquet, Path matchesParquet)
+    public static Map<String, String> getEligibleSciValMatches(Path norwegianParquet, Path matchesParquet)
             throws SQLException {
         String sql =
                 "WITH eligible_pids AS ("
@@ -102,20 +104,47 @@ public class Playground {
 
     public static void main(String[] args) throws SQLException {
 
-       List<Long> PIDs = NorwegianEligiblePids(Path.of("/Users/cc/Downloads/Norwegian model (including external authors)_2026-11-25 12-58.parquet"));
-       System.out.println(PIDs.size());
-       System.exit(0);
+
+        /*
+
+        This is a sketch pad, our immediate aim is to produce text representations for all Eligible DiVA record/PIDs, it will be used as input to an embedding model, Qwen 3 Qwen/Qwen3-Embedding-4B
+
+        I am thinkin what we should produce something like:
+
+        PID\TEXT
+
+        Where text is Title + CleanAndCompare.truncateText( CleanAndCompare.removeCopyrightStatement( abstract ), 300 ) + keywords + source(e.g. journal) + SCB classification
+
+        We have a couple of data sources to our disposal:
+
+
+
+
+         */
+
+       List<Long> PIDs = getNorwegianEligiblePids(Path.of("C:\\opt\\bibliometric_gui_static_data_files\\Norwegian model (including external authors)_2026-11-26 01-05.parquet"));
+       System.out.println("Eligible PIDs " + PIDs.size());
+
+
+       Map<String,String> PIDtoMatchedScival = getEligibleSciValMatches(Path.of("C:\\opt\\bibliometric_gui_static_data_files\\Norwegian model (including external authors)_2026-11-26 01-05.parquet"),Path.of("C:\\opt\\bibliometric_gui_static_data_files\\DIVA_PID_TO_SCIVAL_EID_20261126_010148.parquet"));
+       System.out.println("Eligible SciVal matched: " + PIDtoMatchedScival.size());
+       System.out.println("SciVal coverage: " + (PIDtoMatchedScival.size()/(double)PIDs.size())*100.0 );
+       for(Map.Entry<String,String> entry : PIDtoMatchedScival.entrySet()) {
+
+           System.out.println(entry.getKey() + ": " + entry.getValue());
+       }
 
 
 
 
 
 
+        System.exit(0);
 
         /*
 
 
-        Local DB with UMU records from Scopus
+        Local DB with UMU records from Scopus, potenially use these for augmenting some PID/DiVA records that lacks, e.g., abstract
 
          */
 
