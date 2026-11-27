@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="org.zeromq:jeromq:0.6.0" type="repository">
+    <properties maven-id="org.zeromq:jeromq:0.6.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/zeromq/jeromq/0.6.0/jeromq-0.6.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/eu/neilalexander/jnacl/1.0.0/jnacl-1.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
