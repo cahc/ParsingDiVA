@@ -17,5 +17,7 @@
     <orderEntry type="library" name="ScopusTools" level="project" />
     <orderEntry type="library" name="commons.cli" level="project" />
     <orderEntry type="library" name="duckdb.duckdb_jdbc" level="project" />
+    <orderEntry type="library" name="org.zeromq:jeromq:0.6.0" level="project" />
+    <orderEntry type="library" name="com.google.code.gson:gson:2.11.0" level="project" />
   </component>
 </module>

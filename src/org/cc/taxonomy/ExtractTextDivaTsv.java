@@ -8,11 +8,19 @@ import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.PrimaryIndex;
 
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-public class Playground {
+public class ExtractTextDivaTsv {
 
     /*
 
@@ -39,16 +47,21 @@ public class Playground {
      */
 
 
+    private static final int MAX_KEYWORDS = 15;
+    private static final Pattern SCB_CODE_SUFFIX =
+            Pattern.compile("\\(\\s*([1-9][0-9]{2}(?:[0-9]{2})?)\\s*\\)\\s*$", Pattern.UNICODE_CHARACTER_CLASS);
+
+    private static final String ELIGIBLE_NORWEGIAN_ROWS = """
+            WHERE NORWEGIAN_MODEL_INFO NOT IN (
+                'IGNORERAD (ABSTARACT, POSTER, NEWS ITEM ETC.)',
+                'IGNORERAD (STATUS EJ PUBLICERAD)')
+              AND FACULTY IS DISTINCT FROM 'external'
+              AND "DOUBLE COUNTING INDUCED BY CENTRUM-INSTITUTION COMBINATION" = FALSE
+              AND PID IS NOT NULL
+            """;
+
     public static List<Long> getNorwegianEligiblePids(Path parquetPath) throws SQLException {
-        String sql =
-                "SELECT DISTINCT \"PID\" FROM read_parquet(?) "
-                        + "WHERE \"NORWEGIAN_MODEL_INFO\" NOT IN ("
-                        + "'IGNORERAD (ABSTARACT, POSTER, NEWS ITEM ETC.)', "
-                        + "'IGNORERAD (STATUS EJ PUBLICERAD)') "
-                        + "AND \"FACULTY\" IS DISTINCT FROM 'external' "
-                        + "AND \"DOUBLE COUNTING INDUCED BY CENTRUM-INSTITUTION COMBINATION\" = FALSE "
-                        + "AND \"PID\" IS NOT NULL "
-                        + "ORDER BY \"PID\"";
+        String sql = "SELECT DISTINCT PID FROM read_parquet(?) " + ELIGIBLE_NORWEGIAN_ROWS + "ORDER BY PID";
 
         List<Long> pids = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection("jdbc:duckdb:");
@@ -68,12 +81,7 @@ public class Playground {
             throws SQLException {
         String sql =
                 "WITH eligible_pids AS ("
-                        + "SELECT DISTINCT PID FROM read_parquet(?) "
-                        + "WHERE NORWEGIAN_MODEL_INFO NOT IN ("
-                        + "'IGNORERAD (ABSTARACT, POSTER, NEWS ITEM ETC.)', "
-                        + "'IGNORERAD (STATUS EJ PUBLICERAD)') "
-                        + "AND FACULTY IS DISTINCT FROM 'external' "
-                        + "AND \"DOUBLE COUNTING INDUCED BY CENTRUM-INSTITUTION COMBINATION\" = FALSE"
+                        + "SELECT DISTINCT PID FROM read_parquet(?) " + ELIGIBLE_NORWEGIAN_ROWS
                         + ") "
                         + "SELECT DISTINCT eligible.PID, matches.EID "
                         + "FROM eligible_pids eligible "
@@ -102,40 +110,133 @@ public class Playground {
         return pidToEid;
     }
 
-    public static void main(String[] args) throws SQLException {
+    /** Writes one UTF-8 TSV row (PID and text) per eligible DiVA publication for Qwen embedding. */
+    public static int writeEmbeddingInput(Path norwegianParquet, Path extraParquet, Path output)
+            throws SQLException, IOException {
+        String sql = """
+                WITH publications AS (
+                    SELECT PID, max(nullif(trim(DIVA_TITLE), '')) AS title,
+                           coalesce(max(nullif(trim(DIVA_JOURNAL), '')),
+                                    max(nullif(trim(DIVA_SERIES), '')),
+                                    max(nullif(trim(DIVA_PUBLISHER), ''))) AS source
+                    FROM read_parquet(?)
+                """ + ELIGIBLE_NORWEGIAN_ROWS + """
+                    GROUP BY PID
+                ), extra AS (
+                    SELECT PID, max(nullif(trim(ABSTRACTS), '')) AS abstracts,
+                           max(nullif(trim(KEYWORDS), '')) AS keywords,
+                           max(nullif(trim(SCB), '')) AS scb
+                    FROM read_parquet(?)
+                    GROUP BY PID
+                )
+                SELECT publications.PID, title, abstracts, keywords, source, scb
+                FROM publications LEFT JOIN extra ON publications.PID = extra.PID
+                ORDER BY publications.PID
+                """;
 
+        Path destination = output.toAbsolutePath().normalize();
+        Path temporary = Files.createTempFile(destination.getParent(), "diva-embedding-", ".tmp");
+        int count = 0;
+        try {
+            try (Connection connection = DriverManager.getConnection("jdbc:duckdb:");
+                 PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, norwegianParquet.toAbsolutePath().normalize().toString());
+                statement.setString(2, extraParquet.toAbsolutePath().normalize().toString());
+                try (ResultSet rows = statement.executeQuery();
+                     BufferedWriter writer = Files.newBufferedWriter(temporary)) {
+                    while (rows.next()) {
+                        writer.write(rows.getString("PID"));
+                        writer.write('\t');
+                        writer.write(embeddingText(rows));
+                        writer.write('\n');
+                        count++;
+                    }
+                }
+            }
+            try {
+                Files.move(temporary, destination, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(temporary, destination, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temporary);
+        }
+        return count;
+    }
 
-        /*
+    private static String embeddingText(ResultSet row) throws SQLException {
+        String abstractText = CleanAndCompare.normalizeSpaceRegex(row.getString("abstracts"));
+        if (abstractText != null) {
+            abstractText = CleanAndCompare.truncateText(CleanAndCompare.removeCopyrightStatement(abstractText), 300);
+        }
 
-        This is a sketch pad, our immediate aim is to produce text representations for all Eligible DiVA record/PIDs, it will be used as input to an embedding model, Qwen 3 Qwen/Qwen3-Embedding-4B
+        StringBuilder text = new StringBuilder();
+        appendEmbeddingField(text, "Title", row.getString("title"));
+        appendEmbeddingField(text, "Abstract", abstractText);
+        appendEmbeddingField(text, "Keywords", limitKeywords(row.getString("keywords")));
+        appendEmbeddingField(text, "Source", row.getString("source"));
+        appendEmbeddingField(text, "Classification", formatScbClassifications(row.getString("scb")));
+        return text.toString().stripTrailing();
+    }
 
-        I am thinkin what we should produce something like:
+    private static String limitKeywords(String keywords) {
+        if (keywords == null) {
+            return "";
+        }
+        return Arrays.stream(keywords.split(";"))
+                .map(CleanAndCompare::normalizeSpaceRegex)
+                .filter(keyword -> !keyword.isEmpty())
+                .limit(MAX_KEYWORDS)
+                .collect(Collectors.joining("; "));
+    }
 
-        PID\TEXT
+    private static String formatScbClassifications(String classifications) {
+        if (classifications == null) {
+            return "";
+        }
 
-        Where text is Title + CleanAndCompare.truncateText( CleanAndCompare.removeCopyrightStatement( abstract ), 300 ) + keywords + source(e.g. journal) + SCB classification
+        StringJoiner formatted = new StringJoiner("; ");
+        for (String classification : classifications.split(";")) {
+            Matcher matcher = SCB_CODE_SUFFIX.matcher(classification);
+            if (matcher.find()) {
+                int code = Integer.parseInt(matcher.group(1));
+                String name = SCBCodesToNames.getScbCodesToName(code);
+                if (name != null) {
+                    formatted.add(name.strip());
+                }
+            }
+        }
+        return formatted.toString();
+    }
 
-        We have a couple of data sources to our disposal:
+    private static void appendEmbeddingField(StringBuilder text, String label, String value) {
+        String normalized = CleanAndCompare.normalizeSpaceRegex(value);
+        if (normalized != null && !normalized.isEmpty()) {
+            text.append(label).append(": ");
+            CleanAndCompare.appendWithPeriod(text, normalized);
+        }
+    }
 
+    public static void main(String[] args) throws SQLException, IOException {
+        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows");
+        Path dataDirectory = Path.of(isWindows ? "C:\\opt\\bibliometric_gui_static_data_files"
+                : "/opt/bibliometric_gui_static_data_files");
+        Path norwegianParquet = dataDirectory.resolve(
+                "Norwegian model (including external authors)_2026-11-26 01-05.parquet");
+        Path matchesParquet = dataDirectory.resolve("DIVA_PID_TO_SCIVAL_EID_20261126_010148.parquet");
+        Path extraParquet = dataDirectory.resolve(
+                "Norwegian model extra data (abstracts, keywords and classifications)_2026-11-26 01-05.parquet");
+        Path output = Path.of(args.length == 0 ? "diva-embedding-input.tsv" : args[0]);
 
+        List<Long> eligiblePids = getNorwegianEligiblePids(norwegianParquet);
+        System.out.println("Eligible PIDs " + eligiblePids.size());
 
+        Map<String, String> pidToEid = getEligibleSciValMatches(norwegianParquet, matchesParquet);
+        System.out.println("Eligible SciVal matched: " + pidToEid.size());
+        System.out.println("SciVal coverage: " + (pidToEid.size() / (double) eligiblePids.size()) * 100.0);
 
-         */
-
-       List<Long> PIDs = getNorwegianEligiblePids(Path.of("C:\\opt\\bibliometric_gui_static_data_files\\Norwegian model (including external authors)_2026-11-26 01-05.parquet"));
-       System.out.println("Eligible PIDs " + PIDs.size());
-
-
-       Map<String,String> PIDtoMatchedScival = getEligibleSciValMatches(Path.of("C:\\opt\\bibliometric_gui_static_data_files\\Norwegian model (including external authors)_2026-11-26 01-05.parquet"),Path.of("C:\\opt\\bibliometric_gui_static_data_files\\DIVA_PID_TO_SCIVAL_EID_20261126_010148.parquet"));
-       System.out.println("Eligible SciVal matched: " + PIDtoMatchedScival.size());
-       System.out.println("SciVal coverage: " + (PIDtoMatchedScival.size()/(double)PIDs.size())*100.0 );
-       for(Map.Entry<String,String> entry : PIDtoMatchedScival.entrySet()) {
-
-           System.out.println(entry.getKey() + ": " + entry.getValue());
-       }
-
-
-
+        int written = writeEmbeddingInput(norwegianParquet, extraParquet, output);
+        System.out.println("Wrote " + written + " embedding texts to " + output.toAbsolutePath().normalize());
 
 
 
@@ -144,7 +245,7 @@ public class Playground {
         /*
 
 
-        Local DB with UMU records from Scopus, potenially use these for augmenting some PID/DiVA records that lacks, e.g., abstract
+        Local DB with UMU records from Scopus, potentially use these for augmenting some PID/DiVA records that lacks, e.g., abstract
 
          */
 
