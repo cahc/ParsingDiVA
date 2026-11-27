@@ -295,7 +295,7 @@ public class SIMDDotProduct {
         for (; i < upperBound; i += SPECIES.length()) {
             FloatVector va = FloatVector.fromArray(SPECIES, a, i);
             FloatVector vb = FloatVector.fromArray(SPECIES, b, i);
-            acc = acc.add(va.mul(vb));
+            acc = va.fma(vb, acc); // one could consider acc = acc.add(va.mul(vb)); but that would probably be slower (see simple benchmark numers below).
         }
         sum += acc.reduceLanes(VectorOperators.ADD);
 
@@ -403,62 +403,61 @@ public class SIMDDotProduct {
 
     public static void main(String[] args) throws IOException {
 
+        //EXAMPLES
 
-        EmbedDivaTsv.Result embeddings = EmbedDivaTsv.read(Path.of("/Users/cc/IdeaProjects/ParsingDiVA/diva-embeddings.ser"));
-        System.out.println("Number of embeddings " +embeddings.pids().length + " of length " + embeddings.vectors()[0].length);
+        // --------------- Find the neighbours of an existing record ----------------
 
-        // ---- Find the neighbours of an existing record
+        EmbedDivaTsv.Result data = EmbedDivaTsv.read(Path.of("diva-embeddings.ser"));
 
         int queryIndex = 123;
         int k = 15;
 
         SIMDDotProduct.KnnResult result =
                 SIMDDotProduct.knn(
-                        embeddings.vectors(),
+                        data.vectors(),
                         queryIndex,
                         k
                 );
 
 
-        // -- Search using an external vector
 
-        int query = 3638;
-        String query_text = embeddings.textPreviews()[query];
+        // -------------- Search using an external vector -------------
 
         float[][] normalizedData =
-                SIMDDotProduct.normalize(embeddings.vectors());
+                SIMDDotProduct.normalize(data.vectors());
 
         float[] normalizedQuery =
-                SIMDDotProduct.normalize(embeddings.vectors()[query]); // "fake" external vector
+                SIMDDotProduct.normalize(data.vectors()[7]); //"fake external"
 
-        SIMDDotProduct.KnnResult externalResult =
+        result =
                 SIMDDotProduct.knn(
                         normalizedQuery,
                         normalizedData,
                         15
                 );
 
-        System.out.println("Query PID: " + embeddings.pids()[query] + " text: " + query_text);
-        for (int rank = 0; rank < externalResult.size(); rank++) {
+        for (int rank = 0; rank < result.size(); rank++) {
 
             System.out.printf(
-                    "%d: index=%d, similarity=%.6f PID=%s TEXT=%s %n",
+                    "%d: index=%d, similarity=%.6f text=%s%n",
                     rank + 1,
-                    externalResult.index(rank),
-                    externalResult.similarity(rank),
-                    embeddings.pids()[externalResult.index(rank)],
-                    embeddings.textPreviews()[externalResult.index(rank)]
+                    result.index(rank),
+                    result.similarity(rank),
+                    data.textPreviews()[result.index(rank)]
             );
         }
 
-        System.exit(0);
 
-        // ----- Construct the entire sparse kNN graph
+
+
+        // ------- Construct the entire sparse kNN graph -----
+
+        /*
         long start = System.nanoTime();
 
         SIMDDotProduct.KnnResult[] graph =
                 SIMDDotProduct.knnGraph(
-                        embeddings.vectors(),
+                        normalizedData,
                         k
                 );
 
@@ -470,6 +469,7 @@ public class SIMDDotProduct {
                 seconds
         );
 
-
+        */
     }
+
 }
